@@ -1,7 +1,0 @@
-{
-  "prefix": "swgCsrTool",
-  "paths": {
-    "swgCsrTool": "."
-  },
-  "translations": ["translations/ja-JP.json"]
-}

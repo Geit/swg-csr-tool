@@ -1,0 +1,8 @@
+/**/*.d.ts
+.next
+
+node_modules
+build
+
+*.queries.ts
+*.generated.ts

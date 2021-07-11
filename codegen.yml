@@ -1,0 +1,24 @@
+overwrite: true
+schema: "http://localhost:4000"
+generates:
+  public/graphql.generated.ts:
+    plugins:
+      - "typescript"
+  ./graphql.schema.json:
+    plugins:
+      - "introspection"
+  ./public:
+    preset: near-operation-file
+    documents:
+      - public/**/*.{ts,tsx}
+      - '!**/*.queries.ts'
+    plugins:
+      - "typescript-operations"
+      - "typescript-react-apollo"
+    presetConfig:
+      extension: .queries.ts
+      baseTypesPath: graphql.generated.ts
+    config:
+      withComponent: false
+      withHOC: false
+      dedupeFragments: true

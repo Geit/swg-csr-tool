@@ -246,8 +246,6 @@ const ObjectVariables: React.FC<ObjectVariableProps> = ({ objectId }) => {
       <EuiSpacer />
       <EuiTreeView
         className="objVarTree"
-        // Splits itself across multiple columns for now
-        style={{ columns: '24em' }}
         items={treeData}
         display="compressed"
         showExpansionArrows

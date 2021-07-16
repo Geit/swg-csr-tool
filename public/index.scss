@@ -1,5 +1,9 @@
 .euiTreeView.objVarTree {
+  display: flex;
+  flex-flow: row wrap;
+
   & > .euiTreeView__node {
+    flex-basis: 24em;
     break-inside: avoid;
   }
 }

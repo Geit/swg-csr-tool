@@ -1,11 +1,21 @@
 # SWG CSR Tool
-A Kibana Plugin that to allow server operators to search for and view information about in-game objects when dealing with Customer Support requests.
+A Kibana Plugin that allows server operators to search for and view information about in-game objects when dealing with Customer Support requests.
 
 ---
 
 ## Development
 
-See the [Kibana contributing guide](https://github.com/elastic/kibana/blob/master/CONTRIBUTING.md) for instructions setting up your development environment. This repository needs to be checked out as a child of the Kibana repository's `plugin` folder.
+See the [Kibana contributing guide](https://www.elastic.co/guide/en/kibana/master/development.html) for instructions setting up your development environment. This repository needs to be checked out as a child of the Kibana repository's `plugin` folder.
+
+Run the following from within the Kibana root folder to start the project:
+
+```
+yarn es snapshot
+---seperate terminal---
+yarn start
+
+Kibana starts at http://localhost:5601 and the default username/password is elastic/changeme
+```
 
 If you're running this for the first time, you'll need to setup [swg-graphql](https://github.com/Geit/swg-graphql) and run `yarn codegen` first.
 
@@ -16,7 +26,7 @@ This project is in Typescript, and the types for GraphQL requests are generated 
 
 ## Scripts
 
-The following script are aviailable
+The following script are available
 
 ### `yarn codegen`
   Runs GraphQL Codegen on the repository. By default codegen is setup to query a `[swg-graphql](https://github.com/Geit/swg-graphql)` server that is running on port 4000. 

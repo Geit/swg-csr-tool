@@ -6,7 +6,7 @@ import {
   EuiPageContent,
   EuiFieldSearch,
   EuiBasicTableColumn,
-  EuiBasicTable,
+  EuiInMemoryTable,
   EuiSpacer,
   EuiEmptyPrompt,
   EuiCallOut,
@@ -45,7 +45,7 @@ const renderObjectId = (objectId: string) => {
 
   return (
     <Link className="euiLink euiLink--primary" to={`/object/${objectId}`}>
-      {objectId}
+      <code>{objectId}</code>
     </Link>
   );
 };
@@ -59,7 +59,14 @@ const objectColumns: EuiBasicTableColumn<SearchForObjectQuery['objects']>[] = [
     field: 'id',
     name: 'Object ID',
     sortable: true,
+    width: '10em',
     render: renderObjectId,
+  },
+  {
+    field: '__typename',
+    name: 'Type',
+    width: '10em',
+    sortable: true,
   },
   {
     field: 'resolvedName',
@@ -71,18 +78,21 @@ const objectColumns: EuiBasicTableColumn<SearchForObjectQuery['objects']>[] = [
     field: 'deleted',
     name: 'Deletion Status',
     sortable: false,
+    width: '10em',
     render: renderDeletionBadge,
   },
   {
     field: 'loadWithId',
     name: 'Loads With',
     sortable: false,
+    width: '10em',
     render: renderObjectId,
   },
   {
     field: 'containedById',
     name: 'Contained By',
     sortable: false,
+    width: '10em',
     render: renderObjectId,
   },
 ];
@@ -136,13 +146,15 @@ const ObjectSearch = () => {
                 <EuiSpacer />
               </>
             )}
-            <EuiBasicTable
+            <EuiInMemoryTable
+              className="objectListingTable"
               /* @ts-ignore */
               items={(Object.keys(data ?? {}).length > 0 ? data : previousData)?.objects ?? []}
               rowHeader="oid"
               columns={objectColumns}
               loading={actuallyLoading}
               noItemsMessage={emptyMessage}
+              sorting={true}
             />
           </>
         </EuiPageContent>

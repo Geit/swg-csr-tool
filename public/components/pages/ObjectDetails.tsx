@@ -1,5 +1,5 @@
 import React from 'react';
-import { EuiPage, EuiPageBody, EuiPageHeader, EuiPageContent } from '@elastic/eui';
+import { EuiPage, EuiPageBody, EuiPageHeader, EuiPageContent, EuiSpacer } from '@elastic/eui';
 import { gql } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
@@ -32,10 +32,14 @@ const ObjectDetails = () => {
     <EuiPage paddingSize="l" restrictWidth>
       <EuiPageBody panelled borderRadius={10}>
         <EuiPageHeader pageTitle={data?.object?.resolvedName ?? 'Object details'} paddingSize="s" />
-        <EuiPageContent paddingSize="none" color="transparent" hasBorder={false}>
+        <EuiPageContent paddingSize="none" color="transparent" hasBorder={false} borderRadius="none">
           <ObjectInfoWidget objectId={id} />
+          <EuiSpacer />
           <ContentsOfObject objectId={id} />
           <ExtraObjectInformation objectId={id} />
+
+          {/* Prevents this page being sized based on it's content */}
+          <EuiSpacer style={{ width: '2000px' }} />
         </EuiPageContent>
       </EuiPageBody>
     </EuiPage>

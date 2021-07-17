@@ -48,19 +48,29 @@ export const GET_OBJECT_DETAILS = gql`
   }
 `;
 
+interface InfoDescriptionProps {
+  children?: any | null;
+  isLoading: boolean;
+  fallbackText?: string;
+  numeric?: boolean;
+}
+
 /**
  *
  */
-const InfoDescription: React.FC<{ children?: any | null; isLoading: boolean; fallbackText?: string }> = ({
+const InfoDescription: React.FC<InfoDescriptionProps> = ({
   children,
   isLoading,
   fallbackText = 'Not Set',
+  numeric,
 }) => {
   if (!children) {
     if (isLoading) return <EuiLoadingContent lines={1} />;
 
     return fallbackText;
   }
+
+  if (numeric) return <code>{children}</code>;
 
   return children;
 };
@@ -91,7 +101,11 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
   const ObjectInformation = [
     {
       title: 'Object ID',
-      description: <InfoDescription isLoading={loading}>{data?.object?.id}</InfoDescription>,
+      description: (
+        <InfoDescription isLoading={loading} numeric>
+          {data?.object?.id}
+        </InfoDescription>
+      ),
     },
     {
       title: 'Object Type',
@@ -113,23 +127,25 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
     {
       title: 'Loads With',
       description: (
-        <InfoDescription isLoading={loading}>
-          {data?.object?.loadWithId && <ObjectLink objectId={data?.object?.loadWithId} />}
+        <InfoDescription isLoading={loading} numeric>
+          {data?.object?.loadWithId && data.object.id !== data.object.loadWithId && (
+            <ObjectLink key={`loadWith-${data?.object.id}`} objectId={data?.object?.loadWithId} />
+          )}
         </InfoDescription>
       ),
     },
     {
       title: 'Contained By',
       description: (
-        <InfoDescription isLoading={loading}>
-          <ObjectLink objectId={data?.object?.containedById} />
+        <InfoDescription isLoading={loading} numeric>
+          <ObjectLink key={`containedBy-${data?.object?.id ?? 'unknown'}`} objectId={data?.object?.containedById} />
         </InfoDescription>
       ),
     },
     {
       title: 'Location',
       description: (
-        <InfoDescription isLoading={loading}>
+        <InfoDescription isLoading={loading} numeric>
           {[data?.object?.location?.map(Math.round).join(' '), data?.object?.scene].filter(Boolean).join(' - ')}
         </InfoDescription>
       ),
@@ -168,10 +184,10 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
 
   return (
     <EuiPanel color="subdued" hasBorder>
-      <EuiDescriptionList style={{ columns: '16rem' }} textStyle="reverse">
+      <EuiDescriptionList className="objectInformationList" textStyle="reverse">
         {ObjectInformation.map((item, index) => {
           return (
-            <div key={`container-${index}`} style={{ breakInside: 'avoid' }}>
+            <div key={`container-${index}`}>
               <EuiDescriptionListTitle key={`title-${index}`}>{item.title}</EuiDescriptionListTitle>
               <EuiDescriptionListDescription key={`description-${index}`}>
                 {item.description}

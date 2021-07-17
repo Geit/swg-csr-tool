@@ -1,3 +1,10 @@
+
+/*
+  We allow Object Variable trees to span across multiple columns. Using flexbox
+  allows us to ensure that nested items always appear in the same column, which
+  looks significantly nicer. It does however mean every other item in a row
+  expands to match the same height when expanding a nest, which is unfortunate.
+*/
 .euiTreeView.objVarTree {
   display: flex;
   flex-flow: row wrap;
@@ -6,4 +13,39 @@
     flex-basis: 24em;
     break-inside: avoid;
   }
+}
+
+
+/*
+  Object list tables should use a fixed layout - especially nested object listings,
+  as otherwise we may get columns resizing as the user pages through or opens nested
+  objects.
+
+  [1] Columns that contain object ids, or known enumurations may be considered "narrow",
+  and may have their width restricted appropriately. Any columns with unknown or user
+  generated content should be allowed to fill the remaining space.
+*/
+.euiTable.objectListingTable {
+  & .nestingObjectId {
+    width: 18em;
+  }
+
+  & .narrowDataCol {
+    width: 10em;   /* [1] */
+  }
+}
+
+.objectInformationList {
+  display: flex;
+  flex-flow: row wrap;
+
+  & > * {
+    flex-basis: 18em;
+    margin: 4px;
+  }
+}
+
+
+.inTableLoadingIndicator {
+  flex-grow: 1;
 }

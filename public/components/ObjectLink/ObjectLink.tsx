@@ -7,9 +7,10 @@ import ObjectLinkPopoverDetails from './ObjectLinkPopoverContents';
 
 interface ObjectLinkProps {
   objectId?: string | null;
+  disablePopup?: boolean;
 }
 
-const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId }) => {
+const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId, disablePopup }) => {
   const [popoverVisible, setPopoverVisible] = useState(false);
   const [debouncedPopoverVisible, setDebouncedPopoverVisible] = useState(false);
   useDebounce(
@@ -33,9 +34,13 @@ const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId }) => {
       onMouseEnter={() => setPopoverVisible(true)}
       onMouseLeave={() => setPopoverVisible(false)}
     >
-      {objectId}
+      <code>{objectId}</code>
     </Link>
   );
+
+  if (disablePopup) {
+    return button;
+  }
 
   const popOverOpen = debouncedPopoverVisible || popoverVisible;
 

@@ -48,13 +48,52 @@ export class SwgCsrToolPlugin implements Plugin<SwgCsrToolPluginSetup, SwgCsrToo
       },
     });
 
+    deps.features.registerKibanaFeature({
+      id: 'planetWatcher',
+      name: 'Planet Watcher',
+      order: 0,
+      category: APP_CATEGORY,
+      app: ['planetWatcher'],
+      privileges: {
+        all: {
+          // These privileges should be checked by Kibana when a user accesses the route
+          api: ['csrToolGraphQl'],
+          app: ['planetWatcher'],
+          ui: [],
+          savedObject: {
+            all: [],
+            read: [],
+          },
+        },
+        read: {
+          api: ['csrToolGraphQl'],
+          savedObject: {
+            all: [],
+            read: [],
+          },
+          ui: [],
+          app: ['planetWatcher'],
+        },
+      },
+    });
+
     this.logger.debug('swgCsrTool: Setup');
     core.uiSettings.register({
       csrToolGraphQlUrl: {
         name: 'GraphQL URL',
         category: ['CSR Tool'],
         description: 'The URL of the swg-graphql instance to use for CSR tool',
-        value: 'http://localhost:4000/',
+        value: 'http://localhost:4000/graphql',
+        schema: schema.uri(),
+      },
+    });
+
+    core.uiSettings.register({
+      csrToolWebsocketUrl: {
+        name: 'GraphQL Websocket URL',
+        category: ['CSR Tool'],
+        description: 'The URL of the swg-graphql instance to use for websocket/livedata connections',
+        value: 'ws://localhost:4000/graphql',
         schema: schema.uri(),
       },
     });

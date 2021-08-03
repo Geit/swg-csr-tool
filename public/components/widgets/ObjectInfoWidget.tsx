@@ -32,6 +32,10 @@ export const GET_OBJECT_DETAILS = gql`
       location
       scene
 
+      ... on ITangibleObject {
+        condition
+      }
+
       ... on WeaponObject {
         minDamage
         maxDamage
@@ -151,6 +155,13 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
       ),
     },
   ];
+
+  if (data?.object && 'condition' in data.object) {
+    ObjectInformation.push({
+      title: 'Condition',
+      description: <InfoDescription isLoading={loading}>{data.object.condition}</InfoDescription>,
+    });
+  }
 
   if (data?.object?.__typename === 'WeaponObject') {
     ObjectInformation.push({

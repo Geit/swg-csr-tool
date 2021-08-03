@@ -7,11 +7,14 @@ import { AppPluginStartDependencies } from './types';
 import SwgCsrToolApp from './components/App';
 
 export const renderApp = (
-  { http }: CoreStart,
+  { http, uiSettings }: CoreStart,
   _injectedPlugins: AppPluginStartDependencies,
-  { appBasePath, element }: AppMountParameters
+  { appBasePath, element, history }: AppMountParameters
 ) => {
-  ReactDOM.render(<SwgCsrToolApp basename={appBasePath} http={http} />, element);
+  ReactDOM.render(
+    <SwgCsrToolApp basename={appBasePath} http={http} history={history} uiSettings={uiSettings} />,
+    element
+  );
 
   return () => ReactDOM.unmountComponentAtNode(element);
 };

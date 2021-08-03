@@ -1,21 +1,54 @@
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { ApolloClient, InMemoryCache, ApolloProvider, defaultDataIdFromObject } from '@apollo/client';
+import { Router, Switch, Route } from 'react-router-dom';
+import { ApolloClient, InMemoryCache, ApolloProvider, defaultDataIdFromObject, split, HttpLink } from '@apollo/client';
 import { QueryParamProvider } from 'use-query-params';
+import { WebSocketLink } from '@apollo/client/link/ws';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { Redirect } from 'react-router';
 
-import { CoreStart } from '../../../../src/core/public';
+import { CoreStart, ScopedHistory } from '../../../../src/core/public';
 
 import ObjectSearch from './pages/ObjectSearch';
 import ObjectDetails from './pages/ObjectDetails';
+import PlanetWatcherPage from './pages/PlanetWatcherPage';
 
 interface CSRToolAppProps {
-  basename: string;
   http: CoreStart['http'];
+  uiSettings: CoreStart['uiSettings'];
+  history: ScopedHistory;
 }
 
 export default function CSRToolApp(props: CSRToolAppProps) {
+  const uri = `${location.host}${props.http.basePath.prepend(`/api/swg_csr_tool/graphql`)}`;
+
+  const wsLink = new WebSocketLink({
+    uri: props.uiSettings.get('csrToolWebsocketUrl'),
+    options: {
+      reconnect: true,
+      lazy: true,
+      connectionParams: async () => {
+        const result = await props.http.post('/api/swg_csr_tool/graphql/websocket_auth', { body: '{ "auth": 1}' });
+
+        return result;
+      },
+    },
+  });
+
+  const httpLink = new HttpLink({
+    uri: `${location.protocol}//${uri}`,
+  });
+
+  const splitLink = split(
+    ({ query }) => {
+      const definition = getMainDefinition(query);
+      return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
+    },
+    wsLink,
+    httpLink
+  );
+
   const client = new ApolloClient({
-    uri: props.http.basePath.prepend(`/api/swg_csr_tool/graphql`),
+    link: splitLink,
     cache: new InMemoryCache({
       dataIdFromObject(responseObject) {
         // Collapse all *Object types down into IServerObject
@@ -47,7 +80,7 @@ export default function CSRToolApp(props: CSRToolAppProps) {
 
   return (
     <ApolloProvider client={client}>
-      <Router basename={props.basename}>
+      <Router history={props.history}>
         <QueryParamProvider ReactRouterRoute={Route}>
           <Switch>
             <Route path="/search">
@@ -56,6 +89,10 @@ export default function CSRToolApp(props: CSRToolAppProps) {
             <Route path="/object/:id">
               <ObjectDetails />
             </Route>
+            <Route path="/planets/:planet">
+              <PlanetWatcherPage />
+            </Route>
+            <Redirect exact from="/planets" to="/planets/tatooine" />
           </Switch>
         </QueryParamProvider>
       </Router>

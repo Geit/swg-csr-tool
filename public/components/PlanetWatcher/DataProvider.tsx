@@ -41,6 +41,13 @@ export const OBJECT_UPDATES_SUBSCRIPTION = gql`
       deleteObject
       location
       objectTypeTag
+      templateCrc
+      interestRadius
+      authoritativeServer
+      level
+      hibernating
+      aiActivity
+      creationType
     }
   }
 `;
@@ -52,6 +59,7 @@ export const NODE_UPDATES_SUBSCRIPTION = gql`
       serverIds
       isLoaded
       location
+      subscriptions
     }
   }
 `;

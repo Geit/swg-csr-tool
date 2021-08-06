@@ -35,6 +35,19 @@ interface SomeCustomEvent extends Event {
   };
 }
 
+enum AiMovementType {
+  Idle,
+  Loitering,
+  Wandering,
+  Following,
+  Fleeing,
+  Moving,
+  Patrolling,
+  Facing,
+  Swarming,
+  Invalid,
+}
+
 const ObjectDetailsAside: React.FC = () => {
   const data = useContext(PlanetWatcherContext);
   const [selectedObject, setSelectedObject] = useState<null | PlanetWatcherObject>(null);
@@ -107,6 +120,61 @@ const ObjectDetailsAside: React.FC = () => {
                 <EuiDescriptionListTitle>Location</EuiDescriptionListTitle>
                 <EuiDescriptionListDescription>
                   <code>{selectedObject.location.join(' ')}</code>
+                </EuiDescriptionListDescription>
+              </div>
+              <div>
+                <EuiDescriptionListTitle>Template CRC</EuiDescriptionListTitle>
+                <EuiDescriptionListDescription>
+                  <code>{selectedObject.templateCrc}</code>
+                </EuiDescriptionListDescription>
+              </div>
+              <div>
+                <EuiDescriptionListTitle>Type Tag</EuiDescriptionListTitle>
+                <EuiDescriptionListDescription>
+                  <code>
+                    {[
+                      (selectedObject.objectTypeTag & 0xff000000) >> 24,
+                      (selectedObject.objectTypeTag & 0x00ff0000) >> 16,
+                      (selectedObject.objectTypeTag & 0x0000ff00) >> 8,
+                      selectedObject.objectTypeTag & 0x000000ff,
+                    ].reduce((acc, cur) => `${acc}${String.fromCharCode(cur)}`, '')}
+                  </code>
+                </EuiDescriptionListDescription>
+              </div>
+              <div>
+                <EuiDescriptionListTitle>Interest Radius</EuiDescriptionListTitle>
+                <EuiDescriptionListDescription>
+                  <code>{selectedObject.interestRadius}</code>
+                </EuiDescriptionListDescription>
+              </div>
+              <div>
+                <EuiDescriptionListTitle>Authoritative Server</EuiDescriptionListTitle>
+                <EuiDescriptionListDescription>
+                  <code>{selectedObject.authoritativeServer}</code>
+                </EuiDescriptionListDescription>
+              </div>
+              <div>
+                <EuiDescriptionListTitle>Level</EuiDescriptionListTitle>
+                <EuiDescriptionListDescription>
+                  <code>{selectedObject.level}</code>
+                </EuiDescriptionListDescription>
+              </div>
+              <div>
+                <EuiDescriptionListTitle>Hibernating</EuiDescriptionListTitle>
+                <EuiDescriptionListDescription>
+                  <code>{selectedObject.hibernating > 0 ? 'Yes' : 'No'}</code>
+                </EuiDescriptionListDescription>
+              </div>
+              <div>
+                <EuiDescriptionListTitle>AI Activity</EuiDescriptionListTitle>
+                <EuiDescriptionListDescription>
+                  <code>{AiMovementType[selectedObject.aiActivity] || 'Unknown'}</code>
+                </EuiDescriptionListDescription>
+              </div>
+              <div>
+                <EuiDescriptionListTitle>Creation Type</EuiDescriptionListTitle>
+                <EuiDescriptionListDescription>
+                  <code>{selectedObject.creationType}</code>
                 </EuiDescriptionListDescription>
               </div>
             </EuiDescriptionList>

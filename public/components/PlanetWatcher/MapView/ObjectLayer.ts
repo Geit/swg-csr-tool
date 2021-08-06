@@ -25,9 +25,12 @@ const RESOURCE_CONTAINER_TAG = TAGIFY('RCNO');
 const STATIC_TAG = TAGIFY('STAO');
 const TANGIBLE_TAG = TAGIFY('TANO');
 
-const getColorForTypeId = (typeId: number): THREE.Color => {
-  switch (typeId) {
+const getColorForObject = (object: MapValueType<DataProviderContextData['objects']>): THREE.Color => {
+  switch (object.objectTypeTag) {
     case CREATURE_TAG:
+      if (object.interestRadius > 0) {
+        return new THREE.Color(0xffa500); // Red
+      }
       return new THREE.Color(0xff0000); // Red
 
     case BUILDING_TAG:
@@ -202,7 +205,7 @@ class ObjectLayer extends THREE.InstancedMesh {
     dummy.scale.set(scaleFactor, scaleFactor, scaleFactor);
     dummy.updateMatrix();
 
-    this.setColorAt(instanceIdx, getColorForTypeId(obj.objectTypeTag));
+    this.setColorAt(instanceIdx, getColorForObject(obj));
     this.setMatrixAt(instanceIdx, dummy.matrix);
     this.objectIdToInstanceId.set(obj.networkId, instanceIdx);
     this.instanceIdToObjectId.set(instanceIdx, obj.networkId);

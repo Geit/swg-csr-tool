@@ -1,6 +1,6 @@
 {
   "id": "swgCsrTool",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "kibanaVersion": "kibana",
   "server": true,
   "ui": true,

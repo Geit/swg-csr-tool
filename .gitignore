@@ -5,3 +5,4 @@ node_modules
 *.generated.ts
 *.queries.ts
 *.generated.json
+graphql.schema.json

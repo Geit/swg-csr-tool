@@ -7,6 +7,7 @@ import { getMainDefinition } from '@apollo/client/utilities';
 import { Redirect } from 'react-router';
 
 import { CoreStart, ScopedHistory } from '../../../../src/core/public';
+import introspectionResult from '../fragment-possibleTypes.generated.json';
 
 import ObjectSearch from './pages/ObjectSearch';
 import ObjectDetails from './pages/ObjectDetails';
@@ -50,6 +51,7 @@ export default function CSRToolApp(props: CSRToolAppProps) {
   const client = new ApolloClient({
     link: splitLink,
     cache: new InMemoryCache({
+      possibleTypes: introspectionResult.possibleTypes,
       dataIdFromObject(responseObject) {
         // Collapse all *Object types down into IServerObject
         // This is fine, as different *Object types can never share

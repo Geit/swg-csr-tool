@@ -7,6 +7,9 @@ generates:
   ./graphql.schema.json:
     plugins:
       - "introspection"
+  public/fragment-possibleTypes.generated.json:
+     plugins:
+      - fragment-matcher
   ./public:
     preset: near-operation-file
     documents:

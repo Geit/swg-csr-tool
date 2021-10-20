@@ -92,10 +92,16 @@ const WorldViewerThree: React.FC = () => {
     plane.position.set(mapConfig?.planetMap?.offset.x ?? 0, 50, mapConfig?.planetMap?.offset.z ?? 0);
     scene.add(plane);
 
-    const instancedObjects = new ObjectLayer(data, camera, renderer.domElement);
+    const instancedObjects = new ObjectLayer(data.objects, data.objectUpdates, camera, renderer.domElement);
     scene.add(instancedObjects);
 
-    const nodeLayer = new NodeLayer(data);
+    const nodeLayer = new NodeLayer(
+      data.nodeStatus,
+      data.nodeUpdates,
+      data.gameServerStatus,
+      camera,
+      renderer.domElement
+    );
     scene.add(nodeLayer);
 
     camera.position.z = 50;
@@ -122,7 +128,7 @@ const WorldViewerThree: React.FC = () => {
         mountingRef.removeChild(renderer.domElement);
       }
     };
-  }, [data]);
+  }, [data.gameServerStatus, data.nodeStatus, data.nodeUpdates, data.objectUpdates, data.objects, data.planet]);
 
   return (
     <div

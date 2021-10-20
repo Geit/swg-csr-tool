@@ -13,8 +13,10 @@ import {
 } from '@elastic/eui';
 import { gql } from '@apollo/client';
 
-import ObjectInfoWidget from '../widgets/ObjectInfoWidget';
+import ObjectInfoWidget from '../widgets/BasicObjectKeyValues';
 import ContentsOfObject from '../widgets/ContentsOfObject';
+import { AiMovementType } from '../../types/AIMovementType';
+import { typeTagToString } from '../../utils/typeTagToString';
 
 import { PlanetWatcherContext, PlanetWatcherObject } from './DataProvider';
 import { useGetObjectNameQuery } from './ObjectDetailsAside.queries';
@@ -29,23 +31,10 @@ export const GET_OBJECT_NAME = gql`
   }
 `;
 
-interface SomeCustomEvent extends Event {
+interface ObjectSelectedEvent extends Event {
   detail?: {
     objectId: string;
   };
-}
-
-enum AiMovementType {
-  Idle,
-  Loitering,
-  Wandering,
-  Following,
-  Fleeing,
-  Moving,
-  Patrolling,
-  Facing,
-  Swarming,
-  Invalid,
 }
 
 const ObjectDetailsAside: React.FC = () => {
@@ -57,7 +46,7 @@ const ObjectDetailsAside: React.FC = () => {
   });
 
   useLayoutEffect(() => {
-    const eventHandler = (evt: SomeCustomEvent): any => {
+    const eventHandler = (evt: ObjectSelectedEvent): any => {
       const objectId = evt.detail?.objectId ?? null;
 
       if (!objectId || !data.objects.has(objectId)) return;
@@ -131,14 +120,7 @@ const ObjectDetailsAside: React.FC = () => {
               <div>
                 <EuiDescriptionListTitle>Type Tag</EuiDescriptionListTitle>
                 <EuiDescriptionListDescription>
-                  <code>
-                    {[
-                      (selectedObject.objectTypeTag & 0xff000000) >> 24,
-                      (selectedObject.objectTypeTag & 0x00ff0000) >> 16,
-                      (selectedObject.objectTypeTag & 0x0000ff00) >> 8,
-                      selectedObject.objectTypeTag & 0x000000ff,
-                    ].reduce((acc, cur) => `${acc}${String.fromCharCode(cur)}`, '')}
-                  </code>
+                  <code>{typeTagToString(selectedObject.objectTypeTag)}</code>
                 </EuiDescriptionListDescription>
               </div>
               <div>

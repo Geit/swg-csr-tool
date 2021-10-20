@@ -3,9 +3,9 @@ import { EuiPage, EuiPageBody, EuiPageHeader, EuiPageContent, EuiSpacer } from '
 import { gql } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
-import ObjectInfoWidget from '../widgets/ObjectInfoWidget';
+import ObjectInfoWidget from '../widgets/BasicObjectKeyValues';
 import ContentsOfObject from '../widgets/ContentsOfObject';
-import ExtraObjectInformation from '../widgets/ExtraInformation';
+import TabbedExtendedObjectDetails from '../widgets/TabbedExtendedObjectDetails';
 
 import { useGetObjectNameQuery } from './ObjectDetails.queries';
 
@@ -36,9 +36,9 @@ const ObjectDetails = () => {
           <ObjectInfoWidget objectId={id} />
           <EuiSpacer />
           <ContentsOfObject objectId={id} />
-          <ExtraObjectInformation objectId={id} />
+          <TabbedExtendedObjectDetails objectId={id} />
 
-          {/* Prevents this page being sized based on it's content */}
+          {/* Prevents this page being sized based on its content */}
           <EuiSpacer style={{ width: '2000px' }} />
         </EuiPageContent>
       </EuiPageBody>

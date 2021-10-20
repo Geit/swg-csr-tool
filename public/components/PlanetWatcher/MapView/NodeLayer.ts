@@ -1,11 +1,9 @@
-import { euiPaletteColorBlind } from '@elastic/eui';
-import { PlaneGeometry, MeshBasicMaterial, Mesh, Group } from 'three';
-import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
+import { PlaneGeometry, MeshBasicMaterial, Mesh, Group, Raycaster, Vector2, OrthographicCamera } from 'three';
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils';
+import throttle from 'lodash.throttle';
 
 import { isPresent } from '../../../utils/utility-types';
 import { DataProviderContextData } from '../DataProvider';
-
-const palette = euiPaletteColorBlind();
 
 /**
  * Nodes (or cells) are the individual areas within a planet that objects can be partitioned into.
@@ -18,16 +16,26 @@ const palette = euiPaletteColorBlind();
  * We do not care if the geometries overlap, as this is how they are in the game too.
  */
 class NodeLayer extends Group {
-  data: DataProviderContextData;
+  nodeUpdates: DataProviderContextData['nodeUpdates'];
+  nodeStatus: DataProviderContextData['nodeStatus'];
+  gameServerStatus: DataProviderContextData['gameServerStatus'];
   serverCellIndexes: Map<number, Set<string>>;
   timeoutId: number;
+  raycaster: Raycaster;
+  camera: OrthographicCamera;
 
-  constructor(data: DataProviderContextData) {
+  constructor(
+    nodeStatus: DataProviderContextData['nodeStatus'],
+    nodeUpdates: DataProviderContextData['nodeUpdates'],
+    gameServerStatus: DataProviderContextData['gameServerStatus'],
+    camera: OrthographicCamera,
+    canvasElement: HTMLCanvasElement
+  ) {
     super();
 
     this.serverCellIndexes = new Map();
 
-    for (const [, ns] of data.nodeStatus) {
+    for (const [, ns] of nodeStatus) {
       ns.serverIds?.forEach(serverId => {
         let existingIndexes = this.serverCellIndexes.get(serverId);
 
@@ -41,13 +49,46 @@ class NodeLayer extends Group {
       });
     }
 
-    this.data = data;
+    this.nodeUpdates = nodeUpdates;
+    this.nodeStatus = nodeStatus;
+    this.gameServerStatus = gameServerStatus;
     this.setupSubscriber();
-    this.timeoutId = (setTimeout(() => this.rebuildChildren(), 250) as unknown) as number;
+    this.timeoutId = setTimeout(() => this.rebuildChildren(), 250) as unknown as number;
+
+    const throttledMouseMove = throttle(this.handleHover.bind(this), 100);
+    canvasElement.addEventListener('mousemove', throttledMouseMove);
+    canvasElement.addEventListener('mouseout', () => {
+      throttledMouseMove.cancel();
+      const evtToFire = new CustomEvent('zoneHover', {
+        detail: { serversUnderMouse: [] },
+      });
+      document.dispatchEvent(evtToFire);
+    });
+
+    this.raycaster = new Raycaster();
+    this.camera = camera;
+  }
+
+  handleHover(e: MouseEvent) {
+    const renderRect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+    const x = e.clientX - renderRect.left; //x position within the element.
+    const y = e.clientY - renderRect.top;
+
+    const mouse = new Vector2((x / renderRect.width) * 2 - 1, -(y / renderRect.height) * 2 + 1);
+
+    this.raycaster.setFromCamera(mouse, this.camera);
+    const intersections = this.raycaster.intersectObject(this, true);
+
+    const serversUnderMouse = intersections.map(intersection => intersection.object.userData.serverId);
+
+    const evtToFire = new CustomEvent('zoneHover', {
+      detail: { serversUnderMouse },
+    });
+    document.dispatchEvent(evtToFire);
   }
 
   setupSubscriber() {
-    this.data.nodeUpdates.subscribe({
+    this.nodeUpdates.subscribe({
       next: ({ type, data: ns }) => {
         if (type === 'UPDATED') {
           ns.serverIds?.forEach(serverId => {
@@ -63,7 +104,7 @@ class NodeLayer extends Group {
           });
           //console.log('reset rebuild');
           clearTimeout(this.timeoutId);
-          this.timeoutId = (setTimeout(() => this.rebuildChildren(), 250) as unknown) as number;
+          this.timeoutId = setTimeout(() => this.rebuildChildren(), 250) as unknown as number;
         }
       },
     });
@@ -71,13 +112,10 @@ class NodeLayer extends Group {
 
   rebuildChildren() {
     this.clear();
-
-    let idx = 0;
-
-    for (const [, cellIndexes] of this.serverCellIndexes) {
+    for (const [serverId, cellIndexes] of this.serverCellIndexes) {
       const geometries = [...cellIndexes]
         .map(cellIndex => {
-          const ns = this.data.nodeStatus.get(cellIndex);
+          const ns = this.nodeStatus.get(cellIndex);
 
           if (!ns) return null;
 
@@ -91,19 +129,21 @@ class NodeLayer extends Group {
 
       if (geometries.length === 0) continue;
 
+      // @ts-expect-error threejs types are currently wrong.
       const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
 
       const mesh = new Mesh(
         mergedGeometry,
         new MeshBasicMaterial({
           transparent: true,
-          opacity: 0.45,
-          color: palette[idx % 10],
+          opacity: 0.4,
+          color: this.gameServerStatus.get(serverId)!.color,
         })
       );
 
+      mesh.userData.serverId = serverId;
+
       this.add(mesh);
-      idx += 1;
     }
   }
 }

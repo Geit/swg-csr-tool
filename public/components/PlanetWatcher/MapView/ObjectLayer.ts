@@ -65,7 +65,7 @@ const getBearingBetweenPoints = (a1: number, a2: number, b1: number, b2: number)
  * Creates and manages an instanced mesh for all the objects currently within the scene.
  */
 class ObjectLayer extends THREE.InstancedMesh {
-  data: DataProviderContextData;
+  objectUpdates: DataProviderContextData['objectUpdates'];
   camera: THREE.OrthographicCamera;
   objectIdToInstanceId: Map<string, number>;
   instanceIdToObjectId: Map<number, string>;
@@ -73,32 +73,39 @@ class ObjectLayer extends THREE.InstancedMesh {
   raycaster: THREE.Raycaster;
   prevZoom: number;
 
-  constructor(data: DataProviderContextData, camera: THREE.OrthographicCamera, canvasElement: HTMLCanvasElement) {
+  constructor(
+    objects: DataProviderContextData['objects'],
+    objectUpdates: DataProviderContextData['objectUpdates'],
+    camera: THREE.OrthographicCamera,
+    canvasElement: HTMLCanvasElement
+  ) {
     const dunceGeometry = new THREE.ConeGeometry(0.5, 1.5, 8);
     const material = new THREE.MeshBasicMaterial();
-    const maximumCount = Math.max(data.objects.size + EXTRA_OBJECT_BUDGET, MIN_SIZE);
+    const maximumCount = Math.max(objects.size + EXTRA_OBJECT_BUDGET, MIN_SIZE);
 
     super(dunceGeometry, material, maximumCount);
-
-    // We now reduce the total number of items to be drawn to match the number of items in the
-    // objects map. This prevents overdraw.
-    this.count = data.objects.size;
 
     // BUG: ThreeJS does not preallocate this for us, it's instead lazily allocated the first time
     // setColorAt is called (using the current this.count value), this means that if we dynamically
     // reduce the size of the mesh (as above) and increase it at run time (as recommended), then
     // we will be unable to set colors on items above the initial count.
-    this.instanceColor = new THREE.BufferAttribute(new Float32Array(maximumCount * 3), 3);
+    this.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(maximumCount * 3), 3);
 
-    this.data = data;
+    this.objectUpdates = objectUpdates;
     this.camera = camera;
     this.prevZoom = camera.zoom;
     this.objectIdToInstanceId = new Map<string, number>();
     this.instanceIdToObjectId = new Map<number, string>();
     this.maximumCount = maximumCount;
 
+    // We now reduce the total number of items to be drawn to match the number of items in the
+    // objects map. This prevents overdraw.
+    this.count = [...objects].reduce((acc, [, obj]) => (obj.visible ? acc + 1 : acc), 0);
+
     let instanceIdx = 0;
-    for (const [, obj] of data.objects) {
+    for (const [, obj] of objects) {
+      if (!obj.visible) continue;
+
       this.createFreshObject(instanceIdx, obj);
       instanceIdx += 1;
     }
@@ -109,7 +116,7 @@ class ObjectLayer extends THREE.InstancedMesh {
     this.instanceMatrix.needsUpdate = true;
     this.instanceColor!.needsUpdate = true;
 
-    canvasElement.addEventListener('click', this.handleObjectClick.bind(this));
+    canvasElement.addEventListener('dblclick', this.handleObjectClick.bind(this));
     this.raycaster = new THREE.Raycaster();
 
     this.onBeforeRender = this.handleBeforeRender.bind(this);
@@ -144,7 +151,7 @@ class ObjectLayer extends THREE.InstancedMesh {
   }
 
   setupSubscriber() {
-    this.data.objectUpdates.subscribe({
+    this.objectUpdates.subscribe({
       next: ({ type, data: obj }) => {
         switch (type) {
           case 'UPDATED':
@@ -184,8 +191,8 @@ class ObjectLayer extends THREE.InstancedMesh {
   expandAttributes() {
     // We  expand the underlaying data structures here.
     const newMaxSize = Math.max(this.maximumCount + EXTRA_OBJECT_BUDGET, MIN_SIZE);
-    const newInstanceMatrix = new THREE.BufferAttribute(new Float32Array(newMaxSize * 16), 16);
-    const newInstanceColor = new THREE.BufferAttribute(new Float32Array(newMaxSize * 3), 3);
+    const newInstanceMatrix = new THREE.InstancedBufferAttribute(new Float32Array(newMaxSize * 16), 16);
+    const newInstanceColor = new THREE.InstancedBufferAttribute(new Float32Array(newMaxSize * 3), 3);
 
     // Copy the old Buffer Attributes into the new one.
     (newInstanceMatrix.array as Float32Array).set(this.instanceMatrix.array);
@@ -250,15 +257,28 @@ class ObjectLayer extends THREE.InstancedMesh {
     // then reduce the total count of objects in the mesh.
     const idxToMoveTo = this.objectIdToInstanceId.get(obj.networkId);
 
-    if (idxToMoveTo === undefined) return; // undefined behaviour
+    if (idxToMoveTo === undefined) {
+      return; // undefined behaviour
+    }
 
     const idxToMove = this.count - 1;
     const objectIdToMove = this.instanceIdToObjectId.get(idxToMove);
 
-    if (objectIdToMove === undefined) return; // undefined behavior
+    if (objectIdToMove === undefined) {
+      return; // undefined behavior
+    }
+
+    if (idxToMove === idxToMoveTo || objectIdToMove === obj.networkId) {
+      this.objectIdToInstanceId.delete(obj.networkId);
+      this.instanceIdToObjectId.delete(idxToMoveTo);
+      this.count -= 1;
+      return;
+    }
 
     this.objectIdToInstanceId.delete(obj.networkId);
     this.instanceIdToObjectId.delete(idxToMove);
+    this.instanceIdToObjectId.delete(idxToMoveTo);
+
     this.objectIdToInstanceId.set(objectIdToMove, idxToMoveTo);
     this.instanceIdToObjectId.set(idxToMoveTo, objectIdToMove);
 

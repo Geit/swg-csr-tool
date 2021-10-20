@@ -321,6 +321,126 @@ const mapConfigs: readonly MapConfiguration[] = [
     },
     raster: null,
   },
+  {
+    id: 'space_tatooine',
+    waypointCommandId: false,
+    displayName: 'Space - Tatooine',
+    planetMap: {
+      size: DEFAULT_SWG_MAP_SIZE,
+      offset: { x: 0, z: 0 },
+    },
+    raster: null,
+  },
+  {
+    id: 'space_lok',
+    waypointCommandId: false,
+    displayName: 'Space - Lok',
+    planetMap: {
+      size: DEFAULT_SWG_MAP_SIZE,
+      offset: { x: 0, z: 0 },
+    },
+    raster: null,
+  },
+  {
+    id: 'space_rori',
+    waypointCommandId: false,
+    displayName: 'Space - Rori',
+    planetMap: {
+      size: DEFAULT_SWG_MAP_SIZE,
+      offset: { x: 0, z: 0 },
+    },
+    raster: null,
+  },
+  {
+    id: 'space_naboo',
+    waypointCommandId: false,
+    displayName: 'Space - Endor',
+    planetMap: {
+      size: DEFAULT_SWG_MAP_SIZE,
+      offset: { x: 0, z: 0 },
+    },
+    raster: null,
+  },
+  {
+    id: 'space_corellia',
+    waypointCommandId: false,
+    displayName: 'Space - Corellia',
+    planetMap: {
+      size: DEFAULT_SWG_MAP_SIZE,
+      offset: { x: 0, z: 0 },
+    },
+    raster: null,
+  },
+  {
+    id: 'space_dantooine',
+    waypointCommandId: false,
+    displayName: 'Space - Dantooine',
+    planetMap: {
+      size: DEFAULT_SWG_MAP_SIZE,
+      offset: { x: 0, z: 0 },
+    },
+    raster: null,
+  },
+  {
+    id: 'space_kashyyyk',
+    waypointCommandId: false,
+    displayName: 'Space - Kashyyyk',
+    planetMap: {
+      size: DEFAULT_SWG_MAP_SIZE,
+      offset: { x: 0, z: 0 },
+    },
+    raster: null,
+  },
+  {
+    id: 'space_dathomir',
+    waypointCommandId: false,
+    displayName: 'Space - Dathomir',
+    planetMap: {
+      size: DEFAULT_SWG_MAP_SIZE,
+      offset: { x: 0, z: 0 },
+    },
+    raster: null,
+  },
+  {
+    id: 'space_yavin4',
+    waypointCommandId: false,
+    displayName: 'Space - Yavin IV',
+    planetMap: {
+      size: DEFAULT_SWG_MAP_SIZE,
+      offset: { x: 0, z: 0 },
+    },
+    raster: null,
+  },
+  {
+    id: 'space_heavy1',
+    waypointCommandId: false,
+    displayName: 'Space - Deep Space',
+    planetMap: {
+      size: DEFAULT_SWG_MAP_SIZE,
+      offset: { x: 0, z: 0 },
+    },
+    raster: null,
+  },
+  {
+    id: 'space_light1',
+    waypointCommandId: false,
+    displayName: 'Space - Kessel',
+    planetMap: {
+      size: DEFAULT_SWG_MAP_SIZE,
+      offset: { x: 0, z: 0 },
+    },
+    raster: null,
+  },
+  {
+    id: 'space_nova_orion',
+    waypointCommandId: false,
+    displayName: 'Space - Ord Mantell',
+    planetMap: {
+      size: DEFAULT_SWG_MAP_SIZE,
+      offset: { x: 0, z: 0 },
+    },
+    raster: null,
+  },
 ] as const;
 
 export default mapConfigs;

@@ -27,12 +27,17 @@
 */
 .euiTable.objectListingTable {
   & .nestingObjectId {
-    min-width: 12em;
+    width: 18rem;
     white-space: nowrap;
   }
 
   & .narrowDataCol {
     width: 10em;   /* [1] */
+  }
+
+  .levelIndicator {
+    margin-right: 0.5rem;
+    user-select: none;
   }
 }
 

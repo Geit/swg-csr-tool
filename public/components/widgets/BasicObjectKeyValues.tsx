@@ -34,6 +34,7 @@ export const GET_OBJECT_DETAILS = gql`
       scene
 
       ... on ITangibleObject {
+        ownerId
         condition
         count
       }
@@ -182,6 +183,17 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
     ObjectInformation.push({
       title: 'Count',
       description: <InfoDescription isLoading={loading}>{data.object.count}</InfoDescription>,
+    });
+  }
+
+  if (data?.object && 'ownerId' in data.object) {
+    ObjectInformation.push({
+      title: 'Owner',
+      description: (
+        <InfoDescription isLoading={loading} numeric>
+          <ObjectLink key={`ownerId-${data.object.ownerId}`} objectId={data.object.ownerId} />
+        </InfoDescription>
+      ),
     });
   }
 

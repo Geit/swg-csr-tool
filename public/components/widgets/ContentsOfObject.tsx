@@ -1,4 +1,5 @@
 import {
+  EuiText,
   EuiTitle,
   EuiTable,
   EuiTableHeader,
@@ -32,6 +33,7 @@ export const GET_OBJECT_CONTENTS = gql`
         __typename
         id
         resolvedName
+        basicName: resolvedName(resolveCustomNames: false)
         deletionReason
         deletionDate
         loadWithId
@@ -59,7 +61,6 @@ const ContentsOfObjectTable: React.FC<{ objectId: string; showDeletedItems: bool
       <EuiTable id={htmlId} className="objectListingTable" tableLayout="auto">
         <EuiTableHeader>
           <EuiTableHeaderCell className="nestingObjectId">Object ID</EuiTableHeaderCell>
-          <EuiTableHeaderCell className="narrowDataCol">Type</EuiTableHeaderCell>
           <EuiTableHeaderCell>Object Name</EuiTableHeaderCell>
           <EuiTableHeaderCell className="narrowDataCol">Deletion Status</EuiTableHeaderCell>
           <EuiTableHeaderCell className="narrowDataCol">Loads With</EuiTableHeaderCell>
@@ -116,6 +117,7 @@ interface ContentsOfObjectRowsProps {
 interface ContainedItem {
   id: string;
   resolvedName?: string | null;
+  basicName?: string | null;
   deletionDate?: string | null;
   deletionReason?: DeletionReasons | null;
   loadWithId?: string | null;
@@ -150,8 +152,18 @@ const ContentsOfObjectRow: React.FC<{ containedItem: ContainedItem } & ContentsO
           <EuiIcon type={iconType} style={{ marginLeft: 16 * level, marginRight: 16 }} />
           <ObjectLink disablePopup objectId={containedItem.id} />
         </EuiTableRowCell>
-        <EuiTableRowCell>{containedItem.__typename}</EuiTableRowCell>
-        <EuiTableRowCell>{containedItem.resolvedName}</EuiTableRowCell>
+        <EuiTableRowCell>
+          {containedItem.resolvedName === containedItem.basicName ? (
+            containedItem.resolvedName
+          ) : (
+            <>
+              {containedItem.resolvedName}
+              <EuiText color="subdued" size="xs">
+                {containedItem.basicName}
+              </EuiText>
+            </>
+          )}
+        </EuiTableRowCell>
         <EuiTableRowCell>
           <DeletedItemBadge
             deletionDate={containedItem.deletionDate ?? null}
@@ -213,7 +225,7 @@ const ContentsOfObjectRows: React.FC<ContentsOfObjectRowsProps> = props => {
     } else if (level === 0) {
       return (
         <EuiTableRow>
-          <EuiTableRowCell colSpan={6} align="center">
+          <EuiTableRowCell colSpan={5} align="center">
             <EuiEmptyPrompt iconType="eraser" title={<h3>This object is empty</h3>} titleSize="xs" />
           </EuiTableRowCell>
         </EuiTableRow>

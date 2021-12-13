@@ -10,6 +10,7 @@ import {
   EuiSpacer,
   EuiEmptyPrompt,
   EuiCallOut,
+  EuiText,
 } from '@elastic/eui';
 import { gql } from '@apollo/client';
 import { useThrottle, useDebounce } from 'react-use';
@@ -26,6 +27,7 @@ export const SEARCH_FOR_OBJECTS = gql`
       __typename
       id
       resolvedName
+      basicName: resolvedName(resolveCustomNames: false)
       deletionReason
       deletionDate
       loadWithId
@@ -34,11 +36,26 @@ export const SEARCH_FOR_OBJECTS = gql`
   }
 `;
 
-const renderObjectName = (name: string, item: any) => (
-  <Link className="euiLink euiLink--primary" to={`/object/${item.id}`}>
-    {name}
-  </Link>
-);
+const renderObjectName = (name: string, item: NonNullable<SearchForObjectQuery['objects']>[number]) => {
+  const link = (
+    <Link className="euiLink euiLink--primary" to={`/object/${item.id}`}>
+      {name}
+    </Link>
+  );
+
+  if (item.basicName === item.resolvedName) {
+    return link;
+  }
+
+  return (
+    <EuiText>
+      {link}
+      <EuiText color="subdued" size="xs">
+        {item.basicName}
+      </EuiText>
+    </EuiText>
+  );
+};
 
 const renderObjectId = (objectId: string) => {
   if (parseInt(objectId) <= 0) return objectId;
@@ -50,11 +67,13 @@ const renderObjectId = (objectId: string) => {
   );
 };
 
-const renderDeletionBadge = (val: string, item: any) => {
+const renderDeletionBadge = (val: string, item: NonNullable<SearchForObjectQuery['objects']>[number]) => {
+  if (!item.deletionDate || !item.deletionReason) return <>&nbsp;</>;
+
   return <DeletedItemBadge deletionDate={item.deletionDate} deletionReason={item.deletionReason} />;
 };
 
-const objectColumns: EuiBasicTableColumn<SearchForObjectQuery['objects']>[] = [
+const objectColumns: EuiBasicTableColumn<NonNullable<SearchForObjectQuery['objects']>[number]>[] = [
   {
     field: 'id',
     name: 'Object ID',

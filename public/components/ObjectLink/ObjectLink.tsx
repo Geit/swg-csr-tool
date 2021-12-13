@@ -21,7 +21,7 @@ const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId, disablePopup }) => {
     [popoverVisible]
   );
 
-  if (!objectId) return null;
+  if (typeof objectId !== 'string') return null;
 
   if (parseInt(objectId) <= 0) {
     return <span>{objectId}</span>;

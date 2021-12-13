@@ -36,7 +36,7 @@ const ObjectDetails = () => {
           <ObjectInfoWidget objectId={id} />
           <EuiSpacer />
           <ContentsOfObject objectId={id} />
-          <TabbedExtendedObjectDetails objectId={id} />
+          <TabbedExtendedObjectDetails key={id} objectId={id} objectType={data?.object?.__typename} />
 
           {/* Prevents this page being sized based on its content */}
           <EuiSpacer style={{ width: '2000px' }} />

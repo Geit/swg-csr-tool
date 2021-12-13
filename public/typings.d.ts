@@ -1,1 +1,4 @@
-declare module 'three.meshline';
+declare module '*.jpg'
+{
+  export default string;
+}

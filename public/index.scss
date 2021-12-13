@@ -39,10 +39,10 @@
 .objectInformationList {
   display: flex;
   flex-flow: row wrap;
+  gap: 1rem;
 
   & > * {
     flex-basis: 18em;
-    margin: 4px;
   }
 }
 

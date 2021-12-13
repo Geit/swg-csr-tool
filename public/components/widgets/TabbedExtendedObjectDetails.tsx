@@ -2,16 +2,18 @@ import { EuiSpacer, EuiTabbedContent } from '@elastic/eui';
 import React from 'react';
 
 import ObjectVariables from './ObjectVariables';
+import StructuresTable from './StructuresTable';
 
 interface ExtraObjectInformationProps {
   objectId: string;
+  objectType?: string;
 }
 
 /**
  * Tabbed interface that contains object information that is useful, but may not
  * be essential to display above-the-fold.
  */
-const ExtraObjectInformation: React.FC<ExtraObjectInformationProps> = ({ objectId }) => {
+const TabbedExtendedObjectDetails: React.FC<ExtraObjectInformationProps> = ({ objectId, objectType }) => {
   const tabs = [
     {
       id: 'object-variables',
@@ -19,6 +21,14 @@ const ExtraObjectInformation: React.FC<ExtraObjectInformationProps> = ({ objectI
       content: <ObjectVariables objectId={objectId} />,
     },
   ];
+
+  if (objectType === 'PlayerCreatureObject') {
+    tabs.push({
+      id: 'structures',
+      name: 'Structures',
+      content: <StructuresTable characterObjectId={objectId} />,
+    });
+  }
 
   return (
     <>
@@ -28,4 +38,4 @@ const ExtraObjectInformation: React.FC<ExtraObjectInformationProps> = ({ objectI
   );
 };
 
-export default ExtraObjectInformation;
+export default TabbedExtendedObjectDetails;

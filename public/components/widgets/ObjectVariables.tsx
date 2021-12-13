@@ -64,113 +64,111 @@ interface ObjectVariableProps {
  * from the GET_OBJECT_OBJVARS query above. These are passed into
  * EuiTreeView - so need to be in a format that can render.
  */
-const ObjvarLeafNodes: Record<
-  Required<ObjVarUnion>['__typename'],
-  (objVar: any) => EuiTreeViewProps['items'][number]
-> = {
-  ObjVarString(objVar: ObjVarString) {
-    const nameParts = objVar.name.split('.');
+const ObjvarLeafNodes: Record<Required<ObjVarUnion>['__typename'], (objVar: any) => EuiTreeViewProps['items'][number]> =
+  {
+    ObjVarString(objVar: ObjVarString) {
+      const nameParts = objVar.name.split('.');
 
-    const name = nameParts[nameParts.length - 1];
+      const name = nameParts[nameParts.length - 1];
 
-    return {
-      id: objVar.name,
-      label: <span title={name}>{name}</span>,
-      icon: <EuiToken size="xs" iconType="tokenString" />,
-      children: [
-        {
-          id: `${name}-value`,
-          label: objVar.strValue,
-        },
-      ],
-    };
-  },
-  ObjVarStringArray(objVar: ObjVarStringArray) {
-    const nameParts = objVar.name.split('.');
+      return {
+        id: objVar.name,
+        label: <span title={name}>{name}</span>,
+        icon: <EuiToken size="xs" iconType="tokenString" />,
+        children: [
+          {
+            id: `${name}-value`,
+            label: objVar.strValue,
+          },
+        ],
+      };
+    },
+    ObjVarStringArray(objVar: ObjVarStringArray) {
+      const nameParts = objVar.name.split('.');
 
-    const name = nameParts[nameParts.length - 1];
+      const name = nameParts[nameParts.length - 1];
 
-    return {
-      id: objVar.name,
-      label: <span title={name}>{name}</span>,
-      icon: <EuiToken size="xs" iconType="tokenArray" />,
-      children: [
-        {
-          id: `${name}-value`,
-          label: `[${objVar.strValues.join(',')}]`,
-        },
-      ],
-    };
-  },
-  ObjVarFloat(objVar: ObjVarFloat) {
-    const nameParts = objVar.name.split('.');
+      return {
+        id: objVar.name,
+        label: <span title={name}>{name}</span>,
+        icon: <EuiToken size="xs" iconType="tokenArray" />,
+        children: [
+          {
+            id: `${name}-value`,
+            label: `[${objVar.strValues.join(',')}]`,
+          },
+        ],
+      };
+    },
+    ObjVarFloat(objVar: ObjVarFloat) {
+      const nameParts = objVar.name.split('.');
 
-    const name = nameParts[nameParts.length - 1];
+      const name = nameParts[nameParts.length - 1];
 
-    return {
-      id: objVar.name,
-      label: <span title={name}>{name}</span>,
-      icon: <EuiToken size="xs" iconType="tokenNumber" />,
-      children: [
-        {
-          id: `${name}-value`,
-          label: objVar.floatValue,
-        },
-      ],
-    };
-  },
-  ObjVarFloatArray(objVar: ObjVarFloatArray) {
-    const nameParts = objVar.name.split('.');
+      return {
+        id: objVar.name,
+        label: <span title={name}>{name}</span>,
+        icon: <EuiToken size="xs" iconType="tokenNumber" />,
+        children: [
+          {
+            id: `${name}-value`,
+            label: objVar.floatValue,
+          },
+        ],
+      };
+    },
+    ObjVarFloatArray(objVar: ObjVarFloatArray) {
+      const nameParts = objVar.name.split('.');
 
-    const name = nameParts[nameParts.length - 1];
+      const name = nameParts[nameParts.length - 1];
 
-    return {
-      id: objVar.name,
-      label: <span title={name}>{name}</span>,
-      icon: <EuiToken size="xs" iconType="tokenArray" />,
-      children: [
-        {
-          id: `${name}-value`,
-          label: `[${objVar.floatValues.join(',')}]`,
-        },
-      ],
-    };
-  },
-  ObjVarInt(objVar: ObjVarInt) {
-    const nameParts = objVar.name.split('.');
+      return {
+        id: objVar.name,
+        label: <span title={name}>{name}</span>,
+        icon: <EuiToken size="xs" iconType="tokenArray" />,
+        children: [
+          {
+            id: `${name}-value`,
+            label: `[${objVar.floatValues.join(',')}]`,
+          },
+        ],
+      };
+    },
+    ObjVarInt(objVar: ObjVarInt) {
+      const nameParts = objVar.name.split('.');
 
-    const name = nameParts[nameParts.length - 1];
+      const name = nameParts[nameParts.length - 1];
 
-    return {
-      id: objVar.name,
-      label: <span title={name}>{name}</span>,
-      icon: <EuiToken size="xs" iconType="tokenNumber" />,
-      children: [
-        {
-          id: `${name}-value`,
-          label: objVar.intValue,
-        },
-      ],
-    };
-  },
-  ObjVarIntArray(objVar: ObjVarIntArray) {
-    const nameParts = objVar.name.split('.');
+      return {
+        id: objVar.name,
+        label: <span title={name}>{name}</span>,
+        icon: <EuiToken size="xs" iconType="tokenNumber" />,
+        children: [
+          {
+            id: `${name}-value`,
+            label: objVar.intValue,
+          },
+        ],
+      };
+    },
+    ObjVarIntArray(objVar: ObjVarIntArray) {
+      const nameParts = objVar.name.split('.');
 
-    const name = nameParts[nameParts.length - 1];
+      const name = nameParts[nameParts.length - 1];
 
-    return {
-      id: objVar.name,
-      label: <span title={name}>{name}</span>,
-      icon: <EuiToken size="xs" iconType="tokenArray" />,
-      children: [
-        {
-          id: `${name}-value`,
-          label: `[${objVar.intValues.join(',')}]`,
-        },
-      ],
-    };
-  },
-};
+      return {
+        id: objVar.name,
+        label: <span title={name}>{name}</span>,
+        icon: <EuiToken size="xs" iconType="tokenArray" />,
+        children: [
+          {
+            id: `${name}-value`,
+            label: `[${objVar.intValues.join(',')}]`,
+          },
+        ],
+      };
+    },
+  };
 
 /**
  * Converts an incoming set of ObjVars from the query above into a tree
@@ -231,7 +229,7 @@ const ObjectVariables: React.FC<ObjectVariableProps> = ({ objectId }) => {
       </>
     );
 
-  if (!data?.object?.objVars || (data?.object?.objVars?.length ?? 0) === 0)
+  if (!data?.object?.objVars || data.object.objVars.length === 0)
     return (
       <>
         <EuiSpacer />

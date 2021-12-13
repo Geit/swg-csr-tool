@@ -1,6 +1,15 @@
 import React from 'react';
 import { Router, Switch, Route } from 'react-router-dom';
-import { ApolloClient, InMemoryCache, ApolloProvider, defaultDataIdFromObject, split, HttpLink } from '@apollo/client';
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  defaultDataIdFromObject,
+  split,
+  HttpLink,
+  concat,
+} from '@apollo/client';
+import { RetryLink } from '@apollo/client/link/retry';
 import { QueryParamProvider } from 'use-query-params';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { getMainDefinition } from '@apollo/client/utilities';
@@ -12,6 +21,7 @@ import introspectionResult from '../fragment-possibleTypes.generated.json';
 import ObjectSearch from './pages/ObjectSearch';
 import ObjectDetails from './pages/ObjectDetails';
 import PlanetWatcherPage from './pages/PlanetWatcherPage';
+import ErrorBoundary from './ErrorBoundary';
 
 interface CSRToolAppProps {
   http: CoreStart['http'];
@@ -35,6 +45,8 @@ export default function CSRToolApp(props: CSRToolAppProps) {
     },
   });
 
+  const retryLink = new RetryLink();
+
   const httpLink = new HttpLink({
     uri: `${location.protocol}//${uri}`,
   });
@@ -48,8 +60,10 @@ export default function CSRToolApp(props: CSRToolAppProps) {
     httpLink
   );
 
+  const combinedLink = concat(retryLink, splitLink);
+
   const client = new ApolloClient({
-    link: splitLink,
+    link: combinedLink,
     cache: new InMemoryCache({
       possibleTypes: introspectionResult.possibleTypes,
       dataIdFromObject(responseObject) {
@@ -68,11 +82,14 @@ export default function CSRToolApp(props: CSRToolAppProps) {
             // We should look up cache entries in IServerObject for the object
             // field. This is because we collapsed all subtypes down into this
             // in the dataIdFromObject function.
-            object(_, { args, toReference }) {
-              return toReference({
-                __typename: 'IServerObject',
-                id: args!.objectId,
-              });
+            object: {
+              read(_, { args, toReference }) {
+                return toReference({
+                  __typename: 'IServerObject',
+                  id: args!.objectId,
+                });
+              },
+              keyArgs: ['objectId'],
             },
           },
         },
@@ -81,23 +98,25 @@ export default function CSRToolApp(props: CSRToolAppProps) {
   });
 
   return (
-    <ApolloProvider client={client}>
-      <Router history={props.history}>
-        <QueryParamProvider ReactRouterRoute={Route}>
-          <Switch>
-            <Route path="/search">
-              <ObjectSearch />
-            </Route>
-            <Route path="/object/:id">
-              <ObjectDetails />
-            </Route>
-            <Route path="/planets/:planet">
-              <PlanetWatcherPage />
-            </Route>
-            <Redirect exact from="/planets" to="/planets/tatooine" />
-          </Switch>
-        </QueryParamProvider>
-      </Router>
-    </ApolloProvider>
+    <ErrorBoundary>
+      <ApolloProvider client={client}>
+        <Router history={props.history}>
+          <QueryParamProvider ReactRouterRoute={Route}>
+            <Switch>
+              <Route path="/search">
+                <ObjectSearch />
+              </Route>
+              <Route path="/object/:id">
+                <ObjectDetails />
+              </Route>
+              <Route path="/planets/:planet">
+                <PlanetWatcherPage />
+              </Route>
+              <Redirect exact from="/planets" to="/planets/tatooine" />
+            </Switch>
+          </QueryParamProvider>
+        </Router>
+      </ApolloProvider>
+    </ErrorBoundary>
   );
 }

@@ -17,12 +17,20 @@ const DeletedItemBadge: React.FC<DeletedItemBadgeProps> = ({ deletionReason, del
     <EuiLoadingContent lines={1} />;
   }
 
-  if (deletionReason === 0) {
+  if (deletionReason === 0 || deletionDate === null) {
     return <EuiBadge color="secondary">Undeleted</EuiBadge>;
   }
 
+  const deletionDateAsDate = new Date(deletionDate);
+
   return (
-    <EuiToolTip position="top" content={`Item was deleted at ${deletionDate}`}>
+    <EuiToolTip
+      position="top"
+      content={`Item was deleted at ${deletionDateAsDate.toLocaleString(undefined, {
+        dateStyle: 'full',
+        timeStyle: 'long',
+      })}`}
+    >
       <EuiBadge color="danger">{DeletionReasons[deletionReason ?? 0]}</EuiBadge>
     </EuiToolTip>
   );

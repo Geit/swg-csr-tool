@@ -1,29 +1,21 @@
 import * as THREE from 'three';
 
+import {
+  CREATURE_TAG,
+  BUILDING_TAG,
+  FACTORY_TAG,
+  HARVESTER_TAG,
+  INSTALLATION_TAG,
+  MANF_INSTALLATION_TAG,
+  RESOURCE_CONTAINER_TAG,
+  STATIC_TAG,
+  TANGIBLE_TAG,
+} from '../../../utils/tagify';
 import { MapValueType } from '../../../utils/utility-types';
 import { DataProviderContextData } from '../DataProvider';
 
 const EXTRA_OBJECT_BUDGET = 10000;
 const MIN_SIZE = 10000;
-
-const hexEncode = (val: string) => {
-  return val
-    .split('')
-    .map(c => c.charCodeAt(0).toString(16).padStart(2, '0'))
-    .join('');
-};
-
-const TAGIFY = (input: string) => parseInt(hexEncode(input), 16);
-
-const CREATURE_TAG = TAGIFY('CREO');
-const BUILDING_TAG = TAGIFY('BUIO');
-const FACTORY_TAG = TAGIFY('FCYT');
-const HARVESTER_TAG = TAGIFY('HINO');
-const INSTALLATION_TAG = TAGIFY('INSO');
-const MANF_INSTALLATION_TAG = TAGIFY('MINO');
-const RESOURCE_CONTAINER_TAG = TAGIFY('RCNO');
-const STATIC_TAG = TAGIFY('STAO');
-const TANGIBLE_TAG = TAGIFY('TANO');
 
 const getColorForObject = (object: MapValueType<DataProviderContextData['objects']>): THREE.Color => {
   switch (object.objectTypeTag) {

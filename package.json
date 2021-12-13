@@ -38,7 +38,7 @@
   "browserslist": "> 1%",
   "dependencies": {
     "@apollo/client": "^3.4.16",
-    "@elastic/datemath": "link:../../bazel-bin/packages/elastic-datemath",
+    "@elastic/datemath": "^5.0.3",
     "@elastic/eui": "^40.0.0",
     "@types/lodash.groupby": "^4.6.6",
     "@types/lodash.reduce": "^4.6.6",

@@ -7,13 +7,14 @@ import {
   EuiPanel,
   EuiCallOut,
   EuiSpacer,
+  EuiText,
 } from '@elastic/eui';
 import { gql } from '@apollo/client';
 
 import DeletedItemBadge from '../DeletedItemBadge';
 import ObjectLink from '../ObjectLink';
 
-import { useGetObjectDetailsQuery } from './ObjectInfoWidget.queries';
+import { useGetObjectDetailsQuery } from './BasicObjectKeyValues.queries';
 
 interface ObjectInfoWidgetProps {
   objectId: string;
@@ -34,6 +35,7 @@ export const GET_OBJECT_DETAILS = gql`
 
       ... on ITangibleObject {
         condition
+        count
       }
 
       ... on WeaponObject {
@@ -45,6 +47,11 @@ export const GET_OBJECT_DETAILS = gql`
       }
 
       ... on CreatureObject {
+        bankBalance
+        cashBalance
+      }
+
+      ... on PlayerCreatureObject {
         bankBalance
         cashBalance
       }
@@ -150,16 +157,31 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
       title: 'Location',
       description: (
         <InfoDescription isLoading={loading} numeric>
-          {[data?.object?.location?.map(Math.round).join(' '), data?.object?.scene].filter(Boolean).join(' - ')}
+          {[data?.object?.location?.map(Math.round).join(' ')].filter(Boolean).join(' - ')}
+          <EuiText color="subdued" size="xs">
+            {data?.object?.scene ?? 'Unknown Scene'}
+          </EuiText>
         </InfoDescription>
       ),
     },
   ];
 
+  /**
+   * TODO: Could probably do with a nicer component for condition bits, and perhaps bitfields in general.
+   * This is useful for a developer to avoid a database session, but still requires using the bitfield definition
+   * from dsrc as a reference to decode.
+   */
   if (data?.object && 'condition' in data.object) {
     ObjectInformation.push({
-      title: 'Condition',
+      title: 'Condition Bits',
       description: <InfoDescription isLoading={loading}>{data.object.condition}</InfoDescription>,
+    });
+  }
+
+  if (data?.object && 'count' in data.object) {
+    ObjectInformation.push({
+      title: 'Count',
+      description: <InfoDescription isLoading={loading}>{data.object.count}</InfoDescription>,
     });
   }
 
@@ -172,7 +194,7 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
         )} DPS)`}</InfoDescription>
       ),
     });
-  } else if (data?.object?.__typename === 'CreatureObject') {
+  } else if (data?.object?.__typename === 'PlayerCreatureObject' || data?.object?.__typename === 'CreatureObject') {
     ObjectInformation.push(
       {
         title: 'Cash',

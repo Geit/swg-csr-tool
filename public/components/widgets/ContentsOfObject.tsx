@@ -23,6 +23,7 @@ import { gql } from '@apollo/client';
 import { DeletionReasons } from '../../utils/deletionReasons';
 import DeletedItemBadge from '../DeletedItemBadge';
 import ObjectLink from '../ObjectLink';
+import UGCName from '../UGCName';
 
 import { useGetObjectContentsQuery } from './ContentsOfObject.queries';
 
@@ -47,7 +48,6 @@ export const GET_OBJECT_CONTENTS = gql`
 
 interface ContentsOfObjectProps {
   objectId: string | null;
-  showDepth: boolean;
 }
 
 const ContentsOfObjectTable: React.FC<{ objectId: string; showDeletedItems: boolean; showDepth: boolean }> = ({
@@ -166,7 +166,7 @@ const ContentsOfObjectRow: React.FC<{ containedItem: ContainedItem } & ContentsO
             containedItem.resolvedName
           ) : (
             <>
-              {containedItem.resolvedName}
+              <UGCName rawName={containedItem.resolvedName} />
               <EuiText color="subdued" size="xs">
                 {containedItem.basicName}
               </EuiText>

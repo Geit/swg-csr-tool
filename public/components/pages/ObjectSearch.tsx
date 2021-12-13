@@ -18,6 +18,7 @@ import { useQueryParam, StringParam } from 'use-query-params';
 import { Link } from 'react-router-dom';
 
 import DeletedItemBadge from '../DeletedItemBadge';
+import UGCName from '../UGCName';
 
 import { useSearchForObjectQuery, SearchForObjectQuery } from './ObjectSearch.queries';
 
@@ -39,7 +40,7 @@ export const SEARCH_FOR_OBJECTS = gql`
 const renderObjectName = (name: string, item: NonNullable<SearchForObjectQuery['objects']>[number]) => {
   const link = (
     <Link className="euiLink euiLink--primary" to={`/object/${item.id}`}>
-      {name}
+      <UGCName rawName={name} />
     </Link>
   );
 
@@ -68,9 +69,7 @@ const renderObjectId = (objectId: string) => {
 };
 
 const renderDeletionBadge = (val: string, item: NonNullable<SearchForObjectQuery['objects']>[number]) => {
-  if (!item.deletionDate || !item.deletionReason) return <>&nbsp;</>;
-
-  return <DeletedItemBadge deletionDate={item.deletionDate} deletionReason={item.deletionReason} />;
+  return <DeletedItemBadge deletionDate={item.deletionDate ?? null} deletionReason={item.deletionReason ?? null} />;
 };
 
 const objectColumns: EuiBasicTableColumn<NonNullable<SearchForObjectQuery['objects']>[number]>[] = [

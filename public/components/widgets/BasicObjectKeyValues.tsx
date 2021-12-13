@@ -13,6 +13,7 @@ import { gql } from '@apollo/client';
 
 import DeletedItemBadge from '../DeletedItemBadge';
 import ObjectLink from '../ObjectLink';
+import ConditionListing from '../ConditionListing';
 
 import { useGetObjectDetailsQuery } from './BasicObjectKeyValues.queries';
 
@@ -124,10 +125,6 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
       description: <InfoDescription isLoading={loading}>{data?.object?.__typename}</InfoDescription>,
     },
     {
-      title: 'Object Name',
-      description: <InfoDescription isLoading={loading}>{data?.object?.resolvedName}</InfoDescription>,
-    },
-    {
       title: 'Deletion Status',
       description: (
         <DeletedItemBadge
@@ -172,10 +169,14 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
    * This is useful for a developer to avoid a database session, but still requires using the bitfield definition
    * from dsrc as a reference to decode.
    */
-  if (data?.object && 'condition' in data.object) {
+  if (data?.object && 'condition' in data.object && data.object.condition) {
     ObjectInformation.push({
-      title: 'Condition Bits',
-      description: <InfoDescription isLoading={loading}>{data.object.condition}</InfoDescription>,
+      title: 'Conditions',
+      description: (
+        <InfoDescription isLoading={loading}>
+          <ConditionListing conditionBits={data.object.condition} />
+        </InfoDescription>
+      ),
     });
   }
 

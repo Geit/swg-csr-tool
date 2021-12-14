@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import {
   EuiPage,
   EuiPageBody,
@@ -8,21 +8,31 @@ import {
   EuiPageSideBar,
   EuiSelect,
   EuiFormRow,
-  EuiListGroup,
 } from '@elastic/eui';
 import { useHistory, useParams } from 'react-router-dom';
 
 import { PlanetWatcherMapView } from '../PlanetWatcher';
 import mapConfigs from '../PlanetWatcher/data/maps';
+import { KibanaCoreServicesContext } from '../KibanaCoreServicesContext';
 
 const PlanetWatcherPage: React.FC = () => {
   const history = useHistory();
   const { planet } = useParams<{ planet: string }>();
+  const { coreServices } = useContext(KibanaCoreServicesContext);
 
   const maps = mapConfigs.map(map => ({
     value: map.id,
     text: map.displayName,
   }));
+
+  useEffect(() => {
+    const currentMapName = maps.find(map => map.value === planet)?.text;
+
+    const title = [currentMapName, `Planet Watcher`].filter(Boolean).join(' - ');
+
+    coreServices?.chrome.docTitle.change(title);
+    coreServices?.chrome.recentlyAccessed.add(`/app/swgCsrTool/planets/${planet}`, title, `planet-watcher-${planet}`);
+  }, [coreServices, planet]);
 
   return (
     <EuiPage paddingSize="none">
@@ -41,26 +51,6 @@ const PlanetWatcherPage: React.FC = () => {
           />
         </EuiFormRow>
         <EuiSpacer />
-        <EuiListGroup
-          style={{ padding: 0 }}
-          listItems={[
-            {
-              id: 'map-view',
-              label: 'Map View',
-              onClick: () => {
-                // Do nothing
-              },
-              isActive: true,
-            },
-            {
-              id: 'frame-times',
-              label: 'Frame Times',
-              onClick: () => {
-                // Do nothing
-              },
-            },
-          ]}
-        />
       </EuiPageSideBar>
       <EuiPageBody panelled>
         {/* <EuiPageHeader pageTitle="Planet Watcher" paddingSize="s" /> */}

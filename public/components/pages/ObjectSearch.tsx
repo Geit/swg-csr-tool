@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   EuiPage,
   EuiPageBody,
@@ -19,6 +19,7 @@ import { Link } from 'react-router-dom';
 
 import DeletedItemBadge from '../DeletedItemBadge';
 import UGCName from '../UGCName';
+import { KibanaCoreServicesContext } from '../KibanaCoreServicesContext';
 
 import { useSearchForObjectQuery, SearchForObjectQuery } from './ObjectSearch.queries';
 
@@ -117,6 +118,7 @@ const objectColumns: EuiBasicTableColumn<NonNullable<SearchForObjectQuery['objec
 
 const ObjectSearch = () => {
   const [searchText, setSearchText] = useQueryParam('q', StringParam);
+  const { coreServices } = useContext(KibanaCoreServicesContext);
   const throttledSearchText = useThrottle(searchText || '');
   const { loading, error, data, previousData } = useSearchForObjectQuery({
     skip: throttledSearchText.trim().length === 0,
@@ -133,6 +135,12 @@ const ObjectSearch = () => {
     200,
     [loading]
   );
+  useEffect(() => {
+    const title = [throttledSearchText, `Object Search`].filter(Boolean).join(' - ');
+
+    coreServices?.chrome.docTitle.change(title);
+  }, [coreServices, throttledSearchText]);
+
   const actuallyLoading = isLoading && loading;
   const emptyMessage =
     throttledSearchText.length > 0 ? (

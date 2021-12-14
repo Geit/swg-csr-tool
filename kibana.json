@@ -1,9 +1,12 @@
 {
   "id": "swgCsrTool",
-  "version": "1.0.9",
+  "version": "1.0.11",
   "kibanaVersion": "kibana",
   "server": true,
   "ui": true,
   "requiredPlugins": ["navigation", "features"],
-  "optionalPlugins": []
+  "optionalPlugins": [],
+  "owner": {
+    "name": "Geit"
+  }
 }

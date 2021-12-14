@@ -14,6 +14,7 @@ import { QueryParamProvider } from 'use-query-params';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { Redirect } from 'react-router';
+import { EuiErrorBoundary } from '@elastic/eui';
 
 import { CoreStart, ScopedHistory } from '../../../../src/core/public';
 import introspectionResult from '../fragment-possibleTypes.generated.json';
@@ -21,24 +22,25 @@ import introspectionResult from '../fragment-possibleTypes.generated.json';
 import ObjectSearch from './pages/ObjectSearch';
 import ObjectDetails from './pages/ObjectDetails';
 import PlanetWatcherPage from './pages/PlanetWatcherPage';
-import ErrorBoundary from './ErrorBoundary';
+import { KibanaCoreServicesProvider } from './KibanaCoreServicesContext';
 
 interface CSRToolAppProps {
-  http: CoreStart['http'];
-  uiSettings: CoreStart['uiSettings'];
+  coreServices: CoreStart;
   history: ScopedHistory;
 }
 
-export default function CSRToolApp(props: CSRToolAppProps) {
-  const uri = `${location.host}${props.http.basePath.prepend(`/api/swg_csr_tool/graphql`)}`;
+export default function CSRToolApp({ coreServices, history }: CSRToolAppProps) {
+  const uri = `${location.host}${coreServices.http.basePath.prepend(`/api/swg_csr_tool/graphql`)}`;
 
   const wsLink = new WebSocketLink({
-    uri: props.uiSettings.get('csrToolWebsocketUrl'),
+    uri: coreServices.uiSettings.get('csrToolWebsocketUrl'),
     options: {
       reconnect: true,
       lazy: true,
       connectionParams: async () => {
-        const result = await props.http.post('/api/swg_csr_tool/graphql/websocket_auth', { body: '{ "auth": 1}' });
+        const result = await coreServices.http.post('/api/swg_csr_tool/graphql/websocket_auth', {
+          body: '{ "auth": 1}',
+        });
 
         return result;
       },
@@ -98,25 +100,27 @@ export default function CSRToolApp(props: CSRToolAppProps) {
   });
 
   return (
-    <ErrorBoundary>
-      <ApolloProvider client={client}>
-        <Router history={props.history}>
-          <QueryParamProvider ReactRouterRoute={Route}>
-            <Switch>
-              <Route path="/search">
-                <ObjectSearch />
-              </Route>
-              <Route path="/object/:id">
-                <ObjectDetails />
-              </Route>
-              <Route path="/planets/:planet">
-                <PlanetWatcherPage />
-              </Route>
-              <Redirect exact from="/planets" to="/planets/tatooine" />
-            </Switch>
-          </QueryParamProvider>
-        </Router>
-      </ApolloProvider>
-    </ErrorBoundary>
+    <EuiErrorBoundary>
+      <KibanaCoreServicesProvider coreServices={coreServices}>
+        <ApolloProvider client={client}>
+          <Router history={history}>
+            <QueryParamProvider ReactRouterRoute={Route}>
+              <Switch>
+                <Route path="/search">
+                  <ObjectSearch />
+                </Route>
+                <Route path="/object/:id">
+                  <ObjectDetails />
+                </Route>
+                <Route path="/planets/:planet">
+                  <PlanetWatcherPage />
+                </Route>
+                <Redirect exact from="/planets" to="/planets/tatooine" />
+              </Switch>
+            </QueryParamProvider>
+          </Router>
+        </ApolloProvider>
+      </KibanaCoreServicesProvider>
+    </EuiErrorBoundary>
   );
 }

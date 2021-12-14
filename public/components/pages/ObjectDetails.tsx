@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import {
   EuiPage,
   EuiPageBody,
-  EuiPageHeader,
   EuiPageContent,
   EuiSpacer,
   EuiPageHeaderSection,
@@ -17,6 +16,7 @@ import ObjectInfoWidget from '../widgets/BasicObjectKeyValues';
 import ContentsOfObject from '../widgets/ContentsOfObject';
 import TabbedExtendedObjectDetails from '../widgets/TabbedExtendedObjectDetails';
 import UGCName from '../UGCName';
+import { KibanaCoreServicesContext } from '../KibanaCoreServicesContext';
 
 import { useGetObjectNameQuery } from './ObjectDetails.queries';
 
@@ -33,12 +33,25 @@ export const GET_OBJECT_NAME = gql`
 
 const ObjectDetails = () => {
   const { id } = useParams<{ id: string }>();
+  const { coreServices } = useContext(KibanaCoreServicesContext);
   const { data, loading } = useGetObjectNameQuery({
     variables: {
       id,
     },
     returnPartialData: true,
   });
+
+  const objectName = data?.object?.resolvedName;
+
+  useEffect(() => {
+    const title = [objectName, `Object Details`].filter(Boolean).join(' - ');
+
+    coreServices?.chrome.docTitle.change(title);
+
+    if (objectName) {
+      coreServices?.chrome.recentlyAccessed.add(`/app/swgCsrTool/object/${id}`, title, `object-details-${id}`);
+    }
+  }, [coreServices, objectName]);
 
   let content = (
     <>

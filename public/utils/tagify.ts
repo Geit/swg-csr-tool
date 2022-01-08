@@ -7,6 +7,9 @@ const hexEncode = (val: string) => {
 
 export const TAGIFY = (input: string) => parseInt(hexEncode(input), 16);
 
+// You can find these tags by navigating to src/engine/server/library/serverGame/src/shared/objectTemplate/<objectType>.h
+// and looking for `//@BEGIN TFD ID`
+
 export const CREATURE_TAG = TAGIFY('CREO');
 export const BUILDING_TAG = TAGIFY('BUIO');
 export const FACTORY_TAG = TAGIFY('FCYT');

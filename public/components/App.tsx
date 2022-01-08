@@ -21,6 +21,7 @@ import introspectionResult from '../fragment-possibleTypes.generated.json';
 
 import ObjectSearch from './pages/ObjectSearch';
 import ObjectDetails from './pages/ObjectDetails';
+import AccountDetails from './pages/AccountDetails';
 import PlanetWatcherPage from './pages/PlanetWatcherPage';
 import { KibanaCoreServicesProvider } from './KibanaCoreServicesContext';
 
@@ -93,6 +94,15 @@ export default function CSRToolApp({ coreServices, history }: CSRToolAppProps) {
               },
               keyArgs: ['objectId'],
             },
+            account: {
+              read(_, { args, toReference }) {
+                return toReference({
+                  __typename: 'Account',
+                  id: args!.stationId,
+                });
+              },
+              keyArgs: ['stationId'],
+            },
           },
         },
       },
@@ -111,6 +121,9 @@ export default function CSRToolApp({ coreServices, history }: CSRToolAppProps) {
                 </Route>
                 <Route path="/object/:id">
                   <ObjectDetails />
+                </Route>
+                <Route path="/account/:id">
+                  <AccountDetails />
                 </Route>
                 <Route path="/planets/:planet">
                   <PlanetWatcherPage />

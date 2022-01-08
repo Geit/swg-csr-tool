@@ -52,6 +52,17 @@
 }
 
 
+.objectSearchKeyValues {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 1rem;
+
+  & > * {
+    flex-basis: 18em;
+  }
+}
+
+
 .inTableLoadingIndicator {
   flex-grow: 1;
 }
@@ -66,6 +77,14 @@
 
 dl.serverSummaryStat {
   margin-bottom: 0;
+}
+
+.searchResultCard {
+  color: currentColor;
+
+  &__icon {
+    margin-right: .5rem;
+  }
 }
 
 

@@ -10,6 +10,7 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { gql } from '@apollo/client';
+import { Link } from 'react-router-dom';
 
 import DeletedItemBadge from '../DeletedItemBadge';
 import ObjectLink from '../ObjectLink';
@@ -48,6 +49,11 @@ export const GET_OBJECT_DETAILS = gql`
         dps
       }
 
+      ... on BuildingObject {
+        bankBalance
+        cashBalance
+      }
+
       ... on CreatureObject {
         bankBalance
         cashBalance
@@ -56,6 +62,10 @@ export const GET_OBJECT_DETAILS = gql`
       ... on PlayerCreatureObject {
         bankBalance
         cashBalance
+        account {
+          id
+          accountName
+        }
       }
     }
   }
@@ -180,7 +190,7 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
     });
   }
 
-  if (data?.object && 'count' in data.object) {
+  if (data?.object && 'count' in data.object && data?.object?.__typename !== 'PlayerCreatureObject') {
     ObjectInformation.push({
       title: 'Count',
       description: <InfoDescription isLoading={loading}>{data.object.count}</InfoDescription>,
@@ -207,7 +217,9 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
         )} DPS)`}</InfoDescription>
       ),
     });
-  } else if (data?.object?.__typename === 'PlayerCreatureObject' || data?.object?.__typename === 'CreatureObject') {
+  }
+
+  if (data?.object && 'cashBalance' in data.object && 'bankBalance' in data.object) {
     ObjectInformation.push(
       {
         title: 'Cash',
@@ -226,6 +238,19 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
         ),
       }
     );
+  }
+
+  if (data?.object?.__typename === 'PlayerCreatureObject' && data.object.account) {
+    ObjectInformation.push({
+      title: 'Account',
+      description: (
+        <InfoDescription isLoading={loading}>
+          <Link to={`/account/${data.object.account.id}`}>
+            {data.object.account.accountName ?? data.object.account.id}
+          </Link>
+        </InfoDescription>
+      ),
+    });
   }
 
   return (

@@ -27,6 +27,12 @@ export const GET_OBJECT_NAME = gql`
       id
       resolvedName
       basicName: resolvedName(resolveCustomNames: false)
+
+      ... on PlayerCreatureObject {
+        account {
+          id
+        }
+      }
     }
   }
 `;
@@ -58,7 +64,13 @@ const ObjectDetails = () => {
       <ObjectInfoWidget objectId={id} />
       <EuiSpacer />
       <ContentsOfObject objectId={id} />
-      <TabbedExtendedObjectDetails key={id} objectId={id} objectType={data?.object?.__typename} />
+      <TabbedExtendedObjectDetails
+        key={id}
+        objectId={id}
+        objectType={data?.object?.__typename}
+        // This next line is horrible, sorry.
+        stationId={data && data.object && 'account' in data.object ? data.object.account?.id : undefined}
+      />
 
       {/* Prevents this page being sized based on its content */}
       <EuiSpacer style={{ width: '2000px' }} />

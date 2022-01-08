@@ -15,6 +15,7 @@ import {
 import { BUILDING_TAG, HARVESTER_TAG, INSTALLATION_TAG, MANF_INSTALLATION_TAG } from '../../utils/tagify';
 import ObjectLink from '../ObjectLink';
 import DeletedItemBadge from '../DeletedItemBadge';
+import UGCName from '../UGCName';
 
 import { GetStructuresForCharacterQuery, useGetStructuresForCharacterQuery } from './StructuresTable.queries';
 
@@ -28,10 +29,12 @@ export const GET_STRUCTURE_FOR_CHARACTER = gql`
         structures: ownedObjects(objectTypes: $structureObjectTypes) {
           id
           resolvedName
+          basicName: resolvedName(resolveCustomNames: false)
           location
           scene
           deletionDate
           deletionReason
+          containedById
         }
       }
     }
@@ -74,7 +77,9 @@ const StructuresTableRows: React.FC<SturcturesTableRowsProps> = ({ isLoading, da
               <ObjectLink disablePopup objectId={structure.id} />
             </EuiTableRowCell>
             <EuiTableRowCell>{structure.__typename}</EuiTableRowCell>
-            <EuiTableRowCell>{structure.resolvedName}</EuiTableRowCell>
+            <EuiTableRowCell>
+              <UGCName rawName={structure.resolvedName} /> ({structure.basicName})
+            </EuiTableRowCell>
             <EuiTableRowCell>
               <DeletedItemBadge
                 deletionDate={structure.deletionDate ?? null}
@@ -82,7 +87,9 @@ const StructuresTableRows: React.FC<SturcturesTableRowsProps> = ({ isLoading, da
               />
             </EuiTableRowCell>
             <EuiTableRowCell>
-              {[structure.location?.map(Math.round).join(' '), structure.scene].filter(Boolean).join(' - ')}
+              {structure.containedById !== '0'
+                ? `In Container ${structure.containedById}`
+                : [structure.location?.map(Math.round).join(' '), structure.scene].filter(Boolean).join(' - ')}
             </EuiTableRowCell>
           </EuiTableRow>
         ))}

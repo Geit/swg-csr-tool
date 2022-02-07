@@ -3,7 +3,6 @@ import {
   EuiDescriptionList,
   EuiDescriptionListTitle,
   EuiDescriptionListDescription,
-  EuiLoadingContent,
   EuiPanel,
   EuiCallOut,
   EuiSpacer,
@@ -15,6 +14,7 @@ import { Link } from 'react-router-dom';
 import DeletedItemBadge from '../DeletedItemBadge';
 import ObjectLink from '../ObjectLink';
 import ConditionListing from '../ConditionListing';
+import SimpleValue from '../SimpleValue';
 
 import { useGetObjectDetailsQuery } from './BasicObjectKeyValues.queries';
 
@@ -71,33 +71,6 @@ export const GET_OBJECT_DETAILS = gql`
   }
 `;
 
-interface InfoDescriptionProps {
-  children?: any | null;
-  isLoading: boolean;
-  fallbackText?: string;
-  numeric?: boolean;
-}
-
-/**
- *
- */
-const InfoDescription: React.FC<InfoDescriptionProps> = ({
-  children,
-  isLoading,
-  fallbackText = 'Not Set',
-  numeric,
-}) => {
-  if (!children) {
-    if (isLoading) return <EuiLoadingContent lines={1} />;
-
-    return fallbackText;
-  }
-
-  if (numeric) return <code>{children}</code>;
-
-  return children;
-};
-
 /**
  * Displays high level information about an Object, such as its
  * name and containment. Also displays additional information for
@@ -125,14 +98,14 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
     {
       title: 'Object ID',
       description: (
-        <InfoDescription isLoading={loading} numeric>
+        <SimpleValue isLoading={loading} numeric>
           {data?.object?.id}
-        </InfoDescription>
+        </SimpleValue>
       ),
     },
     {
       title: 'Object Type',
-      description: <InfoDescription isLoading={loading}>{data?.object?.__typename}</InfoDescription>,
+      description: <SimpleValue isLoading={loading}>{data?.object?.__typename}</SimpleValue>,
     },
     {
       title: 'Deletion Status',
@@ -146,30 +119,30 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
     {
       title: 'Loads With',
       description: (
-        <InfoDescription isLoading={loading} numeric>
-          {data?.object?.loadWithId && data.object.id !== data.object.loadWithId && (
+        <SimpleValue isLoading={loading} numeric>
+          {data?.object?.loadWithId && data.object.id !== data.object.loadWithId ? (
             <ObjectLink key={`loadWith-${data?.object.id}`} objectId={data?.object?.loadWithId} />
-          )}
-        </InfoDescription>
+          ) : null}
+        </SimpleValue>
       ),
     },
     {
       title: 'Contained By',
       description: (
-        <InfoDescription isLoading={loading} numeric>
+        <SimpleValue isLoading={loading} numeric>
           <ObjectLink key={`containedBy-${data?.object?.id ?? 'unknown'}`} objectId={data?.object?.containedById} />
-        </InfoDescription>
+        </SimpleValue>
       ),
     },
     {
       title: 'Location',
       description: (
-        <InfoDescription isLoading={loading} numeric>
+        <SimpleValue isLoading={loading} numeric>
           {[data?.object?.location?.map(Math.round).join(' ')].filter(Boolean).join(' - ')}
           <EuiText color="subdued" size="xs">
             {data?.object?.scene ?? 'Unknown Scene'}
           </EuiText>
-        </InfoDescription>
+        </SimpleValue>
       ),
     },
   ];
@@ -183,9 +156,9 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
     ObjectInformation.push({
       title: 'Conditions',
       description: (
-        <InfoDescription isLoading={loading}>
+        <SimpleValue isLoading={loading}>
           <ConditionListing conditionBits={data.object.condition} />
-        </InfoDescription>
+        </SimpleValue>
       ),
     });
   }
@@ -193,7 +166,7 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
   if (data?.object && 'count' in data.object && data?.object?.__typename !== 'PlayerCreatureObject') {
     ObjectInformation.push({
       title: 'Count',
-      description: <InfoDescription isLoading={loading}>{data.object.count}</InfoDescription>,
+      description: <SimpleValue isLoading={loading}>{data.object.count}</SimpleValue>,
     });
   }
 
@@ -201,9 +174,9 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
     ObjectInformation.push({
       title: 'Owner',
       description: (
-        <InfoDescription isLoading={loading} numeric>
+        <SimpleValue isLoading={loading} numeric>
           <ObjectLink key={`ownerId-${data.object.ownerId}`} objectId={data.object.ownerId} />
-        </InfoDescription>
+        </SimpleValue>
       ),
     });
   }
@@ -212,9 +185,9 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
     ObjectInformation.push({
       title: 'Damage',
       description: (
-        <InfoDescription isLoading={loading}>{`${data.object.minDamage} - ${data.object.maxDamage} (${Math.round(
+        <SimpleValue isLoading={loading}>{`${data.object.minDamage} - ${data.object.maxDamage} (${Math.round(
           data.object.dps ?? 0
-        )} DPS)`}</InfoDescription>
+        )} DPS)`}</SimpleValue>
       ),
     });
   }
@@ -224,17 +197,17 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
       {
         title: 'Cash',
         description: (
-          <InfoDescription isLoading={loading}>
+          <SimpleValue isLoading={loading}>
             {data.object.cashBalance != null && `${data.object.cashBalance?.toLocaleString()} Credits`}
-          </InfoDescription>
+          </SimpleValue>
         ),
       },
       {
         title: 'Bank',
         description: (
-          <InfoDescription isLoading={loading}>
+          <SimpleValue isLoading={loading}>
             {data.object.bankBalance != null && `${data.object.bankBalance.toLocaleString()} Credits`}
-          </InfoDescription>
+          </SimpleValue>
         ),
       }
     );
@@ -244,11 +217,11 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
     ObjectInformation.push({
       title: 'Account',
       description: (
-        <InfoDescription isLoading={loading}>
+        <SimpleValue isLoading={loading}>
           <Link to={`/account/${data.object.account.id}`}>
             {data.object.account.accountName ?? data.object.account.id}
           </Link>
-        </InfoDescription>
+        </SimpleValue>
       ),
     });
   }

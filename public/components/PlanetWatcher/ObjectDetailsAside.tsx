@@ -17,6 +17,7 @@ import ObjectInfoWidget from '../widgets/BasicObjectKeyValues';
 import ContentsOfObject from '../widgets/ContentsOfObject';
 import { AiMovementType } from '../../types/AIMovementType';
 import { typeTagToString } from '../../utils/typeTagToString';
+import UGCName from '../UGCName';
 
 import { PlanetWatcherContext, PlanetWatcherObject } from './DataProvider';
 import { useGetObjectNameQuery } from './ObjectDetailsAside.queries';
@@ -92,7 +93,9 @@ const ObjectDetailsAside: React.FC = () => {
     <EuiFlyout size="s" ownFocus={false} onClose={() => setSelectedObject(null)}>
       <EuiFlyoutHeader hasBorder>
         <EuiTitle>
-          <h2>{objectData?.object?.resolvedName ?? 'Object Details'}</h2>
+          <h2>
+            {objectData?.object?.resolvedName ? <UGCName rawName={objectData.object.resolvedName} /> : 'Object Details'}
+          </h2>
         </EuiTitle>
       </EuiFlyoutHeader>
       <EuiFlyoutBody banner={isNonPersistedObject ? nonPersistedCallout : null}>

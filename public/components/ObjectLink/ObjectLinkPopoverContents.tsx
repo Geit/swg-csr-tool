@@ -8,6 +8,7 @@ import {
 import { gql } from '@apollo/client';
 
 import DeletedItemBadge from '../DeletedItemBadge';
+import UGCName from '../UGCName';
 
 import { useGetObjectDetailsTooltipQuery } from './ObjectLinkPopoverContents.queries';
 
@@ -36,7 +37,9 @@ const ObjectLinkPopoverDetails: React.FC<ObjectLinkPopoverDetailsProps> = ({ obj
 
   return (
     <>
-      <EuiPopoverTitle>{data?.object?.resolvedName ?? 'Object Details'}</EuiPopoverTitle>
+      <EuiPopoverTitle>
+        {data?.object?.resolvedName ? <UGCName rawName={data.object.resolvedName} /> : 'Object Details'}
+      </EuiPopoverTitle>
       <EuiDescriptionList compressed>
         <EuiDescriptionListTitle>Object Type</EuiDescriptionListTitle>
         <EuiDescriptionListDescription>{data?.object?.__typename ?? 'Unknown'}</EuiDescriptionListDescription>
@@ -45,7 +48,7 @@ const ObjectLinkPopoverDetails: React.FC<ObjectLinkPopoverDetailsProps> = ({ obj
           <DeletedItemBadge
             deletionDate={data?.object?.deletionDate ?? null}
             deletionReason={data?.object?.deletionReason ?? null}
-          ></DeletedItemBadge>
+          />
         </EuiDescriptionListDescription>
       </EuiDescriptionList>
     </>

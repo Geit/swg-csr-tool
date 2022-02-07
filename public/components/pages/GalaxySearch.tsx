@@ -21,7 +21,7 @@ import DeletedItemBadge from '../DeletedItemBadge';
 import UGCName from '../UGCName';
 import { KibanaCoreServicesContext } from '../KibanaCoreServicesContext';
 
-import { useSearchQuery, SearchQuery } from './ObjectSearch.queries';
+import { useSearchQuery, SearchQuery } from './GalaxySearch.queries';
 
 export const SEARCH_FOR_OBJECTS = gql`
   query search($searchText: String!) {
@@ -91,7 +91,7 @@ const AccountCard: React.FC<{ account: AccountResult }> = ({ account }) => {
         ) ?? 'Unknown account'
       }
     >
-      <EuiDescriptionList className="objectSearchKeyValues" textStyle="reverse">
+      <EuiDescriptionList className="galaxySearchKeyValues" textStyle="reverse">
         <div>
           <EuiDescriptionListTitle>Station ID</EuiDescriptionListTitle>
           <EuiDescriptionListDescription>{account.id}</EuiDescriptionListDescription>
@@ -143,7 +143,7 @@ const ObjectCard: React.FC<{ object: ObjectResult }> = ({ object }) => {
         </span>
       }
     >
-      <EuiDescriptionList className="objectSearchKeyValues" textStyle="reverse">
+      <EuiDescriptionList className="galaxySearchKeyValues" textStyle="reverse">
         <div>
           <EuiDescriptionListTitle>Object ID</EuiDescriptionListTitle>
           <EuiDescriptionListDescription>{object.id}</EuiDescriptionListDescription>
@@ -170,7 +170,7 @@ const ObjectCard: React.FC<{ object: ObjectResult }> = ({ object }) => {
   );
 };
 
-const ObjectSearchPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const GalaxySearchPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <EuiPage paddingSize="l" restrictWidth>
       <EuiPageBody panelled borderRadius>
@@ -183,7 +183,7 @@ const ObjectSearchPageLayout: React.FC<{ children: React.ReactNode }> = ({ child
   );
 };
 
-const ObjectSearch = () => {
+const GalaxySearch = () => {
   const [searchText, setSearchText] = useQueryParam('q', StringParam);
   const { coreServices } = useContext(KibanaCoreServicesContext);
   const throttledSearchText = useThrottle(searchText || '');
@@ -203,7 +203,7 @@ const ObjectSearch = () => {
     [loading]
   );
   useEffect(() => {
-    const title = [throttledSearchText, `Object Search`].filter(Boolean).join(' - ');
+    const title = [throttledSearchText, `Galaxy Search`].filter(Boolean).join(' - ');
 
     coreServices?.chrome.docTitle.change(title);
   }, [coreServices, throttledSearchText]);
@@ -233,7 +233,7 @@ const ObjectSearch = () => {
 
   if (!actuallyLoading && error) {
     return (
-      <ObjectSearchPageLayout>
+      <GalaxySearchPageLayout>
         {fieldSearch}
         <EuiEmptyPrompt
           color="danger"
@@ -241,14 +241,14 @@ const ObjectSearch = () => {
           title={<h3>Search Error</h3>}
           body={<p>There was an error while querying. The results displayed may be incorrect.</p>}
         />
-      </ObjectSearchPageLayout>
+      </GalaxySearchPageLayout>
     );
   }
 
   const items = (Object.keys(data ?? {}).length > 0 ? data : previousData)?.search.results ?? [];
 
   return (
-    <ObjectSearchPageLayout>
+    <GalaxySearchPageLayout>
       {fieldSearch}
       {items.length > 0
         ? items.map(item => {
@@ -264,8 +264,8 @@ const ObjectSearch = () => {
             );
           })
         : emptyMessage}
-    </ObjectSearchPageLayout>
+    </GalaxySearchPageLayout>
   );
 };
 
-export default ObjectSearch;
+export default GalaxySearch;

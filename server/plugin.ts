@@ -20,16 +20,16 @@ export class SwgCsrToolPlugin implements Plugin<SwgCsrToolPluginSetup, SwgCsrToo
 
   public setup(core: CoreSetup, deps: CsrToolSetupDeps) {
     deps.features.registerKibanaFeature({
-      id: 'objectSearch',
-      name: 'Object Search',
+      id: 'search',
+      name: 'Galaxy Search',
       order: 0,
       category: APP_CATEGORY,
-      app: ['objectSearch'],
+      app: ['galaxySearch'],
       privileges: {
         all: {
           // These privileges should be checked by Kibana when a user accesses the route
           api: ['csrToolGraphQl'],
-          app: ['objectSearch'],
+          app: ['galaxySearch'],
           ui: [],
           savedObject: {
             all: [],
@@ -43,7 +43,7 @@ export class SwgCsrToolPlugin implements Plugin<SwgCsrToolPluginSetup, SwgCsrToo
             read: [],
           },
           ui: [],
-          app: ['objectSearch'],
+          app: ['galaxySearch'],
         },
       },
     });

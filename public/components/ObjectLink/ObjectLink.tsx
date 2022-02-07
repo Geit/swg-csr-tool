@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, ReactNode } from 'react';
 import { EuiPopover } from '@elastic/eui';
 import { Link } from 'react-router-dom';
 import { useDebounce } from 'react-use';
@@ -7,10 +7,11 @@ import ObjectLinkPopoverDetails from './ObjectLinkPopoverContents';
 
 interface ObjectLinkProps {
   objectId?: string | null;
+  textToDisplay?: ReactNode | null;
   disablePopup?: boolean;
 }
 
-const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId, disablePopup }) => {
+const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId, disablePopup, textToDisplay }) => {
   const [popoverVisible, setPopoverVisible] = useState(false);
   const [debouncedPopoverVisible, setDebouncedPopoverVisible] = useState(false);
   useDebounce(
@@ -34,7 +35,7 @@ const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId, disablePopup }) => {
       onMouseEnter={() => setPopoverVisible(true)}
       onMouseLeave={() => setPopoverVisible(false)}
     >
-      <code>{objectId}</code>
+      {textToDisplay ? textToDisplay : <code>{objectId}</code>}
     </Link>
   );
 

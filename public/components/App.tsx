@@ -19,11 +19,14 @@ import { EuiErrorBoundary } from '@elastic/eui';
 import { CoreStart, ScopedHistory } from '../../../../src/core/public';
 import introspectionResult from '../fragment-possibleTypes.generated.json';
 
-import ObjectSearch from './pages/ObjectSearch';
+import GalaxySearch from './pages/GalaxySearch';
 import ObjectDetails from './pages/ObjectDetails';
 import AccountDetails from './pages/AccountDetails';
 import PlanetWatcherPage from './pages/PlanetWatcherPage';
 import { KibanaCoreServicesProvider } from './KibanaCoreServicesContext';
+import CoalitionListings from './pages/CoalitionListings';
+import { CityDetails } from './pages/CityDetails';
+import { GuildDetails } from './pages/GuildDetails';
 
 interface CSRToolAppProps {
   coreServices: CoreStart;
@@ -103,6 +106,24 @@ export default function CSRToolApp({ coreServices, history }: CSRToolAppProps) {
               },
               keyArgs: ['stationId'],
             },
+            city: {
+              read(_, { args, toReference }) {
+                return toReference({
+                  __typename: 'City',
+                  id: args!.cityId,
+                });
+              },
+              keyArgs: ['cityId'],
+            },
+            guild: {
+              read(_, { args, toReference }) {
+                return toReference({
+                  __typename: 'Guild',
+                  id: args!.guildId,
+                });
+              },
+              keyArgs: ['guildId'],
+            },
           },
         },
       },
@@ -117,7 +138,7 @@ export default function CSRToolApp({ coreServices, history }: CSRToolAppProps) {
             <QueryParamProvider ReactRouterRoute={Route}>
               <Switch>
                 <Route path="/search">
-                  <ObjectSearch />
+                  <GalaxySearch />
                 </Route>
                 <Route path="/object/:id">
                   <ObjectDetails />
@@ -128,7 +149,18 @@ export default function CSRToolApp({ coreServices, history }: CSRToolAppProps) {
                 <Route path="/planets/:planet">
                   <PlanetWatcherPage />
                 </Route>
-                <Redirect exact from="/planets" to="/planets/tatooine" />
+                <Redirect exact from="/planets" to="/planets/kashyyyk_main" />
+
+                <Route path="/coalitions/cities/:id">
+                  <CityDetails />
+                </Route>
+                <Route path="/coalitions/guilds/:id">
+                  <GuildDetails />
+                </Route>
+                <Route path="/coalitions/:type">
+                  <CoalitionListings />
+                </Route>
+                <Redirect exact from="/coalitions" to="/coalitions/guilds" />
               </Switch>
             </QueryParamProvider>
           </Router>

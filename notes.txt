@@ -1,14 +1,10 @@
 TODO:
-
-- Objvars Widget
 - All details Widget
 - Property Lists Widget
 - Location Widget
 - Log view widget
-- Structures widget
 
 
 PW:
-  Frame times
   Legend
   Multi-select objects

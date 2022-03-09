@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import {
   EuiPage,
   EuiPageBody,
@@ -12,8 +12,10 @@ import {
 import { gql } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
-import { KibanaCoreServicesContext } from '../../KibanaCoreServicesContext';
 import { isPresent } from '../../../utils/utility-types';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
+import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
+import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
 
 import { useGetCityNameQuery } from './CityDetails.queries';
 import { CitizensTable } from './CitizensTable';
@@ -33,7 +35,6 @@ export const GET_CITY_NAME = gql`
 
 export const CityDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { coreServices } = useContext(KibanaCoreServicesContext);
   const { data, loading } = useGetCityNameQuery({
     variables: {
       cityId: id,
@@ -42,16 +43,24 @@ export const CityDetails: React.FC = () => {
   });
 
   const cityName = data?.city?.name;
+  const documentTitle = [cityName, `City Details`].filter(Boolean).join(' - ');
 
-  useEffect(() => {
-    const title = [cityName, `City Details`].filter(Boolean).join(' - ');
-
-    coreServices?.chrome.docTitle.change(title);
-
-    if (cityName) {
-      coreServices?.chrome.recentlyAccessed.add(`/app/swgCsrTool/coalitions/cities/${id}`, title, `city-details-${id}`);
-    }
-  }, [coreServices, cityName]);
+  useDocumentTitle(documentTitle);
+  useRecentlyAccessed(
+    `/app/swgCsrTool/coalitions/cities/${id}`,
+    documentTitle,
+    `city-details-${id}`,
+    Boolean(cityName)
+  );
+  useBreadcrumbs([
+    {
+      text: 'Cities',
+      href: '/coalitions/cities',
+    },
+    {
+      text: cityName ? cityName : `City ${id}`,
+    },
+  ]);
 
   const subtitleParts = [data?.city?.rank, data?.city?.specialization].filter(isPresent);
 

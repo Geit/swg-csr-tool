@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import {
   EuiPage,
   EuiPageBody,
@@ -16,7 +16,9 @@ import ObjectInfoWidget from '../widgets/BasicObjectKeyValues';
 import ContentsOfObject from '../widgets/ContentsOfObject';
 import TabbedExtendedObjectDetails from '../widgets/TabbedExtendedObjectDetails';
 import UGCName from '../UGCName';
-import { KibanaCoreServicesContext } from '../KibanaCoreServicesContext';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
+import { useRecentlyAccessed } from '../../hooks/useRecentlyAccessed';
+import { useBreadcrumbs } from '../../hooks/useBreadcrumbs';
 
 import { useGetObjectNameQuery } from './ObjectDetails.queries';
 
@@ -39,7 +41,6 @@ export const GET_OBJECT_NAME = gql`
 
 const ObjectDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const { coreServices } = useContext(KibanaCoreServicesContext);
   const { data, loading } = useGetObjectNameQuery({
     variables: {
       id,
@@ -48,16 +49,19 @@ const ObjectDetails = () => {
   });
 
   const objectName = data?.object?.resolvedName;
+  const documentTitle = [objectName, `Object Details`].filter(Boolean).join(' - ');
 
-  useEffect(() => {
-    const title = [objectName, `Object Details`].filter(Boolean).join(' - ');
-
-    coreServices?.chrome.docTitle.change(title);
-
-    if (objectName) {
-      coreServices?.chrome.recentlyAccessed.add(`/app/swgCsrTool/object/${id}`, title, `object-details-${id}`);
-    }
-  }, [coreServices, objectName]);
+  useDocumentTitle(documentTitle);
+  useRecentlyAccessed(`/app/swgCsrTool/object/${id}`, documentTitle, `object-details-${id}`, Boolean(objectName));
+  useBreadcrumbs([
+    {
+      text: 'Galaxy Search',
+      href: '/search',
+    },
+    {
+      text: documentTitle,
+    },
+  ]);
 
   let content = (
     <>

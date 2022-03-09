@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import {
   EuiPage,
   EuiPageBody,
@@ -12,14 +12,14 @@ import {
 import { useParams } from 'react-router-dom';
 import { useHistory } from 'react-router';
 
-import { KibanaCoreServicesContext } from '../../KibanaCoreServicesContext';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
+import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
 
 import GuildListing from './GuildListing';
 import CityListing from './CityListing';
 
 export const CoalitionListings: React.FC = () => {
   const { type } = useParams<{ type: string }>();
-  const { coreServices } = useContext(KibanaCoreServicesContext);
   const history = useHistory();
 
   const tabs: EuiTabbedContentTab[] = [
@@ -38,9 +38,14 @@ export const CoalitionListings: React.FC = () => {
   const selectedTab = tabs.find(tab => tab.id === type);
   const selectedTabName = selectedTab?.name;
 
-  useEffect(() => {
-    coreServices?.chrome.docTitle.change(`${selectedTabName} Listing`);
-  }, [selectedTabName]);
+  const title = `${selectedTabName} Listing`;
+
+  useDocumentTitle(title);
+  useBreadcrumbs([
+    {
+      text: title,
+    },
+  ]);
 
   return (
     <EuiPage paddingSize="l" restrictWidth>

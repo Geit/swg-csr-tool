@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import {
   EuiPage,
   EuiPageBody,
@@ -11,7 +11,9 @@ import {
 import { gql } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
-import { KibanaCoreServicesContext } from '../KibanaCoreServicesContext';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
+import { useRecentlyAccessed } from '../../hooks/useRecentlyAccessed';
+import { useBreadcrumbs } from '../../hooks/useBreadcrumbs';
 import CharactersTable from '../widgets/CharactersTable';
 
 import { useGetAccountNameQuery } from './AccountDetails.queries';
@@ -27,7 +29,6 @@ export const GET_ACCOUNT_NAME = gql`
 
 const AccountDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const { coreServices } = useContext(KibanaCoreServicesContext);
   const { data, loading } = useGetAccountNameQuery({
     variables: {
       id,
@@ -36,16 +37,19 @@ const AccountDetails = () => {
   });
 
   const accountName = data?.account?.accountName;
+  const documentTitle = [accountName, `Account Details`].filter(Boolean).join(' - ');
 
-  useEffect(() => {
-    const title = [accountName, `Account Details`].filter(Boolean).join(' - ');
-
-    coreServices?.chrome.docTitle.change(title);
-
-    if (accountName) {
-      coreServices?.chrome.recentlyAccessed.add(`/app/swgCsrTool/account/${id}`, title, `account-details-${id}`);
-    }
-  }, [coreServices, accountName]);
+  useDocumentTitle(documentTitle);
+  useRecentlyAccessed(`/app/swgCsrTool/account/${id}`, documentTitle, `account-details-${id}`, Boolean(accountName));
+  useBreadcrumbs([
+    {
+      text: 'Galaxy Search',
+      href: '/search',
+    },
+    {
+      text: documentTitle,
+    },
+  ]);
 
   let content = (
     <>

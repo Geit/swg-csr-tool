@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState } from 'react';
 import {
   EuiPage,
   EuiPageBody,
@@ -19,7 +19,8 @@ import { Link } from 'react-router-dom';
 
 import DeletedItemBadge from '../DeletedItemBadge';
 import UGCName from '../UGCName';
-import { KibanaCoreServicesContext } from '../KibanaCoreServicesContext';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
+import { useBreadcrumbs } from '../../hooks/useBreadcrumbs';
 
 import { useSearchQuery, SearchQuery } from './GalaxySearch.queries';
 
@@ -188,7 +189,6 @@ const GalaxySearchPageLayout: React.FC<{ children: React.ReactNode }> = ({ child
 
 const GalaxySearch = () => {
   const [searchText, setSearchText] = useQueryParam('q', StringParam);
-  const { coreServices } = useContext(KibanaCoreServicesContext);
   const throttledSearchText = useThrottle(searchText || '');
   const { loading, error, data, previousData } = useSearchQuery({
     skip: throttledSearchText.trim().length === 0,
@@ -205,11 +205,15 @@ const GalaxySearch = () => {
     200,
     [loading]
   );
-  useEffect(() => {
-    const title = [throttledSearchText, `Galaxy Search`].filter(Boolean).join(' - ');
 
-    coreServices?.chrome.docTitle.change(title);
-  }, [coreServices, throttledSearchText]);
+  const documentTitle = [throttledSearchText, `Galaxy Search`].filter(Boolean).join(' - ');
+
+  useDocumentTitle(documentTitle);
+  useBreadcrumbs([
+    {
+      text: 'Galaxy Search',
+    },
+  ]);
 
   const actuallyLoading = isLoading && loading;
 

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import {
   EuiPage,
   EuiPageBody,
@@ -12,7 +12,9 @@ import {
 import { gql } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
-import { KibanaCoreServicesContext } from '../../KibanaCoreServicesContext';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
+import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
+import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
 
 import { useGetGuildNameQuery } from './GuildDetails.queries';
 import { GuildMembersTable } from './GuildMembersTable';
@@ -30,7 +32,6 @@ export const GET_GUILD_NAME = gql`
 
 export const GuildDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { coreServices } = useContext(KibanaCoreServicesContext);
   const { data, loading } = useGetGuildNameQuery({
     variables: {
       guildId: id,
@@ -39,27 +40,33 @@ export const GuildDetails: React.FC = () => {
   });
 
   const guildName = data?.guild?.name;
+  const documentTitle = [guildName, `Guild Details`].filter(Boolean).join(' - ');
 
-  useEffect(() => {
-    const title = [guildName, `Guild Details`].filter(Boolean).join(' - ');
-
-    coreServices?.chrome.docTitle.change(title);
-
-    if (guildName) {
-      coreServices?.chrome.recentlyAccessed.add(
-        `/app/swgCsrTool/coalitions/guilds/${id}`,
-        title,
-        `guild-details-${id}`
-      );
-    }
-  }, [coreServices, guildName]);
+  useDocumentTitle(documentTitle);
+  useRecentlyAccessed(
+    `/app/swgCsrTool/coalitions/guilds/${id}`,
+    documentTitle,
+    `guild-details-${id}`,
+    Boolean(guildName)
+  );
+  useBreadcrumbs([
+    {
+      text: 'Guilds',
+      href: '/coalitions/guilds',
+    },
+    {
+      text: guildName ? guildName : `Guild ${id}`,
+    },
+  ]);
 
   let content = (
     <>
       <EuiSpacer />
       <GuildInformationOverview guildId={id} />
+
       <EuiSpacer />
       <GuildMembersTable guildId={id} />
+
       <EuiSpacer />
       <GuildEnemiesTable guildId={id} />
     </>

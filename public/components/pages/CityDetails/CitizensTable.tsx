@@ -27,11 +27,14 @@ export const GET_CITY_CITIZENS = gql`
   }
 `;
 
-export const CitizensTable: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+interface CitizensTableProps {
+  cityId: string;
+}
+
+export const CitizensTable: React.FC<CitizensTableProps> = ({ cityId }) => {
   const { data, loading } = useGetCityCitizensQuery({
     variables: {
-      cityId: id,
+      cityId,
     },
     returnPartialData: true,
   });

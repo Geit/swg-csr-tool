@@ -28,11 +28,14 @@ export const GET_ALL_STRUCTURES = gql`
   }
 `;
 
-export const StructuresTable: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+interface StructuresTableProps {
+  cityId: string;
+}
+
+export const StructuresTable: React.FC<StructuresTableProps> = ({ cityId }) => {
   const { data, loading } = useGetCityStructuresQuery({
     variables: {
-      cityId: id,
+      cityId,
     },
     returnPartialData: true,
   });

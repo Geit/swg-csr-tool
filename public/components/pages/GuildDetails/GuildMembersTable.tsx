@@ -1,7 +1,6 @@
 import React from 'react';
 import { EuiInMemoryTable, EuiLoadingContent, EuiSpacer, EuiTableFieldDataColumnType, EuiTitle } from '@elastic/eui';
 import { gql } from '@apollo/client';
-import { useParams } from 'react-router-dom';
 
 import ObjectLink from '../../ObjectLink';
 
@@ -29,11 +28,14 @@ export const GET_GUILD_MEMBERS = gql`
   }
 `;
 
-export const GuildMembersTable: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+interface GuildMembersTableProps {
+  guildId: string;
+}
+
+export const GuildMembersTable: React.FC<GuildMembersTableProps> = ({ guildId }) => {
   const { data, loading } = useGetGuildMembersQuery({
     variables: {
-      guildId: id,
+      guildId,
     },
     returnPartialData: true,
   });

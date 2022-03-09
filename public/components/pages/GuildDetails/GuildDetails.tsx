@@ -7,34 +7,23 @@ import {
   EuiPageHeaderSection,
   EuiTitle,
   EuiText,
-  EuiPanel,
-  EuiDescriptionList,
-  EuiDescriptionListTitle,
-  EuiDescriptionListDescription,
+  EuiCallOut,
 } from '@elastic/eui';
 import { gql } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
 import { KibanaCoreServicesContext } from '../../KibanaCoreServicesContext';
-import SimpleValue from '../../SimpleValue';
-import ObjectLink from '../../ObjectLink';
 
-import { useGetGuildDetailsQuery } from './GuildDetails.queries';
+import { useGetGuildNameQuery } from './GuildDetails.queries';
 import { GuildMembersTable } from './GuildMembersTable';
 import { GuildEnemiesTable } from './GuildEnemiesTable';
+import { GuildInformationOverview } from './GuildInformationOverview';
 
-export const GET_GUILD_DETAILS = gql`
-  query getGuildDetails($guildId: String!) {
+export const GET_GUILD_NAME = gql`
+  query getGuildName($guildId: String!) {
     guild(guildId: $guildId) {
-      id
       name
       abbreviation
-      faction
-      gcwDefenderRegionResolved
-      leader {
-        id
-        resolvedName
-      }
     }
   }
 `;
@@ -42,7 +31,7 @@ export const GET_GUILD_DETAILS = gql`
 export const GuildDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { coreServices } = useContext(KibanaCoreServicesContext);
-  const { data, loading } = useGetGuildDetailsQuery({
+  const { data, loading } = useGetGuildNameQuery({
     variables: {
       guildId: id,
     },
@@ -65,34 +54,27 @@ export const GuildDetails: React.FC = () => {
     }
   }, [coreServices, guildName]);
 
-  const GuildInformation = [
-    {
-      title: 'Guild ID',
-      description: (
-        <SimpleValue isLoading={loading} numeric>
-          {data?.guild?.id}
-        </SimpleValue>
-      ),
-    },
-    {
-      title: 'Leader',
-      description: (
-        <SimpleValue isLoading={loading}>
-          {data?.guild?.leader?.id ? (
-            <ObjectLink objectId={data?.guild?.leader?.id} textToDisplay={data?.guild?.leader?.resolvedName} />
-          ) : null}
-        </SimpleValue>
-      ),
-    },
-    {
-      title: 'Faction',
-      description: <SimpleValue isLoading={loading}>{data?.guild?.faction}</SimpleValue>,
-    },
-    {
-      title: 'Defender Region',
-      description: <SimpleValue isLoading={loading}>{data?.guild?.gcwDefenderRegionResolved}</SimpleValue>,
-    },
-  ];
+  let content = (
+    <>
+      <EuiSpacer />
+      <GuildInformationOverview guildId={id} />
+      <EuiSpacer />
+      <GuildMembersTable guildId={id} />
+      <EuiSpacer />
+      <GuildEnemiesTable guildId={id} />
+    </>
+  );
+
+  if (Object.keys(data?.guild ?? {}).length === 0 && !loading) {
+    content = (
+      <>
+        <EuiSpacer />
+        <EuiCallOut title="Guild not found" color="warning" iconType="alert">
+          <p>No matching guild was found!</p>
+        </EuiCallOut>
+      </>
+    );
+  }
 
   return (
     <EuiPage paddingSize="l" restrictWidth>
@@ -104,27 +86,9 @@ export const GuildDetails: React.FC = () => {
             </EuiTitle>
             <EuiText color="subdued">{data?.guild?.abbreviation}</EuiText>
           </>
-          <EuiSpacer />
         </EuiPageHeaderSection>
         <EuiPageContent paddingSize="none" color="transparent" hasBorder={false} borderRadius="none">
-          <EuiPanel color="subdued" hasBorder>
-            <EuiDescriptionList className="objectInformationList" textStyle="reverse">
-              {GuildInformation.map((item, index) => {
-                return (
-                  <div key={`container-${index}`}>
-                    <EuiDescriptionListTitle key={`title-${index}`}>{item.title}</EuiDescriptionListTitle>
-                    <EuiDescriptionListDescription key={`description-${index}`}>
-                      {item.description}
-                    </EuiDescriptionListDescription>
-                  </div>
-                );
-              })}
-            </EuiDescriptionList>
-          </EuiPanel>
-          <EuiSpacer />
-          <GuildMembersTable />
-          <EuiSpacer />
-          <GuildEnemiesTable />
+          {content}
         </EuiPageContent>
       </EuiPageBody>
     </EuiPage>

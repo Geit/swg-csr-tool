@@ -24,7 +24,7 @@ import ObjectDetails from './pages/ObjectDetails';
 import AccountDetails from './pages/AccountDetails';
 import PlanetWatcherPage from './pages/PlanetWatcherPage';
 import { KibanaCoreServicesProvider } from './KibanaCoreServicesContext';
-import CoalitionListings from './pages/CoalitionListings';
+import { CoalitionListings } from './pages/CoalitionListings';
 import { CityDetails } from './pages/CityDetails';
 import { GuildDetails } from './pages/GuildDetails';
 

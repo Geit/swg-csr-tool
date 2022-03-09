@@ -118,14 +118,17 @@ const ObjectIcon: Record<SearchResult['__typename'], string> = {
   CreatureObject: 'user',
   HarvesterInstallationObject: 'home',
   InstallationObject: 'home',
-  TangibleObject: 'questionInCircle',
   PlayerCreatureObject: 'user',
-  WeaponObject: 'questionInCircle',
   ManfSchematicObject: 'gear',
   PlayerObject: 'user',
   ServerObject: 'questionInCircle',
   ResourceContainerObject: 'analyzeEvent',
   ShipObject: 'moon',
+  GuildObject: 'users',
+  TangibleObject: 'questionInCircle',
+  WeaponObject: 'questionInCircle',
+  CityObject: 'questionInCircle',
+  UniverseObject: 'questionInCircle',
 };
 
 const ObjectCard: React.FC<{ object: ObjectResult }> = ({ object }) => {

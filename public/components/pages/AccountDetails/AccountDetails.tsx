@@ -11,10 +11,11 @@ import {
 import { gql } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
-import { useDocumentTitle } from '../../hooks/useDocumentTitle';
-import { useRecentlyAccessed } from '../../hooks/useRecentlyAccessed';
-import { useBreadcrumbs } from '../../hooks/useBreadcrumbs';
-import CharactersTable from '../widgets/CharactersTable';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
+import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
+import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
+import CharactersTable from '../../widgets/CharactersTable';
+import AppSidebar from '../../AppSidebar';
 
 import { useGetAccountNameQuery } from './AccountDetails.queries';
 
@@ -27,7 +28,7 @@ export const GET_ACCOUNT_NAME = gql`
   }
 `;
 
-const AccountDetails = () => {
+export const AccountDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { data, loading } = useGetAccountNameQuery({
     variables: {
@@ -71,8 +72,9 @@ const AccountDetails = () => {
   }
 
   return (
-    <EuiPage paddingSize="l" restrictWidth>
-      <EuiPageBody panelled borderRadius={10}>
+    <EuiPage paddingSize="l">
+      <AppSidebar />
+      <EuiPageBody panelled borderRadius={10} restrictWidth>
         <EuiPageHeaderSection>
           <EuiTitle size="l">
             <h1>{data?.account?.accountName ?? 'Account Details'}</h1>
@@ -86,5 +88,3 @@ const AccountDetails = () => {
     </EuiPage>
   );
 };
-
-export default AccountDetails;

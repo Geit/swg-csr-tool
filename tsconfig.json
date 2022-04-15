@@ -3,14 +3,16 @@
   "compilerOptions": {
     "outDir": "./target",
     "skipLibCheck": true,
+    "resolveJsonModule": true,
     "paths": {
       "@node_modules/*": ["./node_modules/*"]
     }
   },
   "include": [
     "index.ts",
+    "*.json",
     "common/**/*.ts",
-    "public/**/*.ts",
+    "public/**/*",
     "public/**/*.tsx",
     "server/**/*.ts",
     "../../typings/**/*"

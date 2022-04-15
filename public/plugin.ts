@@ -1,10 +1,21 @@
-import { AppMountParameters, AppNavLinkStatus, CoreSetup, Plugin } from '../../../src/core/public';
+import { BehaviorSubject } from 'rxjs';
+
+import {
+  AppMountParameters,
+  AppNavLinkStatus,
+  AppUpdater,
+  CoreSetup,
+  CoreStart,
+  Plugin,
+} from '../../../src/core/public';
 import { APP_CATEGORY } from '../common';
 
 import { SwgCsrToolPluginSetup, SwgCsrToolPluginStart, AppPluginStartDependencies } from './types';
 
 export class SwgCsrToolPlugin implements Plugin<SwgCsrToolPluginSetup, SwgCsrToolPluginStart> {
-  public setup(core: CoreSetup): SwgCsrToolPluginSetup {
+  private appUpdater = new BehaviorSubject<AppUpdater>(() => ({}));
+
+  public setup(core: CoreSetup, plugins: AppPluginStartDependencies): SwgCsrToolPluginSetup {
     // Register an application into the side navigation menu
     core.application.register({
       id: 'swgCsrTool',
@@ -12,6 +23,7 @@ export class SwgCsrToolPlugin implements Plugin<SwgCsrToolPluginSetup, SwgCsrToo
       appRoute: '/app/swgCsrTool',
       category: APP_CATEGORY,
       navLinkStatus: AppNavLinkStatus.hidden,
+      updater$: this.appUpdater,
       deepLinks: [
         {
           id: 'galaxySearch',
@@ -20,16 +32,34 @@ export class SwgCsrToolPlugin implements Plugin<SwgCsrToolPluginSetup, SwgCsrToo
           path: '/search',
         },
         {
+          id: 'coalitionListings',
+          title: 'Coalition Listings',
+          navLinkStatus: AppNavLinkStatus.visible,
+          path: '/coalitions',
+        },
+        {
+          id: 'tradeListings',
+          title: 'Trades',
+          navLinkStatus: AppNavLinkStatus.visible,
+          path: '/trades',
+        },
+        {
+          id: 'resourceListings',
+          title: 'Resources',
+          navLinkStatus: AppNavLinkStatus.visible,
+          path: '/resources',
+        },
+        {
+          id: 'marketListings',
+          title: 'Auctions',
+          navLinkStatus: AppNavLinkStatus.visible,
+          path: '/markets',
+        },
+        {
           id: 'planetWatcher',
           title: 'Planet Watcher',
           navLinkStatus: AppNavLinkStatus.visible,
           path: '/planets',
-        },
-        {
-          id: 'coalitions',
-          title: 'Coalition Listings',
-          navLinkStatus: AppNavLinkStatus.visible,
-          path: '/coalitions',
         },
       ],
       async mount(params: AppMountParameters) {
@@ -46,7 +76,15 @@ export class SwgCsrToolPlugin implements Plugin<SwgCsrToolPluginSetup, SwgCsrToo
     return {};
   }
 
-  public start(/*core: CoreStart*/): SwgCsrToolPluginStart {
+  public start(core: CoreStart, deps: AppPluginStartDependencies): SwgCsrToolPluginStart {
+    this.appUpdater.next(app => ({
+      navLinkStatus: AppNavLinkStatus.hidden,
+      deepLinks: app.deepLinks?.map(dl => ({
+        ...dl,
+        navLinkStatus: core.application.capabilities[dl.id]?.show ? AppNavLinkStatus.visible : AppNavLinkStatus.hidden,
+      })),
+    }));
+
     return {};
   }
 

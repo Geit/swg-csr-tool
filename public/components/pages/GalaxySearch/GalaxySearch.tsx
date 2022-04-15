@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   EuiPage,
   EuiPageBody,
-  EuiPageHeader,
   EuiPageContent,
   EuiFieldSearch,
   EuiSpacer,
@@ -11,16 +10,20 @@ import {
   EuiDescriptionListTitle,
   EuiDescriptionListDescription,
   EuiDescriptionList,
+  EuiLoadingSpinner,
+  EuiPageHeaderSection,
+  EuiTitle,
 } from '@elastic/eui';
 import { gql } from '@apollo/client';
 import { useThrottle, useDebounce } from 'react-use';
 import { useQueryParam, StringParam } from 'use-query-params';
 import { Link } from 'react-router-dom';
 
-import DeletedItemBadge from '../DeletedItemBadge';
-import UGCName from '../UGCName';
-import { useDocumentTitle } from '../../hooks/useDocumentTitle';
-import { useBreadcrumbs } from '../../hooks/useBreadcrumbs';
+import DeletedItemBadge from '../../DeletedItemBadge';
+import UGCName from '../../UGCName';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
+import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
+import AppSidebar from '../../AppSidebar';
 
 import { useSearchQuery, SearchQuery } from './GalaxySearch.queries';
 
@@ -176,9 +179,15 @@ const ObjectCard: React.FC<{ object: ObjectResult }> = ({ object }) => {
 
 const GalaxySearchPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <EuiPage paddingSize="l" restrictWidth>
-      <EuiPageBody panelled borderRadius>
-        <EuiPageHeader pageTitle="Search" paddingSize="s" />
+    <EuiPage paddingSize="l">
+      <AppSidebar />
+      <EuiPageBody panelled borderRadius restrictWidth>
+        <EuiPageHeaderSection>
+          <EuiTitle size="l">
+            <h1>Search</h1>
+          </EuiTitle>
+          <EuiSpacer />
+        </EuiPageHeaderSection>
         <EuiPageContent paddingSize="s" color="transparent" hasBorder={false}>
           {children}
         </EuiPageContent>
@@ -187,24 +196,19 @@ const GalaxySearchPageLayout: React.FC<{ children: React.ReactNode }> = ({ child
   );
 };
 
-const GalaxySearch = () => {
+export const GalaxySearch: React.FC = () => {
   const [searchText, setSearchText] = useQueryParam('q', StringParam);
   const throttledSearchText = useThrottle(searchText || '');
   const { loading, error, data, previousData } = useSearchQuery({
-    skip: throttledSearchText.trim().length === 0,
     variables: {
       searchText: throttledSearchText,
     },
     returnPartialData: true,
   });
   const [isLoading, setIsLoading] = useState(false);
-  useDebounce(
-    () => {
-      setIsLoading(loading);
-    },
-    200,
-    [loading]
-  );
+  const [longLoad, setLongLoad] = useState(false);
+  useDebounce(() => setIsLoading(loading), 200, [loading]);
+  useDebounce(() => setLongLoad(loading), 2000, [loading]);
 
   const documentTitle = [throttledSearchText, `Galaxy Search`].filter(Boolean).join(' - ');
 
@@ -252,7 +256,18 @@ const GalaxySearch = () => {
     );
   }
 
-  const items = (Object.keys(data ?? {}).length > 0 ? data : previousData)?.search.results ?? [];
+  const hasCurrentData = Object.keys(data ?? {}).length > 0;
+
+  if (longLoad && !hasCurrentData) {
+    return (
+      <GalaxySearchPageLayout>
+        {fieldSearch}
+        <EuiLoadingSpinner size="xl" />
+      </GalaxySearchPageLayout>
+    );
+  }
+
+  const items = (hasCurrentData ? data : previousData)?.search.results ?? [];
 
   return (
     <GalaxySearchPageLayout>
@@ -274,5 +289,3 @@ const GalaxySearch = () => {
     </GalaxySearchPageLayout>
   );
 };
-
-export default GalaxySearch;

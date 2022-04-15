@@ -19,33 +19,35 @@ export class SwgCsrToolPlugin implements Plugin<SwgCsrToolPluginSetup, SwgCsrToo
   }
 
   public setup(core: CoreSetup, deps: CsrToolSetupDeps) {
+    const sharedPrivileges = {
+      all: {
+        // These privileges should be checked by Kibana when a user accesses the route
+        api: ['csrToolGraphQl'],
+        app: ['swgCsrTool'],
+        ui: ['show'],
+        savedObject: {
+          all: [],
+          read: [],
+        },
+      },
+      read: {
+        api: ['csrToolGraphQl'],
+        savedObject: {
+          all: [],
+          read: [],
+        },
+        ui: ['show'],
+        app: ['swgCsrTool'],
+      },
+    };
+
     deps.features.registerKibanaFeature({
-      id: 'search',
+      id: 'galaxySearch',
       name: 'Galaxy Search',
       order: 0,
       category: APP_CATEGORY,
-      app: ['galaxySearch'],
-      privileges: {
-        all: {
-          // These privileges should be checked by Kibana when a user accesses the route
-          api: ['csrToolGraphQl'],
-          app: ['galaxySearch'],
-          ui: [],
-          savedObject: {
-            all: [],
-            read: [],
-          },
-        },
-        read: {
-          api: ['csrToolGraphQl'],
-          savedObject: {
-            all: [],
-            read: [],
-          },
-          ui: [],
-          app: ['galaxySearch'],
-        },
-      },
+      app: ['swgCsrTool'],
+      privileges: sharedPrivileges,
     });
 
     deps.features.registerKibanaFeature({
@@ -53,28 +55,44 @@ export class SwgCsrToolPlugin implements Plugin<SwgCsrToolPluginSetup, SwgCsrToo
       name: 'Planet Watcher',
       order: 0,
       category: APP_CATEGORY,
-      app: ['planetWatcher'],
-      privileges: {
-        all: {
-          // These privileges should be checked by Kibana when a user accesses the route
-          api: ['csrToolGraphQl'],
-          app: ['planetWatcher'],
-          ui: [],
-          savedObject: {
-            all: [],
-            read: [],
-          },
-        },
-        read: {
-          api: ['csrToolGraphQl'],
-          savedObject: {
-            all: [],
-            read: [],
-          },
-          ui: [],
-          app: ['planetWatcher'],
-        },
-      },
+      app: ['swgCsrTool'],
+      privileges: sharedPrivileges,
+    });
+
+    deps.features.registerKibanaFeature({
+      id: 'coalitionListings',
+      name: 'Coalition Listings',
+      order: 0,
+      category: APP_CATEGORY,
+      app: ['swgCsrTool'],
+      privileges: sharedPrivileges,
+    });
+
+    deps.features.registerKibanaFeature({
+      id: 'tradeListings',
+      name: 'Trades',
+      order: 0,
+      category: APP_CATEGORY,
+      app: ['swgCsrTool'],
+      privileges: sharedPrivileges,
+    });
+
+    deps.features.registerKibanaFeature({
+      id: 'resourceListings',
+      name: 'Resources',
+      order: 0,
+      category: APP_CATEGORY,
+      app: ['swgCsrTool'],
+      privileges: sharedPrivileges,
+    });
+
+    deps.features.registerKibanaFeature({
+      id: 'marketListings',
+      name: 'Auctions',
+      order: 0,
+      category: APP_CATEGORY,
+      app: ['swgCsrTool'],
+      privileges: sharedPrivileges,
     });
 
     this.logger.debug('swgCsrTool: Setup');

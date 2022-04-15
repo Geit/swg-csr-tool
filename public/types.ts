@@ -1,3 +1,6 @@
+//import { FeaturesPluginStart } from '../../../x-pack/plugins/features/public';
+import { DataPublicPluginStart } from '../../../src/plugins/data/public';
+
 /**
  * Type describing the public API of this plugin to other
  * Kibana plugins that might want to depend on it.
@@ -16,4 +19,6 @@ export interface SwgCsrToolPluginStart {}
  */
 export interface AppPluginStartDependencies {
   //navigation: NavigationPublicPluginStart;
+  //features: FeaturesPluginStart;
+  data: DataPublicPluginStart;
 }

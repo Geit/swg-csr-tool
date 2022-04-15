@@ -1,0 +1,1 @@
+export { GalaxySearch } from './GalaxySearch';

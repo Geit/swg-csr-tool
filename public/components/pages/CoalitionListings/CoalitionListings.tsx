@@ -14,6 +14,7 @@ import { useHistory } from 'react-router';
 
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
+import AppSidebar from '../../AppSidebar';
 
 import GuildListing from './GuildListing';
 import CityListing from './CityListing';
@@ -48,8 +49,9 @@ export const CoalitionListings: React.FC = () => {
   ]);
 
   return (
-    <EuiPage paddingSize="l" restrictWidth>
-      <EuiPageBody panelled borderRadius={10}>
+    <EuiPage paddingSize="l">
+      <AppSidebar />
+      <EuiPageBody panelled restrictWidth>
         <EuiPageHeaderSection>
           <EuiTitle size="l">
             <h1>Coalitions</h1>

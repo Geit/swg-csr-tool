@@ -958,12 +958,9 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@elastic/datemath@^5.0.3":
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/@elastic/datemath/-/datemath-5.0.3.tgz#7baccdab672b9a3ecb7fe8387580670936b58573"
-  integrity sha512-8Hbr1Uyjm5OcYBfEB60K7sCP6U3IXuWDaLaQmYv3UxgI4jqBWbakoemwWvsqPVUvnwEjuX6z7ghPZbefs8xiaA==
-  dependencies:
-    tslib "^1.9.3"
+"@elastic/datemath@link:../../packages/elastic-datemath":
+  version "0.0.0"
+  uid ""
 
 "@elastic/eslint-config-kibana@link:../../packages/elastic-eslint-config-kibana":
   version "0.0.0"

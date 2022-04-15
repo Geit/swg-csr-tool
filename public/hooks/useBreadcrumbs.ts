@@ -12,7 +12,7 @@ export const useBreadcrumbs = (breadcrumbs: EuiBreadcrumb[] = []) => {
     const breadcrumbsToSet: EuiBreadcrumb[] = [
       {
         text: 'SWG CSR Tool',
-        href: `/home`,
+        href: `/search`,
       },
       ...breadcrumbs,
     ].map(b => {

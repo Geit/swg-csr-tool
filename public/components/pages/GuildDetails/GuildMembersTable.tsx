@@ -44,7 +44,7 @@ export const GuildMembersTable: React.FC<GuildMembersTableProps> = ({ guildId })
     return (
       <>
         <EuiTitle size="m">
-          <h2>Citizens</h2>
+          <h2>Members</h2>
         </EuiTitle>
         <EuiSpacer />
         <EuiLoadingContent lines={5} />

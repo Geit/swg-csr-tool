@@ -16,6 +16,7 @@ import { isPresent } from '../../../utils/utility-types';
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
+import AppSidebar from '../../AppSidebar';
 
 import { useGetCityNameQuery } from './CityDetails.queries';
 import { CitizensTable } from './CitizensTable';
@@ -86,8 +87,9 @@ export const CityDetails: React.FC = () => {
   }
 
   return (
-    <EuiPage paddingSize="l" restrictWidth>
-      <EuiPageBody panelled borderRadius={10}>
+    <EuiPage paddingSize="l">
+      <AppSidebar />
+      <EuiPageBody panelled restrictWidth>
         <EuiPageHeaderSection>
           <>
             <EuiTitle size="l">

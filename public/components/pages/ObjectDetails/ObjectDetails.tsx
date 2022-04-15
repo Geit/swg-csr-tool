@@ -12,13 +12,14 @@ import {
 import { gql } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
-import ObjectInfoWidget from '../widgets/BasicObjectKeyValues';
-import ContentsOfObject from '../widgets/ContentsOfObject';
-import TabbedExtendedObjectDetails from '../widgets/TabbedExtendedObjectDetails';
-import UGCName from '../UGCName';
-import { useDocumentTitle } from '../../hooks/useDocumentTitle';
-import { useRecentlyAccessed } from '../../hooks/useRecentlyAccessed';
-import { useBreadcrumbs } from '../../hooks/useBreadcrumbs';
+import ObjectInfoWidget from '../../widgets/BasicObjectKeyValues';
+import ContentsOfObject from '../../widgets/ContentsOfObject';
+import TabbedExtendedObjectDetails from '../../widgets/TabbedExtendedObjectDetails';
+import UGCName from '../../UGCName';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
+import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
+import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
+import AppSidebar from '../../AppSidebar';
 
 import { useGetObjectNameQuery } from './ObjectDetails.queries';
 
@@ -39,7 +40,7 @@ export const GET_OBJECT_NAME = gql`
   }
 `;
 
-const ObjectDetails = () => {
+export const ObjectDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { data, loading } = useGetObjectNameQuery({
     variables: {
@@ -90,8 +91,9 @@ const ObjectDetails = () => {
   }
 
   return (
-    <EuiPage paddingSize="l" restrictWidth>
-      <EuiPageBody panelled borderRadius={10}>
+    <EuiPage paddingSize="l">
+      <AppSidebar />
+      <EuiPageBody panelled restrictWidth>
         <EuiPageHeaderSection>
           {data?.object?.resolvedName === data?.object?.basicName ? (
             <EuiTitle size="l">
@@ -116,5 +118,3 @@ const ObjectDetails = () => {
     </EuiPage>
   );
 };
-
-export default ObjectDetails;

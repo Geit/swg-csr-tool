@@ -15,25 +15,29 @@ import { WebSocketLink } from '@apollo/client/link/ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { Redirect } from 'react-router';
 import { EuiErrorBoundary } from '@elastic/eui';
+import { I18nProvider } from '@kbn/i18n-react';
 
 import { CoreStart, ScopedHistory } from '../../../../src/core/public';
 import introspectionResult from '../fragment-possibleTypes.generated.json';
+import { AppPluginStartDependencies } from '../types';
 
-import GalaxySearch from './pages/GalaxySearch';
-import ObjectDetails from './pages/ObjectDetails';
-import AccountDetails from './pages/AccountDetails';
-import PlanetWatcherPage from './pages/PlanetWatcherPage';
+import { GalaxySearch } from './pages/GalaxySearch';
+import { ObjectDetails } from './pages/ObjectDetails/ObjectDetails';
+import { AccountDetails } from './pages/AccountDetails';
+import { PlanetWatcher } from './pages/PlanetWatcher';
 import { KibanaCoreServicesProvider } from './KibanaCoreServicesContext';
 import { CoalitionListings } from './pages/CoalitionListings';
 import { CityDetails } from './pages/CityDetails';
 import { GuildDetails } from './pages/GuildDetails';
+import { Trades } from './pages/Trades';
 
 interface CSRToolAppProps {
   coreServices: CoreStart;
   history: ScopedHistory;
+  injectedPlugins: AppPluginStartDependencies;
 }
 
-export default function CSRToolApp({ coreServices, history }: CSRToolAppProps) {
+export default function CSRToolApp({ coreServices, history, injectedPlugins }: CSRToolAppProps) {
   const uri = `${location.host}${coreServices.http.basePath.prepend(`/api/swg_csr_tool/graphql`)}`;
 
   const wsLink = new WebSocketLink({
@@ -132,40 +136,46 @@ export default function CSRToolApp({ coreServices, history }: CSRToolAppProps) {
 
   return (
     <EuiErrorBoundary>
-      <KibanaCoreServicesProvider coreServices={coreServices}>
-        <ApolloProvider client={client}>
-          <Router history={history}>
-            <QueryParamProvider ReactRouterRoute={Route}>
-              <Switch>
-                <Route path="/search">
-                  <GalaxySearch />
-                </Route>
-                <Route path="/object/:id">
-                  <ObjectDetails />
-                </Route>
-                <Route path="/account/:id">
-                  <AccountDetails />
-                </Route>
-                <Route path="/planets/:planet">
-                  <PlanetWatcherPage />
-                </Route>
-                <Redirect exact from="/planets" to="/planets/kashyyyk_main" />
+      <I18nProvider>
+        <KibanaCoreServicesProvider coreServices={coreServices} injectedPlugins={injectedPlugins}>
+          <ApolloProvider client={client}>
+            <Router history={history}>
+              <QueryParamProvider ReactRouterRoute={Route}>
+                <Switch>
+                  <Route path="/search">
+                    <GalaxySearch />
+                  </Route>
+                  <Route path="/object/:id">
+                    <ObjectDetails />
+                  </Route>
+                  <Route path="/account/:id">
+                    <AccountDetails />
+                  </Route>
+                  <Route path="/planets/:planet">
+                    <PlanetWatcher />
+                  </Route>
+                  <Redirect exact from="/planets" to="/planets/kashyyyk_main" />
 
-                <Route path="/coalitions/cities/:id">
-                  <CityDetails />
-                </Route>
-                <Route path="/coalitions/guilds/:id">
-                  <GuildDetails />
-                </Route>
-                <Route path="/coalitions/:type">
-                  <CoalitionListings />
-                </Route>
-                <Redirect exact from="/coalitions" to="/coalitions/guilds" />
-              </Switch>
-            </QueryParamProvider>
-          </Router>
-        </ApolloProvider>
-      </KibanaCoreServicesProvider>
+                  <Route path="/coalitions/cities/:id">
+                    <CityDetails />
+                  </Route>
+                  <Route path="/coalitions/guilds/:id">
+                    <GuildDetails />
+                  </Route>
+                  <Route path="/coalitions/:type">
+                    <CoalitionListings />
+                  </Route>
+                  <Redirect exact from="/coalitions" to="/coalitions/guilds" />
+
+                  <Route path="/trades/">
+                    <Trades />
+                  </Route>
+                </Switch>
+              </QueryParamProvider>
+            </Router>
+          </ApolloProvider>
+        </KibanaCoreServicesProvider>
+      </I18nProvider>
     </EuiErrorBoundary>
   );
 }

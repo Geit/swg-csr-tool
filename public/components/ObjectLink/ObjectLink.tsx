@@ -14,13 +14,7 @@ interface ObjectLinkProps {
 const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId, disablePopup, textToDisplay }) => {
   const [popoverVisible, setPopoverVisible] = useState(false);
   const [debouncedPopoverVisible, setDebouncedPopoverVisible] = useState(false);
-  useDebounce(
-    () => {
-      setDebouncedPopoverVisible(popoverVisible);
-    },
-    100,
-    [popoverVisible]
-  );
+  useDebounce(() => setDebouncedPopoverVisible(popoverVisible), 100, [popoverVisible]);
 
   if (typeof objectId !== 'string') return null;
 

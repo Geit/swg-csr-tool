@@ -28,7 +28,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     planetMap: { size: DEFAULT_SWG_MAP_SIZE, offset: { x: 0, z: 0 } },
     raster: {
       maxZoom: 4,
-      backgroundImage: 'planets/lossy/map_corellia-fs8.png',
+      backgroundImage: 'planets/lossy/map_corellia.avif',
       attribution: "Sytner's Satellite Maps 2.0",
       size: DEFAULT_RASTERIZED_MAP_SIZE,
     },
@@ -40,7 +40,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     planetMap: { size: DEFAULT_SWG_MAP_SIZE, offset: { x: 0, z: 0 } },
     raster: {
       maxZoom: 4,
-      backgroundImage: 'planets/lossy/map_dantooine-fs8.png',
+      backgroundImage: 'planets/lossy/map_dantooine.avif',
       attribution: "Sytner's Satellite Maps 2.0",
       size: DEFAULT_RASTERIZED_MAP_SIZE,
     },
@@ -52,7 +52,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     planetMap: { size: DEFAULT_SWG_MAP_SIZE, offset: { x: 0, z: 0 } },
     raster: {
       maxZoom: 4,
-      backgroundImage: 'planets/lossy/map_dathomir-fs8.png',
+      backgroundImage: 'planets/lossy/map_dathomir.avif',
       attribution: "Sytner's Satellite Maps 2.0",
       size: DEFAULT_RASTERIZED_MAP_SIZE,
     },
@@ -64,7 +64,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     planetMap: { size: DEFAULT_SWG_MAP_SIZE, offset: { x: 0, z: 0 } },
     raster: {
       maxZoom: 4,
-      backgroundImage: 'planets/lossy/map_endor-fs8.png',
+      backgroundImage: 'planets/lossy/map_endor.avif',
       attribution: "Sytner's Satellite Maps 2.0",
       size: DEFAULT_RASTERIZED_MAP_SIZE,
     },
@@ -76,7 +76,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     planetMap: { size: DEFAULT_SWG_MAP_SIZE, offset: { x: 0, z: 0 } },
     raster: {
       maxZoom: 4,
-      backgroundImage: 'planets/lossy/map_lok-fs8.png',
+      backgroundImage: 'planets/lossy/map_lok.avif',
       attribution: "Sytner's Satellite Maps 2.0",
       size: DEFAULT_RASTERIZED_MAP_SIZE,
     },
@@ -88,7 +88,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     planetMap: { size: DEFAULT_SWG_MAP_SIZE, offset: { x: 0, z: 0 } },
     raster: {
       maxZoom: 4,
-      backgroundImage: 'planets/lossy/map_naboo-fs8.png',
+      backgroundImage: 'planets/lossy/map_naboo.avif',
       attribution: "Sytner's Satellite Maps 2.0",
       size: DEFAULT_RASTERIZED_MAP_SIZE,
     },
@@ -100,7 +100,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     planetMap: { size: DEFAULT_SWG_MAP_SIZE, offset: { x: 0, z: 0 } },
     raster: {
       maxZoom: 4,
-      backgroundImage: 'planets/lossy/map_rori-fs8.png',
+      backgroundImage: 'planets/lossy/map_rori.avif',
       attribution: "Sytner's Satellite Maps 2.0",
       size: DEFAULT_RASTERIZED_MAP_SIZE,
     },
@@ -112,7 +112,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     planetMap: { size: DEFAULT_SWG_MAP_SIZE, offset: { x: 0, z: 0 } },
     raster: {
       maxZoom: 4,
-      backgroundImage: 'planets/lossy/map_talus-fs8.png',
+      backgroundImage: 'planets/lossy/map_talus.avif',
       attribution: "Sytner's Satellite Maps 2.0",
       size: DEFAULT_RASTERIZED_MAP_SIZE,
     },
@@ -124,7 +124,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     planetMap: { size: DEFAULT_SWG_MAP_SIZE, offset: { x: 0, z: 0 } },
     raster: {
       maxZoom: 4,
-      backgroundImage: 'planets/lossy/map_tatooine-fs8.png',
+      backgroundImage: 'planets/lossy/map_tatooine.avif',
       attribution: "Sytner's Satellite Maps 2.0",
       size: DEFAULT_RASTERIZED_MAP_SIZE,
     },
@@ -136,7 +136,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     planetMap: { size: DEFAULT_SWG_MAP_SIZE, offset: { x: 0, z: 0 } },
     raster: {
       maxZoom: 4,
-      backgroundImage: 'planets/lossy/map_yavin4-fs8.png',
+      backgroundImage: 'planets/lossy/map_yavin4.avif',
       attribution: "Sytner's Satellite Maps 2.0",
       size: DEFAULT_RASTERIZED_MAP_SIZE,
     },
@@ -163,7 +163,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     },
     raster: {
       maxZoom: 2,
-      backgroundImage: 'planets/lossy/map_kashyyyk_main-fs8.png',
+      backgroundImage: 'planets/lossy/map_kashyyyk_main.avif',
       attribution: 'SWG Game Files',
       size: 1024,
     },
@@ -178,7 +178,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     },
     raster: {
       maxZoom: 2,
-      backgroundImage: 'planets/lossy/map_kashyyyk_dead_forest-fs8.png',
+      backgroundImage: 'planets/lossy/map_kashyyyk_dead_forest.avif',
       attribution: 'SWG Game Files',
       size: 1024,
     },
@@ -193,7 +193,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     },
     raster: {
       maxZoom: 2,
-      backgroundImage: 'planets/lossy/map_kashyyyk_hunting-fs8.png',
+      backgroundImage: 'planets/lossy/map_kashyyyk_hunting.avif',
       attribution: 'SWG Game Files',
       size: 1024,
     },
@@ -214,7 +214,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     },
     raster: {
       maxZoom: 2,
-      backgroundImage: 'planets/lossy/map_kashyyyk_rryatt_trail-fs8.png',
+      backgroundImage: 'planets/lossy/map_kashyyyk_rryatt_trail.avif',
       attribution: 'SWG Game Files',
       size: 1024,
     },
@@ -266,7 +266,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     planetMap: { size: DEFAULT_SWG_MAP_SIZE, offset: { x: 0, z: 0 } },
     raster: {
       maxZoom: 5,
-      backgroundImage: 'planets/lossy/map_bespin_full-fs8.png',
+      backgroundImage: 'planets/lossy/map_bespin_full.avif',
       attribution: 'SWG Legends',
       size: 16384,
     },

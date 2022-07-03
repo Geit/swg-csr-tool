@@ -167,7 +167,7 @@ const isObjectVisible = (obj: Omit<PlanetWatcherObject, 'visible'>, filterState:
 
   if (filterState.aiActivity.length > 0 && !filterState.aiActivity.includes(obj.aiActivity)) return false;
 
-  if (filterState.CRC > 0 && filterState.CRC !== obj.templateCrc) return false;
+  if (filterState.CRC !== 0 && filterState.CRC !== obj.templateCrc) return false;
 
   if (filterState.objectTypes.length > 0 && !filterState.objectTypes.includes(obj.objectTypeTag)) return false;
 

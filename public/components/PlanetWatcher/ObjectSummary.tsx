@@ -151,7 +151,7 @@ const ObjectSummary: React.FC = () => {
               type: 'UPDATE_FILTERS',
               newFilters: {
                 ...data.objectFilters,
-                CRC: parseInt(e.target.value),
+                CRC: parseInt(e.target.value || '0'),
               },
             });
           }}

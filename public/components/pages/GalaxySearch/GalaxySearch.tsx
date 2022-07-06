@@ -6,26 +6,22 @@ import {
   EuiFieldSearch,
   EuiSpacer,
   EuiEmptyPrompt,
-  EuiIcon,
-  EuiDescriptionListTitle,
-  EuiDescriptionListDescription,
-  EuiDescriptionList,
   EuiPageHeaderSection,
   EuiTitle,
 } from '@elastic/eui';
 import { gql } from '@apollo/client';
 import { useThrottle } from 'react-use';
 import { useQueryParam, StringParam } from 'use-query-params';
-import { Link } from 'react-router-dom';
 
-import DeletedItemBadge from '../../DeletedItemBadge';
-import UGCName from '../../UGCName';
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
 import AppSidebar from '../../AppSidebar';
 import LoadingCover from '../../LoadingCover';
 
-import { useSearchQuery, SearchQuery } from './GalaxySearch.queries';
+import { useSearchQuery } from './GalaxySearch.queries';
+import { AccountCard } from './AccountCard';
+import { ObjectCard } from './ObjectCard';
+import { ResourceTypeCard } from './ResourceTypeCard';
 
 export const SEARCH_FOR_OBJECTS = gql`
   query search($searchText: String!) {
@@ -50,132 +46,30 @@ export const SEARCH_FOR_OBJECTS = gql`
             resolvedName
           }
         }
+
+        ... on ResourceType {
+          id
+          name
+          classId
+          className
+          depletedTimeReal
+          depletedTime
+          planetDistribution {
+            sceneId
+            sceneName
+            planetId
+            seed
+          }
+          attributes {
+            attributeId
+            attributeName
+            value
+          }
+        }
       }
     }
   }
 `;
-
-type SearchResult = NonNullable<SearchQuery['search']['results']>[number];
-type AccountResult = Extract<SearchResult, { __typename: 'Account' }>;
-type ObjectResult = Exclude<SearchResult, AccountResult>;
-
-const SearchResultCard: React.FC<{ children: React.ReactNode; title: React.ReactNode; href: string }> = ({
-  children,
-  title,
-  href,
-}) => {
-  return (
-    <Link
-      to={href}
-      rel="noreferrer"
-      className="euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow euiPanel--hasBorder euiPanel--isClickable euiCard euiCard--leftAligned euiCard--isClickable searchResultCard"
-    >
-      <div className="euiCard__content">
-        <span className="euiTitle euiTitle--small euiCard__title">
-          <a className="euiCard__titleAnchor" aria-describedby="">
-            {title}
-          </a>
-        </span>
-        <div className="euiCard__children">{children}</div>
-      </div>
-    </Link>
-  );
-};
-
-const AccountCard: React.FC<{ account: AccountResult }> = ({ account }) => {
-  return (
-    <SearchResultCard
-      href={`/account/${account.id}`}
-      title={
-        (
-          <span>
-            <EuiIcon type="users" size="l" className="searchResultCard__icon" />
-            Account: {account.accountName}
-          </span>
-        ) ?? 'Unknown account'
-      }
-    >
-      <EuiDescriptionList className="galaxySearchKeyValues" textStyle="reverse">
-        <div>
-          <EuiDescriptionListTitle>Station ID</EuiDescriptionListTitle>
-          <EuiDescriptionListDescription>{account.id}</EuiDescriptionListDescription>
-        </div>
-        <div>
-          <EuiDescriptionListTitle>Characters</EuiDescriptionListTitle>
-          <EuiDescriptionListDescription>
-            {account.characters?.map(c => c.resolvedName).join(', ')}
-          </EuiDescriptionListDescription>
-        </div>
-        <div>
-          <EuiDescriptionListTitle>Type</EuiDescriptionListTitle>
-          <EuiDescriptionListDescription>Account</EuiDescriptionListDescription>
-        </div>
-      </EuiDescriptionList>
-    </SearchResultCard>
-  );
-};
-
-const ObjectIcon: Record<SearchResult['__typename'], string> = {
-  Account: 'users',
-  BuildingObject: 'home',
-  CellObject: 'home',
-  CreatureObject: 'user',
-  HarvesterInstallationObject: 'home',
-  InstallationObject: 'home',
-  PlayerCreatureObject: 'user',
-  ManfSchematicObject: 'gear',
-  PlayerObject: 'user',
-  ServerObject: 'questionInCircle',
-  ResourceContainerObject: 'analyzeEvent',
-  ShipObject: 'moon',
-  GuildObject: 'users',
-  TangibleObject: 'questionInCircle',
-  WeaponObject: 'questionInCircle',
-  CityObject: 'questionInCircle',
-  UniverseObject: 'questionInCircle',
-};
-
-const ObjectCard: React.FC<{ object: ObjectResult }> = ({ object }) => {
-  return (
-    <SearchResultCard
-      href={`/object/${object.id}`}
-      title={
-        <span>
-          <EuiIcon
-            type={ObjectIcon[object.__typename] ?? 'questionInCircle'}
-            size="l"
-            className="searchResultCard__icon"
-          />
-          <UGCName rawName={object.resolvedName} />
-        </span>
-      }
-    >
-      <EuiDescriptionList className="galaxySearchKeyValues" textStyle="reverse">
-        <div>
-          <EuiDescriptionListTitle>Object ID</EuiDescriptionListTitle>
-          <EuiDescriptionListDescription>{object.id}</EuiDescriptionListDescription>
-        </div>
-        <div>
-          <EuiDescriptionListTitle>Basic Name</EuiDescriptionListTitle>
-          <EuiDescriptionListDescription>{object.basicName}</EuiDescriptionListDescription>
-        </div>
-        <div>
-          <EuiDescriptionListTitle>Type</EuiDescriptionListTitle>
-          <EuiDescriptionListDescription>{object.__typename}</EuiDescriptionListDescription>
-        </div>
-        <div>
-          <EuiDescriptionListTitle>Deleted</EuiDescriptionListTitle>
-          <EuiDescriptionListDescription>
-            <DeletedItemBadge
-              deletionDate={object.deletionDate ?? null}
-              deletionReason={object.deletionReason ?? null}
-            />
-          </EuiDescriptionListDescription>
-        </div>
-      </EuiDescriptionList>
-    </SearchResultCard>
-  );
-};
 
 const GalaxySearchPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
@@ -260,13 +154,25 @@ export const GalaxySearch: React.FC = () => {
       <LoadingCover isLoading={loading}>
         {items.length > 0
           ? items.map(item => {
+              if (item.__typename === 'Account')
+                return (
+                  <>
+                    <AccountCard account={item} key={`account-${item.id}`} />
+                    <EuiSpacer />
+                  </>
+                );
+
+              if (item.__typename === 'ResourceType')
+                return (
+                  <>
+                    <ResourceTypeCard resource={item} key={`resource-type-${item.id}`} />
+                    <EuiSpacer />
+                  </>
+                );
+
               return (
                 <>
-                  {item.__typename === 'Account' ? (
-                    <AccountCard account={item} key={`account-${item.id}`} />
-                  ) : (
-                    <ObjectCard object={item} key={`object-${item.id}`} />
-                  )}
+                  <ObjectCard object={item} key={`object-${item.id}`} />
                   <EuiSpacer />
                 </>
               );

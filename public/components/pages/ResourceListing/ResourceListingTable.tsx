@@ -1,4 +1,4 @@
-import React, { DependencyList, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { gql } from '@apollo/client';
 import {
   EuiDualRange,
@@ -14,9 +14,12 @@ import {
   EuiToolTip,
   EuiSwitch,
   EuiTablePagination,
+  EuiEmptyPrompt,
 } from '@elastic/eui';
 import { Link } from 'react-router-dom';
-import debounce from 'lodash.debounce';
+
+import { useDebouncedMemo } from '../../../hooks/useDebouncedMemo';
+import { resourceAttributes } from '../../../utils/resourceAttributes';
 
 import { SearchForResourcesQuery, useSearchForResourcesQuery } from './ResourceListingTable.queries';
 
@@ -62,67 +65,12 @@ export const GET_RESOURCE_LISTING = gql`
   }
 `;
 
-type Resource = NonNullable<NonNullable<SearchForResourcesQuery['search']>['results']>[number] & {
+type SearchResult = NonNullable<NonNullable<SearchForResourcesQuery['search']>['results']>[number];
+type Resource = SearchResult & {
   __typename: 'ResourceType';
 };
 
-const attributes = [
-  {
-    abbr: 'CR',
-    name: 'Cold Resistance',
-    id: 'res_cold_resist',
-  },
-  {
-    abbr: 'CD',
-    name: 'Conductivity',
-    id: 'res_conductivity',
-  },
-  {
-    abbr: 'DR',
-    name: 'Decay Resistance',
-    id: 'res_decay_resist',
-  },
-  {
-    abbr: 'ER',
-    name: 'Entangle Resistance',
-    id: 'entangle_resistance',
-  },
-  {
-    abbr: 'FL',
-    name: 'Flavor',
-    id: 'res_flavor',
-  },
-  {
-    abbr: 'HR',
-    name: 'Heat Resistance',
-    id: 'res_heat_resist',
-  },
-  {
-    abbr: 'MA',
-    name: 'Malleability',
-    id: 'res_malleability',
-  },
-  {
-    abbr: 'OQ',
-    name: 'Overall Quality',
-    id: 'res_quality',
-  },
-  {
-    abbr: 'PE',
-    name: 'Potential Energy',
-    id: 'res_potential_energy',
-  },
-  {
-    abbr: 'SR',
-    name: 'Shock Resistance',
-    id: 'res_shock_resistance',
-  },
-  {
-    abbr: 'UT',
-    name: 'Unit Toughness',
-    id: 'res_toughness',
-  },
-];
+const isResourceType = (r: SearchResult): r is Resource => r.__typename === 'ResourceType';
 
 const DEFAULT_MAX = 1000;
 const DEFAULT_MIN = 0;
@@ -169,7 +117,7 @@ const columns: EuiTableFieldDataColumnType<Resource>[] = [
       );
     },
   },
-  ...attributes.map((attribute): EuiTableFieldDataColumnType<Resource> => {
+  ...resourceAttributes.map((attribute): EuiTableFieldDataColumnType<Resource> => {
     return {
       field: 'attributes',
       name: <abbr title={attribute.name}>{attribute.abbr}</abbr>,
@@ -192,18 +140,6 @@ const columns: EuiTableFieldDataColumnType<Resource>[] = [
   }),
 ];
 
-function useDebouncedMemo<T>(factory: () => T, deps: DependencyList | undefined, debounceMs: number): T {
-  const [state, setState] = useState(factory());
-
-  const debouncedSetState = useCallback(debounce(setState, debounceMs), []);
-
-  useEffect(() => {
-    debouncedSetState(factory());
-  }, [...(deps ? deps : []), factory, debouncedSetState]);
-
-  return state;
-}
-
 const DEFAULT_PAGE = 0;
 const PER_PAGE_OPTIONS = [10, 25, 50, 100];
 const DEFAULT_PER_PAGE: typeof PER_PAGE_OPTIONS[number] = 25;
@@ -215,10 +151,10 @@ const ResourceListingTable: React.FC = () => {
 
   const [showInactiveResources, setShowInactiveResources] = useState(false);
   const [resourceAttributeFilters, setResourceAttributeFilters] = useState(
-    Object.fromEntries(attributes.map(a => [a.id, { min: DEFAULT_MIN, max: DEFAULT_MAX }]))
+    Object.fromEntries(resourceAttributes.map(a => [a.id, { min: DEFAULT_MIN, max: DEFAULT_MAX }]))
   );
 
-  const resourceAttributes = useDebouncedMemo(
+  const resourceAttributesQueryFilters = useDebouncedMemo(
     () =>
       Object.entries(resourceAttributeFilters).flatMap(([key, value]) => {
         if (value.max === DEFAULT_MAX && value.min === DEFAULT_MIN) return [];
@@ -240,10 +176,10 @@ const ResourceListingTable: React.FC = () => {
 
   const resultToStartAtRaw = page * rowsPerPage;
 
-  const { data, loading, previousData } = useSearchForResourcesQuery({
+  const { data, loading, previousData, error } = useSearchForResourcesQuery({
     variables: {
       searchText,
-      resourceAttributes,
+      resourceAttributes: resourceAttributesQueryFilters,
       resourceDepletionDate: showInactiveResources ? null : { gte: 'now' },
       limit: rowsPerPage,
       offset: resultToStartAtRaw,
@@ -286,26 +222,36 @@ const ResourceListingTable: React.FC = () => {
       <EuiSpacer />
       <EuiFlexGroup gutterSize="xl">
         <EuiFlexItem grow={3}>
-          <EuiBasicTable
-            items={realData?.search.results ?? []}
-            columns={columns}
-            loading={loading}
-            message={loading ? 'Loading resources...' : 'No resources found'}
-          />
-          <EuiTablePagination
-            pageCount={Math.ceil((realData?.search?.totalResultCount ?? 0) / rowsPerPage)}
-            activePage={page}
-            onChangePage={pageNum => {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-              setPage(pageNum);
-            }}
-            itemsPerPage={rowsPerPage}
-            onChangeItemsPerPage={perPage => setRowsPerPage(perPage)}
-            itemsPerPageOptions={PER_PAGE_OPTIONS}
-          />
+          {error ? (
+            <EuiEmptyPrompt
+              color="danger"
+              iconType="alert"
+              title={<h3>Search Error</h3>}
+              body={<p>There was an error while querying. The results displayed may be incorrect.</p>}
+            />
+          ) : (
+            <>
+              <EuiBasicTable
+                items={realData?.search.results?.filter(isResourceType) ?? []}
+                columns={columns}
+                loading={loading}
+              />
+              <EuiTablePagination
+                pageCount={Math.ceil((realData?.search?.totalResultCount ?? 0) / rowsPerPage)}
+                activePage={page}
+                onChangePage={pageNum => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  setPage(pageNum);
+                }}
+                itemsPerPage={rowsPerPage}
+                onChangeItemsPerPage={perPage => setRowsPerPage(perPage)}
+                itemsPerPageOptions={PER_PAGE_OPTIONS}
+              />
+            </>
+          )}
         </EuiFlexItem>
         <EuiFlexItem>
-          {attributes.map(attribute => {
+          {resourceAttributes.map(attribute => {
             return (
               <EuiFormRow label={attribute.name} key={attribute.id}>
                 <EuiDualRange

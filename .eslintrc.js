@@ -22,6 +22,11 @@ module.exports = {
     jest: true,
     browser: true,
   },
+  settings: {
+    react: {
+      version: 'detect',
+    },
+  },
   rules: {
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
@@ -32,8 +37,6 @@ module.exports = {
     'jest/consistent-test-it': 'error',
     'jest/expect-expect': 'error',
     'jest/prefer-spy-on': 'error',
-    'jest/prefer-to-be-null': 'error',
-    'jest/prefer-to-be-undefined': 'error',
     'jest/prefer-to-contain': 'error',
     'jest/prefer-to-have-length': 'error',
     'array-callback-return': 'error',

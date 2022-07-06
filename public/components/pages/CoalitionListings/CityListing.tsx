@@ -1,12 +1,6 @@
 import React from 'react';
 import { gql } from '@apollo/client';
-import {
-  EuiInMemoryTable,
-  EuiLoadingSpinner,
-  EuiSpacer,
-  EuiTableFieldDataColumnType,
-  SortDirection,
-} from '@elastic/eui';
+import { EuiInMemoryTable, EuiSpacer, EuiTableFieldDataColumnType, SortDirection } from '@elastic/eui';
 import { Link } from 'react-router-dom';
 
 import { useGetAllCitiesQuery, GetAllCitiesQuery } from './CityListing.queries';
@@ -33,14 +27,6 @@ type City = NonNullable<GetAllCitiesQuery['cities']>[number];
 
 const CityListing: React.FC = () => {
   const { data, loading } = useGetAllCitiesQuery();
-
-  if (loading)
-    return (
-      <>
-        <EuiSpacer />
-        <EuiLoadingSpinner />
-      </>
-    );
 
   const columns: EuiTableFieldDataColumnType<City>[] = [
     {
@@ -106,6 +92,8 @@ const CityListing: React.FC = () => {
         items={data?.cities ?? []}
         columns={columns}
         sorting={sorting}
+        loading={loading}
+        message={loading ? 'Loading cities...' : 'No cities found'}
       />
     </>
   );

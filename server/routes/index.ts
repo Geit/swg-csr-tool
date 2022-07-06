@@ -24,7 +24,9 @@ export function defineRoutes(router: IRouter) {
       },
     },
     async (context, request, response) => {
-      const proxyUrl = await context.core.uiSettings.client.get('csrToolGraphQlUrl');
+      const uiSettings = (await context.core).uiSettings;
+
+      const proxyUrl = await uiSettings.client.get('csrToolGraphQlUrl');
       await new Promise(resolve => {
         const rawRequest = ensureRawRequest(request);
         // Simply proxy the request through to swg-graphql.

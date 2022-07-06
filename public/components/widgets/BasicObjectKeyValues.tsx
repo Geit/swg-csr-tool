@@ -35,10 +35,31 @@ export const GET_OBJECT_DETAILS = gql`
       location
       scene
 
+      template
+      templateId
+
+      container {
+        id
+        resolvedName
+      }
+
+      loadsWith {
+        id
+        resolvedName
+      }
+
       ... on ITangibleObject {
-        ownerId
         condition
         count
+        owner {
+          __typename
+          id
+          resolvedName
+        }
+        creator {
+          id
+          resolvedName
+        }
       }
 
       ... on WeaponObject {
@@ -119,9 +140,13 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
     {
       title: 'Loads With',
       description: (
-        <SimpleValue isLoading={loading} numeric>
+        <SimpleValue isLoading={loading}>
           {data?.object?.loadWithId && data.object.id !== data.object.loadWithId ? (
-            <ObjectLink key={`loadWith-${data?.object.id}`} objectId={data?.object?.loadWithId} />
+            <ObjectLink
+              key={`loadWith-${data?.object.id}`}
+              objectId={data?.object?.loadWithId}
+              textToDisplay={data?.object?.loadsWith?.resolvedName}
+            />
           ) : null}
         </SimpleValue>
       ),
@@ -129,8 +154,12 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
     {
       title: 'Contained By',
       description: (
-        <SimpleValue isLoading={loading} numeric>
-          <ObjectLink key={`containedBy-${data?.object?.id ?? 'unknown'}`} objectId={data?.object?.containedById} />
+        <SimpleValue isLoading={loading}>
+          <ObjectLink
+            key={`containedBy-${data?.object?.id ?? 'unknown'}`}
+            objectId={data?.object?.containedById}
+            textToDisplay={data?.object?.container?.resolvedName}
+          />
         </SimpleValue>
       ),
     },
@@ -142,6 +171,16 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
           <EuiText color="subdued" size="xs">
             {data?.object?.scene ?? 'Unknown Scene'}
           </EuiText>
+        </SimpleValue>
+      ),
+    },
+    {
+      title: 'Template',
+      description: (
+        <SimpleValue isLoading={loading}>
+          <abbr title={data?.object?.template || data?.object?.templateId?.toString() || ''}>
+            {data?.object?.template?.split('/')?.at(-1) || data?.object?.templateId}
+          </abbr>
         </SimpleValue>
       ),
     },
@@ -170,12 +209,31 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
     });
   }
 
-  if (data?.object && 'ownerId' in data.object) {
+  if (data?.object && 'owner' in data.object && data.object.owner) {
     ObjectInformation.push({
       title: 'Owner',
       description: (
-        <SimpleValue isLoading={loading} numeric>
-          <ObjectLink key={`ownerId-${data.object.ownerId}`} objectId={data.object.ownerId} />
+        <SimpleValue isLoading={loading}>
+          <ObjectLink
+            key={`ownerId-${data.object.owner.id}`}
+            objectId={data.object.owner.id}
+            textToDisplay={data.object.owner.resolvedName}
+          />
+        </SimpleValue>
+      ),
+    });
+  }
+
+  if (data?.object && 'creator' in data.object && data.object.creator) {
+    ObjectInformation.push({
+      title: 'Creator',
+      description: (
+        <SimpleValue isLoading={loading}>
+          <ObjectLink
+            key={`ownerId-${data.object.creator.id}`}
+            objectId={data.object.creator.id}
+            textToDisplay={data.object.creator.resolvedName}
+          />
         </SimpleValue>
       ),
     });

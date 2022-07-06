@@ -1,12 +1,6 @@
 import React from 'react';
 import { gql } from '@apollo/client';
-import {
-  EuiInMemoryTable,
-  EuiLoadingSpinner,
-  EuiSpacer,
-  EuiTableFieldDataColumnType,
-  SortDirection,
-} from '@elastic/eui';
+import { EuiInMemoryTable, EuiSpacer, EuiTableFieldDataColumnType, SortDirection } from '@elastic/eui';
 import { Link } from 'react-router-dom';
 
 import { GetAllGuildsQuery, useGetAllGuildsQuery } from './GuildListing.queries';
@@ -33,14 +27,6 @@ type Guild = NonNullable<GetAllGuildsQuery['guilds']>[number];
 
 const GuildListing: React.FC = () => {
   const { data, loading } = useGetAllGuildsQuery();
-
-  if (loading)
-    return (
-      <>
-        <EuiSpacer />
-        <EuiLoadingSpinner />
-      </>
-    );
 
   const columns: EuiTableFieldDataColumnType<Guild>[] = [
     {
@@ -117,6 +103,8 @@ const GuildListing: React.FC = () => {
         items={data?.guilds ?? []}
         columns={columns}
         sorting={sorting}
+        loading={loading}
+        message={loading ? 'Loading guilds...' : 'No guilds found'}
       />
     </>
   );

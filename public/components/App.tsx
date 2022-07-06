@@ -30,6 +30,10 @@ import { CoalitionListings } from './pages/CoalitionListings';
 import { CityDetails } from './pages/CityDetails';
 import { GuildDetails } from './pages/GuildDetails';
 import { Trades } from './pages/Trades';
+import { TradeRollupPage } from './pages/TradeRollupPage';
+import { TradeActivity } from './pages/TradeActivity';
+import { ResourceDetails } from './pages/ResourceDetails';
+import { ResourceListing } from './pages/ResourceListing';
 
 interface CSRToolAppProps {
   coreServices: CoreStart;
@@ -47,7 +51,7 @@ export default function CSRToolApp({ coreServices, history, injectedPlugins }: C
       lazy: true,
       connectionParams: async () => {
         const result = await coreServices.http.post('/api/swg_csr_tool/graphql/websocket_auth', {
-          body: '{ "auth": 1}',
+          body: '{ "auth": 1 }',
         });
 
         return result;
@@ -128,6 +132,15 @@ export default function CSRToolApp({ coreServices, history, injectedPlugins }: C
               },
               keyArgs: ['guildId'],
             },
+            resource: {
+              read(_, { args, toReference }) {
+                return toReference({
+                  __typename: 'ResourceType',
+                  id: args!.resourceId,
+                });
+              },
+              keyArgs: ['resourceId'],
+            },
           },
         },
       },
@@ -169,6 +182,21 @@ export default function CSRToolApp({ coreServices, history, injectedPlugins }: C
 
                   <Route path="/trades/">
                     <Trades />
+                  </Route>
+
+                  <Route path="/trade-rollup">
+                    <TradeRollupPage />
+                  </Route>
+
+                  <Route path="/trade-report">
+                    <TradeActivity />
+                  </Route>
+
+                  <Route path="/resources/:id">
+                    <ResourceDetails />
+                  </Route>
+                  <Route path="/resources">
+                    <ResourceListing />
                   </Route>
                 </Switch>
               </QueryParamProvider>

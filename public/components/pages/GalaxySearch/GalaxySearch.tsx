@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   EuiPage,
   EuiPageBody,
@@ -10,12 +10,11 @@ import {
   EuiDescriptionListTitle,
   EuiDescriptionListDescription,
   EuiDescriptionList,
-  EuiLoadingSpinner,
   EuiPageHeaderSection,
   EuiTitle,
 } from '@elastic/eui';
 import { gql } from '@apollo/client';
-import { useThrottle, useDebounce } from 'react-use';
+import { useThrottle } from 'react-use';
 import { useQueryParam, StringParam } from 'use-query-params';
 import { Link } from 'react-router-dom';
 
@@ -24,6 +23,7 @@ import UGCName from '../../UGCName';
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
 import AppSidebar from '../../AppSidebar';
+import LoadingCover from '../../LoadingCover';
 
 import { useSearchQuery, SearchQuery } from './GalaxySearch.queries';
 
@@ -205,10 +205,6 @@ export const GalaxySearch: React.FC = () => {
     },
     returnPartialData: true,
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [longLoad, setLongLoad] = useState(false);
-  useDebounce(() => setIsLoading(loading), 200, [loading]);
-  useDebounce(() => setLongLoad(loading), 2000, [loading]);
 
   const documentTitle = [throttledSearchText, `Galaxy Search`].filter(Boolean).join(' - ');
 
@@ -219,16 +215,14 @@ export const GalaxySearch: React.FC = () => {
     },
   ]);
 
-  const actuallyLoading = isLoading && loading;
-
   const fieldSearch = (
     <>
       <EuiFieldSearch
         placeholder="Search for objects, characters or accounts"
         value={searchText || ''}
-        isClearable={!actuallyLoading}
+        isClearable={!loading}
         onChange={e => setSearchText((e.target as HTMLInputElement).value, 'replaceIn')}
-        isLoading={actuallyLoading}
+        isLoading={loading}
         fullWidth
       />
       <EuiSpacer />
@@ -236,13 +230,13 @@ export const GalaxySearch: React.FC = () => {
   );
 
   const emptyMessage =
-    throttledSearchText.length > 0 ? (
+    throttledSearchText.length > 0 && !loading ? (
       <EuiEmptyPrompt iconType="search" title={<h3>No Objects Found</h3>} titleSize="s" />
     ) : (
       <EuiEmptyPrompt iconType="search" title={<h3>Search to find objects</h3>} titleSize="s" />
     );
 
-  if (!actuallyLoading && error) {
+  if (!loading && error) {
     return (
       <GalaxySearchPageLayout>
         {fieldSearch}
@@ -258,34 +252,27 @@ export const GalaxySearch: React.FC = () => {
 
   const hasCurrentData = Object.keys(data ?? {}).length > 0;
 
-  if (longLoad && !hasCurrentData) {
-    return (
-      <GalaxySearchPageLayout>
-        {fieldSearch}
-        <EuiLoadingSpinner size="xl" />
-      </GalaxySearchPageLayout>
-    );
-  }
-
   const items = (hasCurrentData ? data : previousData)?.search.results ?? [];
 
   return (
     <GalaxySearchPageLayout>
       {fieldSearch}
-      {items.length > 0
-        ? items.map(item => {
-            return (
-              <>
-                {item.__typename === 'Account' ? (
-                  <AccountCard account={item} key={`account-${item.id}`} />
-                ) : (
-                  <ObjectCard object={item} key={`object-${item.id}`} />
-                )}
-                <EuiSpacer />
-              </>
-            );
-          })
-        : emptyMessage}
+      <LoadingCover isLoading={loading}>
+        {items.length > 0
+          ? items.map(item => {
+              return (
+                <>
+                  {item.__typename === 'Account' ? (
+                    <AccountCard account={item} key={`account-${item.id}`} />
+                  ) : (
+                    <ObjectCard object={item} key={`object-${item.id}`} />
+                  )}
+                  <EuiSpacer />
+                </>
+              );
+            })
+          : emptyMessage}
+      </LoadingCover>
     </GalaxySearchPageLayout>
   );
 };

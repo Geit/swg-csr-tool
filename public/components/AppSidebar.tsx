@@ -1,5 +1,5 @@
 import { EuiPageSideBar, EuiSideNav, EuiSideNavItemType } from '@elastic/eui';
-import React, { MouseEventHandler } from 'react';
+import React, { MouseEventHandler, useState } from 'react';
 import { useHistory } from 'react-router';
 
 import { useKibana } from '../hooks/useKibana';
@@ -9,13 +9,14 @@ import mapConfigs from './PlanetWatcher/data/maps';
 const AppSidebar: React.FC = () => {
   const history = useHistory();
   const coreServices = useKibana();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const appUrl = coreServices?.application.getUrlForApp('swgCsrTool');
 
   const navItems: EuiSideNavItemType<unknown>[] = [
     {
       name: 'Galaxy Search',
       id: 'galaxySearch',
-      href: '/search',
+      href: `${appUrl}/search`,
       icon: <span>🔍</span>,
     },
     {
@@ -45,12 +46,14 @@ const AppSidebar: React.FC = () => {
           href: `${appUrl}/trades`,
         },
         {
-          id: 'suspicious-trades',
-          name: 'Suspicious Trades',
-        },
-        {
           id: 'rollup-trades',
           name: 'Trade Rollup',
+          href: `${appUrl}/trade-rollup`,
+        },
+        {
+          id: 'trade-report',
+          name: 'Trade Report',
+          href: `${appUrl}/trade-report`,
         },
       ],
       icon: <span>🪙</span>,
@@ -58,17 +61,14 @@ const AppSidebar: React.FC = () => {
     {
       name: 'Resources',
       id: 'resourceListings',
+      icon: <span>⛏️</span>,
       items: [
         {
           id: 'current-resources',
           name: 'Current Spawns',
-        },
-        {
-          id: 'historical-resources',
-          name: 'Historical Spawns',
+          href: `${appUrl}/resources`,
         },
       ],
-      icon: <span>⛏️</span>,
     },
     {
       name: 'Auctions',
@@ -98,7 +98,7 @@ const AppSidebar: React.FC = () => {
         })),
       icon: <span>🌍</span>,
     },
-  ].filter(item => Boolean(coreServices?.application?.capabilities?.[item.id]?.['show']));
+  ].filter(item => Boolean(coreServices?.application?.capabilities?.[item.id]?.show));
 
   const addClickHandlers = (i: EuiSideNavItemType<unknown>) => {
     if (i.items) {
@@ -109,6 +109,8 @@ const AppSidebar: React.FC = () => {
     if (!i.href) return i;
 
     const onClick: MouseEventHandler = evt => {
+      if (evt.shiftKey || evt.ctrlKey || evt.button === 1) return;
+
       evt.preventDefault();
       history.push(i.href!.replace(appUrl!, ''));
     };
@@ -123,7 +125,12 @@ const AppSidebar: React.FC = () => {
 
   return (
     <EuiPageSideBar paddingSize="m">
-      <EuiSideNav mobileTitle="SWG CSR Tool" isOpenOnMobile={true} items={navItemsWithHandlers} />
+      <EuiSideNav
+        mobileTitle="SWG CSR Tool"
+        isOpenOnMobile={mobileNavOpen}
+        toggleOpenOnMobile={() => setMobileNavOpen(val => !val)}
+        items={navItemsWithHandlers}
+      />
     </EuiPageSideBar>
   );
 };

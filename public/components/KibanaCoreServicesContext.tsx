@@ -10,16 +10,17 @@ interface KibanaCoreServicesContextContents {
 
 export const KibanaCoreServicesContext = createContext<KibanaCoreServicesContextContents>({});
 
-export const KibanaCoreServicesProvider: React.FC<KibanaCoreServicesContextContents & { children: React.ReactNode }> =
-  ({ coreServices, injectedPlugins, children }) => {
-    return (
-      <KibanaCoreServicesContext.Provider
-        value={{
-          coreServices,
-          injectedPlugins,
-        }}
-      >
-        {children}
-      </KibanaCoreServicesContext.Provider>
-    );
-  };
+export const KibanaCoreServicesProvider: React.FC<
+  KibanaCoreServicesContextContents & { children: React.ReactNode }
+> = ({ coreServices, injectedPlugins, children }) => {
+  return (
+    <KibanaCoreServicesContext.Provider
+      value={{
+        coreServices,
+        injectedPlugins,
+      }}
+    >
+      {children}
+    </KibanaCoreServicesContext.Provider>
+  );
+};

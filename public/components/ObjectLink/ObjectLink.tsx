@@ -1,7 +1,6 @@
 import React, { useState, ReactNode } from 'react';
 import { EuiPopover } from '@elastic/eui';
 import { Link } from 'react-router-dom';
-import { useDebounce } from 'react-use';
 
 import ObjectLinkPopoverDetails from './ObjectLinkPopoverContents';
 
@@ -12,9 +11,8 @@ interface ObjectLinkProps {
 }
 
 const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId, disablePopup, textToDisplay }) => {
-  const [popoverVisible, setPopoverVisible] = useState(false);
-  const [debouncedPopoverVisible, setDebouncedPopoverVisible] = useState(false);
-  useDebounce(() => setDebouncedPopoverVisible(popoverVisible), 100, [popoverVisible]);
+  const [mouseOverLink, setMouseOverLink] = useState(false);
+  const [mouseOverPopover, setMouseOverPopOver] = useState(false);
 
   if (typeof objectId !== 'string') return null;
 
@@ -26,8 +24,8 @@ const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId, disablePopup, textToD
     <Link
       className="euiLink euiLink--primary"
       to={`/object/${objectId}`}
-      onMouseEnter={() => setPopoverVisible(true)}
-      onMouseLeave={() => setPopoverVisible(false)}
+      onMouseEnter={() => setMouseOverLink(true)}
+      onMouseLeave={() => setMouseOverLink(false)}
     >
       {textToDisplay ? textToDisplay : <code>{objectId}</code>}
     </Link>
@@ -37,7 +35,7 @@ const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId, disablePopup, textToD
     return button;
   }
 
-  const popOverOpen = debouncedPopoverVisible || popoverVisible;
+  const popOverOpen = mouseOverLink || mouseOverPopover;
 
   return (
     <EuiPopover
@@ -47,8 +45,8 @@ const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId, disablePopup, textToD
       ownFocus={false}
       hasArrow={false}
       anchorPosition="upCenter"
-      onMouseEnter={() => setPopoverVisible(true)}
-      onMouseLeave={() => setPopoverVisible(false)}
+      onMouseEnter={() => setMouseOverPopOver(true)}
+      onMouseLeave={() => setMouseOverPopOver(false)}
     >
       {popOverOpen && <ObjectLinkPopoverDetails objectId={objectId} />}
     </EuiPopover>

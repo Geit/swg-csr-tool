@@ -6,3 +6,6 @@ build
 
 *.queries.ts
 *.generated.ts
+
+wasm/*.js
+target

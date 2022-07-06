@@ -15,7 +15,7 @@ import { useParams } from 'react-router-dom';
 import ObjectInfoWidget from '../../widgets/BasicObjectKeyValues';
 import ContentsOfObject from '../../widgets/ContentsOfObject';
 import TabbedExtendedObjectDetails from '../../widgets/TabbedExtendedObjectDetails';
-import UGCName from '../../UGCName';
+import UGCName, { stripUGCModifiers } from '../../UGCName';
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
@@ -50,7 +50,7 @@ export const ObjectDetails: React.FC = () => {
   });
 
   const objectName = data?.object?.resolvedName;
-  const documentTitle = [objectName, `Object Details`].filter(Boolean).join(' - ');
+  const documentTitle = stripUGCModifiers([objectName, `Object Details`].filter(Boolean).join(' - '));
 
   useDocumentTitle(documentTitle);
   useRecentlyAccessed(`/app/swgCsrTool/object/${id}`, documentTitle, `object-details-${id}`, Boolean(objectName));

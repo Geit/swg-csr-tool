@@ -1,7 +1,6 @@
 import React from 'react';
 import { EuiInMemoryTable, EuiLoadingContent, EuiSpacer, EuiTableFieldDataColumnType, EuiTitle } from '@elastic/eui';
 import { gql } from '@apollo/client';
-import { useParams } from 'react-router-dom';
 
 import ObjectLink from '../../ObjectLink';
 import UGCName from '../../UGCName';
@@ -66,7 +65,7 @@ export const StructuresTable: React.FC<StructuresTableProps> = ({ cityId }) => {
       name: 'Name',
       truncateText: true,
       render(val, record) {
-        return <ObjectLink objectId={record.object.id} textToDisplay={<UGCName rawName={val} />} />;
+        return <ObjectLink objectId={record.object?.id} textToDisplay={<UGCName rawName={val} />} />;
       },
     },
     {
@@ -85,7 +84,7 @@ export const StructuresTable: React.FC<StructuresTableProps> = ({ cityId }) => {
     },
   ];
 
-  const items = data?.city?.structures ?? [];
+  const items = data?.city?.structures.filter(({ object }) => object) ?? [];
   const paginationOptions = items.length > 10 ? { initialPageSize: 10 } : false;
 
   return (

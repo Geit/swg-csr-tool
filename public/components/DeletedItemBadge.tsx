@@ -18,7 +18,7 @@ const DeletedItemBadge: React.FC<DeletedItemBadgeProps> = ({ deletionReason, del
   }
 
   if (deletionReason === 0 || deletionDate === null) {
-    return <EuiBadge color="secondary">Undeleted</EuiBadge>;
+    return <EuiBadge color="success">Undeleted</EuiBadge>;
   }
 
   const deletionDateAsDate = new Date(deletionDate);

@@ -4,8 +4,10 @@ import {
   EuiDescriptionList,
   EuiDescriptionListTitle,
   EuiDescriptionListDescription,
+  EuiText,
 } from '@elastic/eui';
 import { gql } from '@apollo/client';
+import { Link } from 'react-router-dom';
 
 import DeletedItemBadge from '../DeletedItemBadge';
 import UGCName from '../UGCName';
@@ -20,6 +22,17 @@ export const GET_OBJECT_DETAILS = gql`
       resolvedName
       deletionReason
       deletionDate
+
+      ... on PlayerCreatureObject {
+        account {
+          id
+          accountName
+          characters {
+            id
+            resolvedName
+          }
+        }
+      }
     }
   }
 `;
@@ -29,27 +42,75 @@ interface ObjectLinkPopoverDetailsProps {
 }
 
 const ObjectLinkPopoverDetails: React.FC<ObjectLinkPopoverDetailsProps> = ({ objectId }) => {
-  const { data } = useGetObjectDetailsTooltipQuery({
+  const { data, loading } = useGetObjectDetailsTooltipQuery({
     variables: {
       objectId,
     },
   });
 
+  if (loading || !data) {
+    return (
+      <>
+        <EuiPopoverTitle>Object Details</EuiPopoverTitle>
+        <EuiText>
+          <p>Loading...</p>
+        </EuiText>
+      </>
+    );
+  }
+
+  if (!data?.object) {
+    return (
+      <>
+        <EuiPopoverTitle>Object Details</EuiPopoverTitle>
+        <EuiText>
+          <p>Object not found</p>
+        </EuiText>
+      </>
+    );
+  }
+
   return (
     <>
       <EuiPopoverTitle>
-        {data?.object?.resolvedName ? <UGCName rawName={data.object.resolvedName} /> : 'Object Details'}
+        {data.object.resolvedName ? <UGCName rawName={data.object.resolvedName} /> : 'Object Details'}
       </EuiPopoverTitle>
       <EuiDescriptionList compressed>
-        <EuiDescriptionListTitle>Object Type</EuiDescriptionListTitle>
-        <EuiDescriptionListDescription>{data?.object?.__typename ?? 'Unknown'}</EuiDescriptionListDescription>
-        <EuiDescriptionListTitle>Deletion Status</EuiDescriptionListTitle>
-        <EuiDescriptionListDescription>
-          <DeletedItemBadge
-            deletionDate={data?.object?.deletionDate ?? null}
-            deletionReason={data?.object?.deletionReason ?? null}
-          />
-        </EuiDescriptionListDescription>
+        <div>
+          <EuiDescriptionListTitle>Object ID</EuiDescriptionListTitle>
+          <EuiDescriptionListDescription>{data?.object?.id}</EuiDescriptionListDescription>
+        </div>
+        <div>
+          <EuiDescriptionListTitle>Object Type</EuiDescriptionListTitle>
+          <EuiDescriptionListDescription>{data?.object?.__typename ?? 'Unknown'}</EuiDescriptionListDescription>
+        </div>
+        <div>
+          <EuiDescriptionListTitle>Deletion Status</EuiDescriptionListTitle>
+          <EuiDescriptionListDescription>
+            <DeletedItemBadge
+              deletionDate={data.object.deletionDate ?? null}
+              deletionReason={data.object.deletionReason ?? null}
+            />
+          </EuiDescriptionListDescription>
+        </div>
+        {'account' in data.object && data.object.account && (
+          <div>
+            <EuiDescriptionListTitle>Account</EuiDescriptionListTitle>
+            <EuiDescriptionListDescription>
+              <Link to={`/account/${data.object.account.id}`}>
+                {data.object.account.accountName ?? data.object.account.id}
+              </Link>
+            </EuiDescriptionListDescription>
+          </div>
+        )}
+        {'account' in data.object && data.object.account && 'characters' in data.object.account && (
+          <div>
+            <EuiDescriptionListTitle>Alt Characters</EuiDescriptionListTitle>
+            <EuiDescriptionListDescription>
+              {data.object.account.characters?.map(c => c.resolvedName).join(', ')}
+            </EuiDescriptionListDescription>
+          </div>
+        )}
       </EuiDescriptionList>
     </>
   );

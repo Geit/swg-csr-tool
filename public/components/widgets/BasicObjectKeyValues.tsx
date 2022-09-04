@@ -15,6 +15,7 @@ import DeletedItemBadge from '../DeletedItemBadge';
 import ObjectLink from '../ObjectLink';
 import ConditionListing from '../ConditionListing';
 import SimpleValue from '../SimpleValue';
+import ShipPartPercentiles from '../ShipPartPercentiles';
 
 import { useGetObjectDetailsQuery } from './BasicObjectKeyValues.queries';
 
@@ -59,6 +60,16 @@ export const GET_OBJECT_DETAILS = gql`
         creator {
           id
           resolvedName
+        }
+        shipPartSummary {
+          headlinePercentile
+          isReverseEngineered
+          reverseEngineeringLevel
+          stats {
+            name
+            value
+            percentile
+          }
         }
       }
 
@@ -197,6 +208,17 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
       description: (
         <SimpleValue isLoading={loading}>
           <ConditionListing conditionBits={data.object.condition} />
+        </SimpleValue>
+      ),
+    });
+  }
+
+  if (data?.object && 'shipPartSummary' in data.object && data.object.shipPartSummary) {
+    ObjectInformation.push({
+      title: 'Ship Part Percentile',
+      description: (
+        <SimpleValue isLoading={loading} numeric>
+          <ShipPartPercentiles {...data.object.shipPartSummary} />
         </SimpleValue>
       ),
     });

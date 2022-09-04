@@ -11,6 +11,8 @@ import { Link } from 'react-router-dom';
 
 import DeletedItemBadge from '../DeletedItemBadge';
 import UGCName from '../UGCName';
+import SimpleValue from '../SimpleValue';
+import ShipPartPercentiles from '../ShipPartPercentiles';
 
 import { useGetObjectDetailsTooltipQuery } from './ObjectLinkPopoverContents.queries';
 
@@ -30,6 +32,18 @@ export const GET_OBJECT_DETAILS = gql`
           characters {
             id
             resolvedName
+          }
+        }
+      }
+      ... on ITangibleObject {
+        shipPartSummary {
+          headlinePercentile
+          isReverseEngineered
+          reverseEngineeringLevel
+          stats {
+            name
+            value
+            percentile
           }
         }
       }
@@ -108,6 +122,16 @@ const ObjectLinkPopoverDetails: React.FC<ObjectLinkPopoverDetailsProps> = ({ obj
             <EuiDescriptionListTitle>Alt Characters</EuiDescriptionListTitle>
             <EuiDescriptionListDescription>
               {data.object.account.characters?.map(c => c.resolvedName).join(', ')}
+            </EuiDescriptionListDescription>
+          </div>
+        )}
+        {'shipPartSummary' in data.object && data.object.shipPartSummary && (
+          <div>
+            <EuiDescriptionListTitle>Ship Part Percentile</EuiDescriptionListTitle>
+            <EuiDescriptionListDescription>
+              <SimpleValue isLoading={loading} numeric>
+                <ShipPartPercentiles {...data.object.shipPartSummary} />
+              </SimpleValue>
             </EuiDescriptionListDescription>
           </div>
         )}

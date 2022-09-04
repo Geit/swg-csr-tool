@@ -1,9 +1,22 @@
-import React from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiListGroup, EuiListGroupItem, EuiPanel, EuiSpacer, EuiText } from '@elastic/eui';
+import React, { useState } from 'react';
+import {
+  EuiAccordion,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiListGroup,
+  EuiListGroupItem,
+  EuiPanel,
+  EuiSpacer,
+  EuiText,
+  EuiToolTip,
+  htmlIdGenerator,
+} from '@elastic/eui';
 import { Link } from 'react-router-dom';
 
 import ObjectLink from '../ObjectLink';
 import TransactionItem from '../pages/Trades/TransactionItem';
+
+import TransactionRollupActions from './TradeRollupActions';
 
 interface TradeRollupParty {
   identifier: string;
@@ -12,6 +25,7 @@ interface TradeRollupParty {
     oid: string;
     name: string;
     count: number;
+    wasOriginalOwner: boolean;
   }[];
   entity?:
     | { __typename: 'Account'; id: string; accountName?: string | null | undefined }
@@ -23,49 +37,79 @@ interface TradeRollupProps {
   parties: TradeRollupParty[];
 }
 
+const TradeRollupPartyComponent: React.FC<{ party: TradeRollupParty }> = ({ party }) => {
+  const [accordionId] = useState(htmlIdGenerator()());
+  let title = <span>{party.identifier}</span>;
+
+  if (party.entity?.__typename === 'Account')
+    title = <Link to={`/account/${party.entity.id}`}>{party.entity.accountName ?? party.entity.id}</Link>;
+  else if (party.entity?.__typename === 'PlayerCreatureObject')
+    title = <ObjectLink objectId={party.identifier} textToDisplay={party.entity.resolvedName} />;
+
+  const itemsReceived = party.itemsReceived.filter(ir => !ir.wasOriginalOwner);
+  const itemsReturned = party.itemsReceived.filter(ir => ir.wasOriginalOwner);
+
+  return (
+    <EuiFlexItem key={party.identifier} grow={1}>
+      <EuiPanel color="subdued" hasBorder borderRadius="none">
+        <EuiText textAlign="center">
+          <h3 style={{ marginBottom: 0 }}>{title}</h3>
+        </EuiText>
+        <EuiText textAlign="center" size="xs" color="subdued">
+          Received
+        </EuiText>
+        {itemsReceived.length || party.creditsReceived > 0 ? (
+          <EuiListGroup flush={true} maxWidth={false} bordered={false}>
+            {party.creditsReceived > 0 && (
+              <EuiListGroupItem label={`${party.creditsReceived.toLocaleString()} Credits`} />
+            )}
+
+            {itemsReceived.map(item => (
+              <EuiListGroupItem key={item.oid} label={<TransactionItem {...item} />} />
+            ))}
+          </EuiListGroup>
+        ) : (
+          <>
+            <EuiSpacer />
+            <EuiText textAlign="center" size="m" color="subdued">
+              Nothing
+            </EuiText>
+          </>
+        )}
+        {itemsReturned.length > 0 && (
+          <EuiAccordion
+            id={accordionId}
+            buttonContent={
+              <EuiToolTip content="These items were traded between the two parties, but ended up being returned to this player">
+                <span>Returned items</span>
+              </EuiToolTip>
+            }
+          >
+            <EuiListGroup flush={true} maxWidth={false} bordered={false}>
+              {itemsReturned.map(item => (
+                <EuiListGroupItem key={item.oid} label={<TransactionItem {...item} />} />
+              ))}
+            </EuiListGroup>
+          </EuiAccordion>
+        )}
+      </EuiPanel>
+    </EuiFlexItem>
+  );
+};
+
 export const TradeRollup: React.FC<TradeRollupProps> = ({ parties }) => {
   return (
-    <EuiPanel color="transparent" hasBorder>
+    <EuiPanel color="transparent" hasBorder style={{ position: 'relative' }}>
+      <div style={{ position: 'absolute', right: '8px', top: '8px' }}>
+        <TransactionRollupActions
+          id={`rollup-${parties[0].identifier}-${parties[1].identifier}`}
+          partyA={parties[0]}
+          partyB={parties[1]}
+        />
+      </div>
       <EuiFlexGroup>
         {parties.map(party => (
-          <EuiFlexItem key={party.identifier}>
-            <EuiPanel color="subdued" hasBorder borderRadius="none">
-              <EuiText textAlign="center">
-                <h3 style={{ marginBottom: 0 }}>
-                  {party.entity?.__typename === 'Account' && (
-                    <Link to={`/account/${party.entity.id}`}>{party.entity.accountName ?? party.entity.id}</Link>
-                  )}
-
-                  {party.entity?.__typename === 'PlayerCreatureObject' && (
-                    <ObjectLink objectId={party.identifier} textToDisplay={party.entity.resolvedName} />
-                  )}
-
-                  {!party.entity && party.identifier}
-                </h3>
-              </EuiText>
-              <EuiText textAlign="center" size="xs" color="subdued">
-                Received
-              </EuiText>
-              {party.itemsReceived.length || party.creditsReceived > 0 ? (
-                <EuiListGroup flush={true} maxWidth={false} bordered={false}>
-                  {party.creditsReceived > 0 && (
-                    <EuiListGroupItem label={`${party.creditsReceived.toLocaleString()} Credits`} />
-                  )}
-                  {party.itemsReceived.map(item => (
-                    <EuiListGroupItem key={item.oid} label={<TransactionItem {...item} />} />
-                  ))}
-                </EuiListGroup>
-              ) : (
-                <>
-                  <EuiSpacer />
-                  <EuiText textAlign="center" size="m" color="subdued">
-                    Nothing
-                  </EuiText>
-                  <EuiSpacer />
-                </>
-              )}
-            </EuiPanel>
-          </EuiFlexItem>
+          <TradeRollupPartyComponent party={party} key={party.identifier} />
         ))}
       </EuiFlexGroup>
     </EuiPanel>

@@ -52,6 +52,7 @@ export const GET_TRADE_REPORT = gql`
           basicName
           oid
           count
+          wasOriginalOwner
         }
         creditsReceived
       }

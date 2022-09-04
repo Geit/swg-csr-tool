@@ -1,7 +1,6 @@
 import httpProxy from 'http-proxy';
-
-import { ensureRawRequest } from '../../../../src/core/server/http/router';
-import { IRouter } from '../../../../src/core/server';
+import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
+import { IRouter } from '@kbn/core-http-server';
 
 const proxy = httpProxy.createProxyServer();
 

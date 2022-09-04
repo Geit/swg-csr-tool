@@ -2,21 +2,23 @@ import React, { useState, MouseEventHandler } from 'react';
 import { EuiButtonIcon, EuiPopover, EuiContextMenuPanel, EuiContextMenuItem } from '@elastic/eui';
 import { useHistory } from 'react-router';
 
-import { useKibana } from '../../../hooks/useKibana';
+import { useKibana } from '../../hooks/useKibana';
 
-interface TransactionActionsParty {
-  oid: string;
-  stationId: string;
-  name: string;
+interface TransactionRollupActionsParty {
+  identifier: string;
+  entity?:
+    | { __typename: 'Account'; id: string; accountName?: string | null | undefined }
+    | { __typename: 'PlayerCreatureObject'; id: string; resolvedName: string }
+    | null;
 }
 
-interface TranasctionActionsProps {
+interface TranasctionRollupActionsProps {
   id: string;
-  partyA: TransactionActionsParty;
-  partyB: TransactionActionsParty;
+  partyA: TransactionRollupActionsParty;
+  partyB: TransactionRollupActionsParty;
 }
 
-const TransactionActions: React.FC<TranasctionActionsProps> = ({ id, partyA, partyB }) => {
+const TransactionRollupActions: React.FC<TranasctionRollupActionsProps> = ({ id, partyA, partyB }) => {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const coreServices = useKibana();
   const history = useHistory();
@@ -33,6 +35,13 @@ const TransactionActions: React.FC<TranasctionActionsProps> = ({ id, partyA, par
 
     if (targetUrl) history.push(targetUrl);
   };
+
+  const partyAName =
+    (partyA.entity?.__typename === 'Account' ? partyA.entity.accountName : partyA.entity?.resolvedName) ||
+    partyA.identifier;
+  const partyBName =
+    (partyB.entity?.__typename === 'Account' ? partyB.entity.accountName : partyB.entity?.resolvedName) ||
+    partyB.identifier;
 
   return (
     <EuiPopover
@@ -56,50 +65,26 @@ const TransactionActions: React.FC<TranasctionActionsProps> = ({ id, partyA, par
           <EuiContextMenuItem
             key="view-character-trades"
             icon="user"
-            href={`${appUrl}/trades?parties=${partyA.oid}_${partyB.oid}`}
+            href={`${appUrl}/trades?parties=${partyA.identifier}_${partyB.identifier}`}
             onClick={handleLinkClick}
           >
-            View all trades between characters
-          </EuiContextMenuItem>,
-          <EuiContextMenuItem
-            key="view-account-trades"
-            icon="users"
-            href={`${appUrl}/trades?parties=${partyA.stationId}_${partyB.stationId}`}
-            onClick={handleLinkClick}
-          >
-            View all trades between accounts
-          </EuiContextMenuItem>,
-          <EuiContextMenuItem
-            key="view-character-rollup"
-            icon="fold"
-            href={`${appUrl}/trade-rollup?party_a=${partyA.oid}&party_b=${partyB.oid}`}
-            onClick={handleLinkClick}
-          >
-            View rollup between characters
-          </EuiContextMenuItem>,
-          <EuiContextMenuItem
-            key="view-account-rollup"
-            icon="reporter"
-            href={`${appUrl}/trade-rollup?party_a=${partyA.stationId}&party_b=${partyB.stationId}`}
-            onClick={handleLinkClick}
-          >
-            View rollup between accounts
+            View individual trades between accounts
           </EuiContextMenuItem>,
           <EuiContextMenuItem
             key="view-partya-report"
             icon="reporter"
-            href={`${appUrl}/trade-report?stationId=${partyA.stationId}`}
+            href={`${appUrl}/trade-report?stationId=${partyA.identifier}`}
             onClick={handleLinkClick}
           >
-            View trade report for {partyA.name}
+            View trade report for {partyAName}
           </EuiContextMenuItem>,
           <EuiContextMenuItem
             key="view-partyb-report"
             icon="reporter"
-            href={`${appUrl}/trade-report?stationId=${partyB.stationId}`}
+            href={`${appUrl}/trade-report?stationId=${partyB.identifier}`}
             onClick={handleLinkClick}
           >
-            View trade report for {partyB.name}
+            View trade report for {partyBName}
           </EuiContextMenuItem>,
         ]}
       />
@@ -107,4 +92,4 @@ const TransactionActions: React.FC<TranasctionActionsProps> = ({ id, partyA, par
   );
 };
 
-export default TransactionActions;
+export default TransactionRollupActions;

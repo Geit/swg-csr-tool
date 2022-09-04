@@ -101,7 +101,7 @@ export const ResourceDetails: React.FC = () => {
   useEffect(() => {
     const newDist = data?.resource?.planetDistribution?.find(p => p.planetId === selectedPlanet);
 
-    if (!newDist) setSelectedPlanet(data?.resource?.planetDistribution?.[0].planetId ?? null);
+    if (!newDist) setSelectedPlanet(data?.resource?.planetDistribution?.[0]?.planetId ?? null);
   }, [data?.resource?.planetDistribution, selectedPlanet]);
 
   const depletedTime = data?.resource?.depletedTimeReal && new Date(data?.resource?.depletedTimeReal);
@@ -151,7 +151,7 @@ export const ResourceDetails: React.FC = () => {
         </EuiDescriptionList>
       </EuiPanel>
       <EuiSpacer />
-      {data?.resource?.fractalData && data.resource.planetDistribution && planetDistribution && (
+      {data?.resource?.fractalData && data.resource?.planetDistribution && planetDistribution && (
         <>
           <EuiTitle>
             <h2>Distribution</h2>

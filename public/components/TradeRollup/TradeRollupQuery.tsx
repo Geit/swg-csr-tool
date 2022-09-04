@@ -38,6 +38,7 @@ export const GET_TRANSACTION_ROLLUP = gql`
           basicName
           name
           count
+          wasOriginalOwner
         }
       }
     }

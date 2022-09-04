@@ -1,5 +1,5 @@
 import React from 'react';
-import { gql } from '@apollo/client';
+import { ApolloError, gql } from '@apollo/client';
 import {
   EuiCallOut,
   EuiEmptyPrompt,
@@ -17,7 +17,7 @@ import ObjectLink from '../ObjectLink';
 import DeletedItemBadge from '../DeletedItemBadge';
 import UGCName from '../UGCName';
 
-import { GetStructuresForCharacterQuery, useGetStructuresForCharacterQuery } from './StructuresTable.queries';
+import { useGetStructuresForAccountQuery, useGetStructuresForCharacterQuery } from './StructuresTable.queries';
 
 const STRUCTURE_TYPE_IDS = [BUILDING_TAG, HARVESTER_TAG, INSTALLATION_TAG, MANF_INSTALLATION_TAG];
 
@@ -41,78 +41,146 @@ export const GET_STRUCTURE_FOR_CHARACTER = gql`
   }
 `;
 
-interface SturcturesTableRowsProps {
-  isLoading: boolean;
-  data?: GetStructuresForCharacterQuery;
+export const GET_STRUCTURES_FOR_ACCOUNT = gql`
+  query getStructuresForAccount($stationId: String!, $structureObjectTypes: [Int!]!) {
+    account(stationId: $stationId) {
+      id
+      structures: ownedObjects(objectTypes: $structureObjectTypes) {
+        id
+        resolvedName
+        basicName: resolvedName(resolveCustomNames: false)
+        location
+        scene
+        deletionDate
+        deletionReason
+        containedById
+      }
+    }
+  }
+`;
+
+interface Structure {
+  __typename?: string;
+  id: string;
+  resolvedName: string;
+  location?: number[] | null | undefined;
+  scene?: string | null | undefined;
+  deletionDate?: string | null | undefined;
+  deletionReason?: number | null | undefined;
+  containedById?: string | null | undefined;
+  basicName: string;
 }
 
-const StructuresTableRows: React.FC<SturcturesTableRowsProps> = ({ isLoading, data }) => {
-  if (isLoading)
-    return (
-      <>
-        {Array(5)
-          .fill(true)
-          .map((a, idx) => {
-            return (
-              <EuiTableRow key={`expectedItem-${idx}`}>
-                <EuiTableRowCell colSpan={5} textOnly={false}>
-                  <EuiLoadingContent lines={1} className="inTableLoadingIndicator" />
-                </EuiTableRowCell>
-              </EuiTableRow>
-            );
-          })}
-      </>
-    );
-
-  if (
-    data?.object?.__typename === 'PlayerCreatureObject' &&
-    data.object.structures &&
-    data.object.structures.length > 0
-  ) {
-    return (
-      <>
-        {data.object.structures.map(structure => (
-          <EuiTableRow key={`item-${structure.id}`}>
-            <EuiTableRowCell>
-              <ObjectLink disablePopup objectId={structure.id} />
-            </EuiTableRowCell>
-            <EuiTableRowCell>{structure.__typename}</EuiTableRowCell>
-            <EuiTableRowCell>
-              <UGCName rawName={structure.resolvedName} /> ({structure.basicName})
-            </EuiTableRowCell>
-            <EuiTableRowCell>
-              <DeletedItemBadge
-                deletionDate={structure.deletionDate ?? null}
-                deletionReason={structure.deletionReason ?? null}
-              />
-            </EuiTableRowCell>
-            <EuiTableRowCell>
-              {structure.containedById !== '0'
-                ? `In Container ${structure.containedById}`
-                : [structure.location?.map(Math.round).join(' '), structure.scene].filter(Boolean).join(' - ')}
-            </EuiTableRowCell>
-          </EuiTableRow>
-        ))}
-      </>
-    );
-  }
-
+const StructureTableRow: React.FC<Structure> = ({
+  __typename,
+  id,
+  resolvedName,
+  location,
+  scene,
+  deletionDate,
+  deletionReason,
+  containedById,
+  basicName,
+}) => {
   return (
-    <EuiTableRow>
-      <EuiTableRowCell colSpan={5} align="center">
-        <EuiEmptyPrompt iconType="home" title={<h3>This player is homeless</h3>} titleSize="xs" />
+    <EuiTableRow key={`item-${id}`}>
+      <EuiTableRowCell>
+        <ObjectLink disablePopup objectId={id} />
+      </EuiTableRowCell>
+      <EuiTableRowCell>
+        <UGCName rawName={resolvedName} /> ({basicName})
+      </EuiTableRowCell>
+      <EuiTableRowCell>
+        <DeletedItemBadge deletionDate={deletionDate ?? null} deletionReason={deletionReason ?? null} />
+      </EuiTableRowCell>
+      <EuiTableRowCell>
+        {containedById !== '0' ? (
+          <>
+            Packed in: <ObjectLink objectId={containedById} />
+          </>
+        ) : (
+          [location?.map(Math.round).join(' '), scene].filter(Boolean).join(' - ')
+        )}
       </EuiTableRowCell>
     </EuiTableRow>
   );
 };
 
-interface StructuresTableProps {
-  characterObjectId: string;
-}
-/**
- *
- */
-const StructuresTable: React.FC<StructuresTableProps> = ({ characterObjectId }) => {
+const StructureTableLoadingRows: React.FC = () => (
+  <>
+    {Array(5)
+      .fill(true)
+      .map((a, idx) => {
+        return (
+          <EuiTableRow key={`expectedItem-${idx}`}>
+            <EuiTableRowCell colSpan={5} textOnly={false}>
+              <EuiLoadingContent lines={1} className="inTableLoadingIndicator" />
+            </EuiTableRowCell>
+          </EuiTableRow>
+        );
+      })}
+  </>
+);
+
+const StructureTableEmpty: React.FC = () => (
+  <EuiTableRow>
+    <EuiTableRowCell colSpan={5} align="center">
+      <EuiEmptyPrompt iconType="home" title={<h3>This player is homeless</h3>} titleSize="xs" />
+    </EuiTableRowCell>
+  </EuiTableRow>
+);
+
+const StructureTableContainer: React.FC = ({ children }) => {
+  return (
+    <EuiTable className="objectListingTable" tableLayout="auto">
+      <EuiTableHeader>
+        <EuiTableHeaderCell className="narrowDataCol">Object ID</EuiTableHeaderCell>
+        <EuiTableHeaderCell>Structure Name</EuiTableHeaderCell>
+        <EuiTableHeaderCell className="narrowDataCol">Deletion Status</EuiTableHeaderCell>
+        <EuiTableHeaderCell>Location</EuiTableHeaderCell>
+      </EuiTableHeader>
+
+      <EuiTableBody>{children}</EuiTableBody>
+    </EuiTable>
+  );
+};
+
+const StructureTable: React.FC<{ error?: ApolloError; loading: boolean; structures: Structure[] }> = ({
+  structures,
+  error,
+  loading,
+}) => {
+  if (error)
+    return (
+      <EuiCallOut title="Incomplete results" color="danger" iconType="alert">
+        <p>There was an error while querying. The results displayed may be incorrect.</p>
+      </EuiCallOut>
+    );
+
+  if (loading)
+    return (
+      <StructureTableContainer>
+        <StructureTableLoadingRows />
+      </StructureTableContainer>
+    );
+
+  if (structures.length === 0)
+    return (
+      <StructureTableContainer>
+        <StructureTableEmpty />
+      </StructureTableContainer>
+    );
+
+  return (
+    <StructureTableContainer>
+      {structures.map(structure => (
+        <StructureTableRow {...structure} key={structure.id} />
+      ))}
+    </StructureTableContainer>
+  );
+};
+
+export const CharacterStructureTable: React.FC<{ characterObjectId: string }> = ({ characterObjectId }) => {
   const { data, loading, error } = useGetStructuresForCharacterQuery({
     variables: {
       objectId: characterObjectId,
@@ -121,28 +189,21 @@ const StructuresTable: React.FC<StructuresTableProps> = ({ characterObjectId }) 
     returnPartialData: true,
   });
 
-  if (error)
-    return (
-      <EuiCallOut title="Incomplete results" color="danger" iconType="alert">
-        <p>There was an error while querying. The results displayed may be incorrect.</p>
-      </EuiCallOut>
-    );
+  const structures = (data?.object?.__typename === 'PlayerCreatureObject' && data.object.structures) || [];
 
-  const rows = <StructuresTableRows isLoading={loading} data={data} />;
-
-  return (
-    <EuiTable className="objectListingTable" tableLayout="auto">
-      <EuiTableHeader>
-        <EuiTableHeaderCell className="narrowDataCol">Object ID</EuiTableHeaderCell>
-        <EuiTableHeaderCell className="narrowDataCol">Type</EuiTableHeaderCell>
-        <EuiTableHeaderCell>Structure Name</EuiTableHeaderCell>
-        <EuiTableHeaderCell className="narrowDataCol">Deletion Status</EuiTableHeaderCell>
-        <EuiTableHeaderCell>Location</EuiTableHeaderCell>
-      </EuiTableHeader>
-
-      <EuiTableBody>{rows}</EuiTableBody>
-    </EuiTable>
-  );
+  return <StructureTable loading={loading} error={error} structures={structures} />;
 };
 
-export default StructuresTable;
+export const AccountStructureTable: React.FC<{ stationId: string }> = ({ stationId }) => {
+  const { data, loading, error } = useGetStructuresForAccountQuery({
+    variables: {
+      stationId,
+      structureObjectTypes: STRUCTURE_TYPE_IDS,
+    },
+    returnPartialData: true,
+  });
+
+  const structures = data?.account?.structures ?? [];
+
+  return <StructureTable loading={loading} error={error} structures={structures} />;
+};

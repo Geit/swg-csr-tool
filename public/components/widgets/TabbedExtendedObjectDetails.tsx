@@ -3,7 +3,7 @@ import React from 'react';
 
 import CharactersTable from './CharactersTable';
 import ObjectVariables from './ObjectVariables';
-import StructuresTable from './StructuresTable';
+import { CharacterStructureTable } from './StructuresTable';
 
 interface ExtraObjectInformationProps {
   objectId: string;
@@ -28,7 +28,7 @@ const TabbedExtendedObjectDetails: React.FC<ExtraObjectInformationProps> = ({ ob
     tabs.push({
       id: 'structures',
       name: 'Structures',
-      content: <StructuresTable characterObjectId={objectId} />,
+      content: <CharacterStructureTable characterObjectId={objectId} />,
     });
 
     if (stationId)

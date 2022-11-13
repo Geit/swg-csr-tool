@@ -17,6 +17,7 @@ import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
 import CharactersTable from '../../widgets/CharactersTable';
 import AppSidebar from '../../AppSidebar';
 import { AccountStructureTable } from '../../widgets/StructuresTable';
+import { AccountVeteranRewardTable } from '../../widgets/VeteranRewardTable';
 
 import { useGetAccountNameQuery } from './AccountDetails.queries';
 
@@ -60,10 +61,20 @@ export const AccountDetails: React.FC = () => {
       </EuiTitle>
       <CharactersTable stationId={id} />
       <EuiSpacer size="l" />
-      <EuiTitle>
-        <h2>Structures</h2>
-      </EuiTitle>
-      <AccountStructureTable stationId={id} />
+      <>
+        <EuiTitle>
+          <h2>Structures</h2>
+        </EuiTitle>
+        <AccountStructureTable stationId={id} />
+      </>
+      <EuiSpacer size="l" />
+      <>
+        <EuiTitle>
+          <h2>Veteran Rewards</h2>
+        </EuiTitle>
+        <EuiSpacer />
+        <AccountVeteranRewardTable stationId={id} />
+      </>
       {/* Prevents this page being sized based on its content */}
       <EuiSpacer style={{ width: '2000px' }} />
     </>

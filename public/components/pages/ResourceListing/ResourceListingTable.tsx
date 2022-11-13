@@ -17,6 +17,7 @@ import {
   EuiEmptyPrompt,
 } from '@elastic/eui';
 import { Link } from 'react-router-dom';
+import { useThrottle } from 'react-use';
 
 import { useDebouncedMemo } from '../../../hooks/useDebouncedMemo';
 import { resourceAttributes } from '../../../utils/resourceAttributes';
@@ -148,6 +149,7 @@ const ResourceListingTable: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PER_PAGE);
   const [page, setPage] = useState(DEFAULT_PAGE);
+  const throttledSearchText = useThrottle(searchText || '');
 
   const [showInactiveResources, setShowInactiveResources] = useState(false);
   const [resourceAttributeFilters, setResourceAttributeFilters] = useState(
@@ -178,7 +180,7 @@ const ResourceListingTable: React.FC = () => {
 
   const { data, loading, previousData, error } = useSearchForResourcesQuery({
     variables: {
-      searchText,
+      searchText: throttledSearchText,
       resourceAttributes: resourceAttributesQueryFilters,
       resourceDepletionDate: showInactiveResources ? null : { gte: 'now' },
       limit: rowsPerPage,

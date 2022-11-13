@@ -2,9 +2,8 @@ import React from 'react';
 import { EuiInMemoryTable, EuiLoadingContent, EuiSpacer, EuiTableFieldDataColumnType, EuiTitle } from '@elastic/eui';
 import { gql } from '@apollo/client';
 
-import ObjectLink from '../../ObjectLink';
-
 import { GetGuildEnemiesQuery, useGetGuildEnemiesQuery } from './GuildEnemiesTable.queries';
+import { Link } from 'react-router-dom';
 
 type Enemy = NonNullable<NonNullable<GetGuildEnemiesQuery['guild']>['enemies']>[number];
 
@@ -53,8 +52,8 @@ export const GuildEnemiesTable: React.FC<GuildEnemiesTableProps> = ({ guildId })
       field: 'guild.id',
       name: 'ID',
       truncateText: true,
-      render(val) {
-        return <ObjectLink objectId={val} />;
+      render(val, record) {
+        return (<Link to={`/coalitions/guilds/${record.guild!.id}`}>{record.guild!.name}</Link>);
       },
       width: '20ex',
     },
@@ -63,7 +62,7 @@ export const GuildEnemiesTable: React.FC<GuildEnemiesTableProps> = ({ guildId })
       name: 'Name',
       truncateText: true,
       render(val, record) {
-        return <ObjectLink objectId={record?.guild?.id} textToDisplay={val} />;
+        return (<Link to={`/coalitions/guilds/${record.guild!.id}`}>{record.guild!.name}</Link>);
       },
     },
     {

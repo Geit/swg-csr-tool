@@ -132,9 +132,9 @@ const CharactersTable: React.FC<CharactersTableProps> = ({ stationId }) => {
     <EuiTable className="objectListingTable" tableLayout="auto">
       <EuiTableHeader>
         <EuiTableHeaderCell className="narrowDataCol">Object ID</EuiTableHeaderCell>
-        <EuiTableHeaderCell className="narrowDataCol">Character Name</EuiTableHeaderCell>
-        <EuiTableHeaderCell className="narrowDataCol">Last Login</EuiTableHeaderCell>
-        <EuiTableHeaderCell className="narrowDataCol">Created At</EuiTableHeaderCell>
+        <EuiTableHeaderCell>Character Name</EuiTableHeaderCell>
+        <EuiTableHeaderCell>Last Login</EuiTableHeaderCell>
+        <EuiTableHeaderCell>Created At</EuiTableHeaderCell>
         <EuiTableHeaderCell className="narrowDataCol">Deleted</EuiTableHeaderCell>
       </EuiTableHeader>
 

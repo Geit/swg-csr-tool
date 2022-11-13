@@ -91,9 +91,6 @@ const StructureTableRow: React.FC<Structure> = ({
         <UGCName rawName={resolvedName} /> ({basicName})
       </EuiTableRowCell>
       <EuiTableRowCell>
-        <DeletedItemBadge deletionDate={deletionDate ?? null} deletionReason={deletionReason ?? null} />
-      </EuiTableRowCell>
-      <EuiTableRowCell>
         {containedById !== '0' ? (
           <>
             Packed in: <ObjectLink objectId={containedById} />
@@ -101,6 +98,9 @@ const StructureTableRow: React.FC<Structure> = ({
         ) : (
           [location?.map(Math.round).join(' '), scene].filter(Boolean).join(' - ')
         )}
+      </EuiTableRowCell>
+      <EuiTableRowCell>
+        <DeletedItemBadge deletionDate={deletionDate ?? null} deletionReason={deletionReason ?? null} />
       </EuiTableRowCell>
     </EuiTableRow>
   );
@@ -136,8 +136,8 @@ const StructureTableContainer: React.FC = ({ children }) => {
       <EuiTableHeader>
         <EuiTableHeaderCell className="narrowDataCol">Object ID</EuiTableHeaderCell>
         <EuiTableHeaderCell>Structure Name</EuiTableHeaderCell>
-        <EuiTableHeaderCell className="narrowDataCol">Deletion Status</EuiTableHeaderCell>
         <EuiTableHeaderCell>Location</EuiTableHeaderCell>
+        <EuiTableHeaderCell className="narrowDataCol">Deletion Status</EuiTableHeaderCell>
       </EuiTableHeader>
 
       <EuiTableBody>{children}</EuiTableBody>

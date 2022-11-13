@@ -1,5 +1,5 @@
 import React from 'react';
-import { EuiPage, EuiPageBody, EuiPageContent, EuiSpacer, EuiPageHeaderSection, EuiTitle } from '@elastic/eui';
+import { EuiPage, EuiPageBody, EuiPageSection, EuiSpacer, EuiPageHeaderSection, EuiTitle } from '@elastic/eui';
 
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
@@ -20,16 +20,16 @@ export const ResourceListing: React.FC = () => {
   return (
     <EuiPage paddingSize="l">
       <AppSidebar />
-      <EuiPageBody panelled restrictWidth>
+      <EuiPageBody panelled paddingSize="l">
         <EuiPageHeaderSection>
           <EuiTitle size="l">
             <h1>Resources</h1>
           </EuiTitle>
           <EuiSpacer />
         </EuiPageHeaderSection>
-        <EuiPageContent paddingSize="none" color="transparent" hasBorder={false} borderRadius="none">
+        <EuiPageSection paddingSize="none" color="transparent">
           <ResourceListingTable />
-        </EuiPageContent>
+        </EuiPageSection>
       </EuiPageBody>
     </EuiPage>
   );

@@ -4,7 +4,7 @@ import {
   EuiFlexItem,
   EuiPage,
   EuiPageBody,
-  EuiPageContent,
+  EuiPageSection,
   EuiPageHeaderSection,
   EuiSpacer,
   EuiTitle,
@@ -54,7 +54,7 @@ export const TradeRollupPage: React.FC = () => {
   return (
     <EuiPage paddingSize="l">
       <AppSidebar />
-      <EuiPageBody panelled restrictWidth>
+      <EuiPageBody panelled paddingSize="l">
         <EuiPageHeaderSection>
           <EuiFlexGroup gutterSize="s">
             <EuiFlexItem grow={2}>
@@ -91,7 +91,7 @@ export const TradeRollupPage: React.FC = () => {
             </p>
           </EuiText>
         </EuiPageHeaderSection>
-        <EuiPageContent paddingSize="none" color="transparent" hasBorder={false} borderRadius="none">
+        <EuiPageSection paddingSize="none" color="transparent">
           <EuiSpacer />
           <EuiFlexGroup gutterSize="xl">
             <EuiFlexItem grow={3}>
@@ -123,7 +123,7 @@ export const TradeRollupPage: React.FC = () => {
           ) : (
             <EuiEmptyPrompt iconType="users" title={<h3>Enter account IDs to start a rollup</h3>} titleSize="s" />
           )}
-        </EuiPageContent>
+        </EuiPageSection>
       </EuiPageBody>
     </EuiPage>
   );

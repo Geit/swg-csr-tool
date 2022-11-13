@@ -4,7 +4,7 @@ import {
   EuiFlexItem,
   EuiPage,
   EuiPageBody,
-  EuiPageContent,
+  EuiPageSection,
   EuiPageHeaderSection,
   EuiSpacer,
   EuiTablePagination,
@@ -14,7 +14,6 @@ import {
   EuiEmptyPrompt,
   EuiSuperDatePicker,
   OnRefreshChangeProps,
-  EuiSearchBar,
   EuiSelect,
   EuiFieldText,
   EuiIcon,
@@ -199,7 +198,7 @@ export const Trades: React.FC = () => {
   return (
     <EuiPage paddingSize="l">
       <AppSidebar />
-      <EuiPageBody panelled restrictWidth={!viewAsTable}>
+      <EuiPageBody panelled paddingSize="l">
         <EuiPageHeaderSection>
           <EuiFlexGroup gutterSize="s">
             <EuiFlexItem grow={3}>
@@ -234,7 +233,7 @@ export const Trades: React.FC = () => {
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiPageHeaderSection>
-        <EuiPageContent paddingSize="none" color="transparent" hasBorder={false} borderRadius="none">
+        <EuiPageSection paddingSize="none" color="transparent">
           <EuiSpacer />
           <EuiFlexGroup gutterSize="s">
             <EuiFlexItem grow={3}>
@@ -324,7 +323,7 @@ export const Trades: React.FC = () => {
           ) : (
             emptyMessage
           )}
-        </EuiPageContent>
+        </EuiPageSection>
       </EuiPageBody>
     </EuiPage>
   );

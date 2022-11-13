@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   EuiPage,
   EuiPageBody,
-  EuiPageContent,
+  EuiPageSection,
   EuiSpacer,
   EuiPageHeaderSection,
   EuiTitle,
@@ -192,7 +192,7 @@ export const ResourceDetails: React.FC = () => {
   return (
     <EuiPage paddingSize="l">
       <AppSidebar />
-      <EuiPageBody panelled restrictWidth>
+      <EuiPageBody panelled paddingSize="l">
         <EuiPageHeaderSection>
           <EuiTitle size="l">
             <h1>
@@ -202,9 +202,9 @@ export const ResourceDetails: React.FC = () => {
           <EuiText color="subdued">{data?.resource?.className}</EuiText>
           <EuiSpacer />
         </EuiPageHeaderSection>
-        <EuiPageContent paddingSize="none" color="transparent" hasBorder={false} borderRadius="none">
+        <EuiPageSection paddingSize="none" color="transparent">
           {content}
-        </EuiPageContent>
+        </EuiPageSection>
       </EuiPageBody>
     </EuiPage>
   );

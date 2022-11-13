@@ -2,7 +2,7 @@ import React from 'react';
 import {
   EuiPage,
   EuiPageBody,
-  EuiPageContent,
+  EuiPageSection,
   EuiFieldSearch,
   EuiSpacer,
   EuiEmptyPrompt,
@@ -75,16 +75,16 @@ const GalaxySearchPageLayout: React.FC<{ children: React.ReactNode }> = ({ child
   return (
     <EuiPage paddingSize="l">
       <AppSidebar />
-      <EuiPageBody panelled borderRadius restrictWidth>
+      <EuiPageBody panelled borderRadius paddingSize="l" grow={false}>
         <EuiPageHeaderSection>
           <EuiTitle size="l">
             <h1>Search</h1>
           </EuiTitle>
           <EuiSpacer />
         </EuiPageHeaderSection>
-        <EuiPageContent paddingSize="s" color="transparent" hasBorder={false}>
+        <EuiPageSection paddingSize="s" color="transparent">
           {children}
-        </EuiPageContent>
+        </EuiPageSection>
       </EuiPageBody>
     </EuiPage>
   );

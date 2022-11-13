@@ -1,5 +1,5 @@
 import React from 'react';
-import { EuiPage, EuiPageBody, EuiPageContent } from '@elastic/eui';
+import { EuiPage, EuiPageBody, EuiPageSection } from '@elastic/eui';
 import { useParams } from 'react-router-dom';
 
 import AppSidebar from '../../AppSidebar';
@@ -33,11 +33,11 @@ export const PlanetWatcher: React.FC = () => {
   return (
     <EuiPage paddingSize="none">
       <AppSidebar />
-      <EuiPageBody panelled>
+      <EuiPageBody panelled paddingSize="l">
         {/* <EuiPageHeader pageTitle="Planet Watcher" paddingSize="s" /> */}
-        <EuiPageContent hasBorder={false} hasShadow={false} paddingSize="none" color="transparent" borderRadius="none">
+        <EuiPageSection paddingSize="none" color="transparent">
           <PlanetWatcherMapView planet={planet} />
-        </EuiPageContent>
+        </EuiPageSection>
       </EuiPageBody>
     </EuiPage>
   );

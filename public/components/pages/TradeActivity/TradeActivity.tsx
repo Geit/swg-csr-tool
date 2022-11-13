@@ -4,14 +4,13 @@ import {
   EuiFlexItem,
   EuiPage,
   EuiPageBody,
-  EuiPageContent,
+  EuiPageSection,
   EuiPageHeaderSection,
   EuiSpacer,
   EuiTitle,
   EuiSuperDatePicker,
   EuiText,
   EuiFieldText,
-  EuiLoadingContent,
   EuiEmptyPrompt,
   EuiLoadingSpinner,
   EuiDelayRender,
@@ -147,7 +146,7 @@ export const TradeActivity: React.FC = () => {
   return (
     <EuiPage paddingSize="l">
       <AppSidebar />
-      <EuiPageBody panelled restrictWidth>
+      <EuiPageBody panelled paddingSize="l">
         <EuiPageHeaderSection>
           <EuiFlexGroup gutterSize="s">
             <EuiFlexItem grow={2}>
@@ -180,7 +179,7 @@ export const TradeActivity: React.FC = () => {
             <p>A trade report summarises all of a player&apos;s trade activity over a given time period.</p>
           </EuiText>
         </EuiPageHeaderSection>
-        <EuiPageContent paddingSize="none" color="transparent" hasBorder={false} borderRadius="none">
+        <EuiPageSection paddingSize="none" color="transparent">
           <EuiSpacer />
           <EuiFlexGroup gutterSize="xl">
             <EuiFlexItem grow={3}>
@@ -195,7 +194,7 @@ export const TradeActivity: React.FC = () => {
           </EuiFlexGroup>
           <EuiSpacer />
           <TradeActivityResults stationId={stationId} dateRange={currentDateRange} />
-        </EuiPageContent>
+        </EuiPageSection>
       </EuiPageBody>
     </EuiPage>
   );

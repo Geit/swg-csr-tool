@@ -2,7 +2,7 @@ import React from 'react';
 import {
   EuiPage,
   EuiPageBody,
-  EuiPageContent,
+  EuiPageSection,
   EuiSpacer,
   EuiPageHeaderSection,
   EuiTitle,
@@ -51,20 +51,20 @@ export const CoalitionListings: React.FC = () => {
   return (
     <EuiPage paddingSize="l">
       <AppSidebar />
-      <EuiPageBody panelled restrictWidth>
+      <EuiPageBody panelled paddingSize="l">
         <EuiPageHeaderSection>
           <EuiTitle size="l">
             <h1>Coalitions</h1>
           </EuiTitle>
           <EuiSpacer />
         </EuiPageHeaderSection>
-        <EuiPageContent paddingSize="none" color="transparent" hasBorder={false} borderRadius="none">
+        <EuiPageSection paddingSize="none" color="transparent">
           <EuiTabbedContent
             tabs={tabs}
             selectedTab={selectedTab}
             onTabClick={tab => tab.id !== type && history.push(`/coalitions/${tab.id}`)}
           />
-        </EuiPageContent>
+        </EuiPageSection>
       </EuiPageBody>
     </EuiPage>
   );

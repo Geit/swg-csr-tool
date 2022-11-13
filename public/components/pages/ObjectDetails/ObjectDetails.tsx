@@ -2,7 +2,7 @@ import React from 'react';
 import {
   EuiPage,
   EuiPageBody,
-  EuiPageContent,
+  EuiPageSection,
   EuiSpacer,
   EuiPageHeaderSection,
   EuiTitle,
@@ -93,7 +93,7 @@ export const ObjectDetails: React.FC = () => {
   return (
     <EuiPage paddingSize="l">
       <AppSidebar />
-      <EuiPageBody panelled restrictWidth>
+      <EuiPageBody panelled paddingSize="l">
         <EuiPageHeaderSection>
           {data?.object?.resolvedName === data?.object?.basicName ? (
             <EuiTitle size="l">
@@ -111,9 +111,9 @@ export const ObjectDetails: React.FC = () => {
           )}
           <EuiSpacer />
         </EuiPageHeaderSection>
-        <EuiPageContent paddingSize="none" color="transparent" hasBorder={false} borderRadius="none">
+        <EuiPageSection paddingSize="none" color="transparent">
           {content}
-        </EuiPageContent>
+        </EuiPageSection>
       </EuiPageBody>
     </EuiPage>
   );

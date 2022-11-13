@@ -2,7 +2,7 @@ import React from 'react';
 import {
   EuiPage,
   EuiPageBody,
-  EuiPageContent,
+  EuiPageSection,
   EuiSpacer,
   EuiPageHeaderSection,
   EuiTitle,
@@ -87,7 +87,7 @@ export const GuildDetails: React.FC = () => {
   return (
     <EuiPage paddingSize="l">
       <AppSidebar />
-      <EuiPageBody panelled restrictWidth>
+      <EuiPageBody panelled paddingSize="l">
         <EuiPageHeaderSection>
           <>
             <EuiTitle size="l">
@@ -96,9 +96,9 @@ export const GuildDetails: React.FC = () => {
             <EuiText color="subdued">{data?.guild?.abbreviation}</EuiText>
           </>
         </EuiPageHeaderSection>
-        <EuiPageContent paddingSize="none" color="transparent" hasBorder={false} borderRadius="none">
+        <EuiPageSection paddingSize="none" color="transparent">
           {content}
-        </EuiPageContent>
+        </EuiPageSection>
       </EuiPageBody>
     </EuiPage>
   );

@@ -1,4 +1,4 @@
-import { EuiPageSideBar, EuiSideNav, EuiSideNavItemType } from '@elastic/eui';
+import { EuiPageSidebar, EuiSideNav, EuiSideNavItemType } from '@elastic/eui';
 import React, { MouseEventHandler, useState } from 'react';
 import { useHistory } from 'react-router';
 
@@ -124,14 +124,14 @@ const AppSidebar: React.FC = () => {
   const navItemsWithHandlers = navItems.map(addClickHandlers);
 
   return (
-    <EuiPageSideBar paddingSize="m">
+    <EuiPageSidebar paddingSize="m">
       <EuiSideNav
         mobileTitle="SWG CSR Tool"
         isOpenOnMobile={mobileNavOpen}
         toggleOpenOnMobile={() => setMobileNavOpen(val => !val)}
         items={navItemsWithHandlers}
       />
-    </EuiPageSideBar>
+    </EuiPageSidebar>
   );
 };
 

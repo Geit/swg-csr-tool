@@ -41,7 +41,7 @@
   "dependencies": {
     "@apollo/client": "^3.6.9",
     "@elastic/datemath": "^5.0.3",
-    "@elastic/eui": "^60.1.1",
+    "@elastic/eui": "64.0.5",
     "@types/lodash.groupby": "^4.6.7",
     "@types/lodash.reduce": "^4.6.7",
     "@types/lodash.throttle": "^4.1.7",

@@ -2,7 +2,7 @@ import React from 'react';
 import {
   EuiPage,
   EuiPageBody,
-  EuiPageContent,
+  EuiPageSection,
   EuiSpacer,
   EuiPageHeaderSection,
   EuiTitle,
@@ -80,16 +80,16 @@ export const AccountDetails: React.FC = () => {
   return (
     <EuiPage paddingSize="l">
       <AppSidebar />
-      <EuiPageBody panelled borderRadius={10} restrictWidth>
+      <EuiPageBody panelled borderRadius={10} paddingSize="l">
         <EuiPageHeaderSection>
           <EuiTitle size="l">
             <h1>{data?.account?.accountName ?? 'Account Details'}</h1>
           </EuiTitle>
           <EuiSpacer />
         </EuiPageHeaderSection>
-        <EuiPageContent paddingSize="none" color="transparent" hasBorder={false} borderRadius="none">
+        <EuiPageSection paddingSize="none" color="transparent">
           {content}
-        </EuiPageContent>
+        </EuiPageSection>
       </EuiPageBody>
     </EuiPage>
   );

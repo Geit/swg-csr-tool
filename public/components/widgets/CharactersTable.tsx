@@ -10,10 +10,12 @@ import {
   EuiTableHeaderCell,
   EuiTableRow,
   EuiTableRowCell,
+  EuiText,
 } from '@elastic/eui';
 
 import ObjectLink from '../ObjectLink';
 import DeletedItemBadge from '../DeletedItemBadge';
+import SimpleValue from '../SimpleValue';
 
 import { GetCharactersForAccountQuery, useGetCharactersForAccountQuery } from './CharactersTable.queries';
 
@@ -28,6 +30,14 @@ export const GET_CHARACTERS_FOR_ACCOUNT = gql`
         createdTime
         deletionDate
         deletionReason
+        scene
+        sceneName
+        location
+        playerObject {
+          id
+          workingSkill
+          playedTime
+        }
       }
     }
   }
@@ -38,16 +48,19 @@ interface CharactersTableRowsProps {
   data?: GetCharactersForAccountQuery;
 }
 
+const NUM_COLUMNS = 6;
+const NUM_FAKE_LOADING_ROWS = 5;
+
 const CharactersTableRows: React.FC<CharactersTableRowsProps> = ({ isLoading, data }) => {
   if (isLoading)
     return (
       <>
-        {Array(5)
+        {Array(NUM_FAKE_LOADING_ROWS)
           .fill(true)
           .map((a, idx) => {
             return (
               <EuiTableRow key={`expectedItem-${idx}`}>
-                <EuiTableRowCell colSpan={5} textOnly={false}>
+                <EuiTableRowCell colSpan={NUM_COLUMNS} textOnly={false}>
                   <EuiLoadingContent lines={1} className="inTableLoadingIndicator" />
                 </EuiTableRowCell>
               </EuiTableRow>
@@ -66,7 +79,20 @@ const CharactersTableRows: React.FC<CharactersTableRowsProps> = ({ isLoading, da
               <EuiTableRowCell>
                 <ObjectLink disablePopup objectId={character.id} />
               </EuiTableRowCell>
-              <EuiTableRowCell>{character.resolvedName}</EuiTableRowCell>
+              <EuiTableRowCell>
+                {character.resolvedName}
+                <EuiText color="subdued" size="xs">
+                  {character.playerObject.workingSkill}
+                </EuiText>
+              </EuiTableRowCell>
+              <EuiTableRowCell>
+                <SimpleValue isLoading={false} numeric>
+                  {[character.location?.map(Math.round).join(' ')].filter(Boolean).join(' - ')}
+                  <EuiText color="subdued" size="xs">
+                    {character.sceneName ?? 'Unknown Scene'}
+                  </EuiText>
+                </SimpleValue>
+              </EuiTableRowCell>
               <EuiTableRowCell>
                 {character.lastLoginTime
                   ? new Date(character.lastLoginTime).toLocaleString(undefined, {
@@ -84,6 +110,11 @@ const CharactersTableRows: React.FC<CharactersTableRowsProps> = ({ isLoading, da
                   : 'Unknown'}
               </EuiTableRowCell>
               <EuiTableRowCell>
+                <SimpleValue isLoading={false} numeric>
+                  {Math.round((character.playerObject.playedTime ?? 0) / 3600)}
+                </SimpleValue>
+              </EuiTableRowCell>
+              <EuiTableRowCell>
                 <DeletedItemBadge
                   deletionDate={character.deletionDate ?? null}
                   deletionReason={character.deletionReason ?? null}
@@ -98,7 +129,7 @@ const CharactersTableRows: React.FC<CharactersTableRowsProps> = ({ isLoading, da
 
   return (
     <EuiTableRow>
-      <EuiTableRowCell colSpan={5} align="center">
+      <EuiTableRowCell colSpan={NUM_COLUMNS} align="center">
         <EuiEmptyPrompt iconType="home" title={<h3>This account has no characters</h3>} titleSize="xs" />
       </EuiTableRowCell>
     </EuiTableRow>
@@ -133,8 +164,10 @@ const CharactersTable: React.FC<CharactersTableProps> = ({ stationId }) => {
       <EuiTableHeader>
         <EuiTableHeaderCell className="narrowDataCol">Object ID</EuiTableHeaderCell>
         <EuiTableHeaderCell>Character Name</EuiTableHeaderCell>
+        <EuiTableHeaderCell>Location</EuiTableHeaderCell>
         <EuiTableHeaderCell>Last Login</EuiTableHeaderCell>
         <EuiTableHeaderCell>Created At</EuiTableHeaderCell>
+        <EuiTableHeaderCell className="narrowDataCol">Hours Played</EuiTableHeaderCell>
         <EuiTableHeaderCell className="narrowDataCol">Deleted</EuiTableHeaderCell>
       </EuiTableHeader>
 

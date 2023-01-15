@@ -41,7 +41,6 @@ const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId, disablePopup, textToD
     <EuiPopover
       button={button}
       isOpen={popOverOpen}
-      initialFocus={false}
       ownFocus={false}
       hasArrow={false}
       anchorPosition="upCenter"

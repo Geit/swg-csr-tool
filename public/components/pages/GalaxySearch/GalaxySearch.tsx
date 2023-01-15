@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   EuiPage,
   EuiPageBody,
@@ -10,8 +10,9 @@ import {
   EuiTitle,
 } from '@elastic/eui';
 import { gql } from '@apollo/client';
-import { useThrottle } from 'react-use';
+import { useThrottle, useThrottleFn } from 'react-use';
 import { useQueryParam, StringParam } from 'use-query-params';
+import { fromKueryExpression, toElasticsearchQuery } from '@kbn/es-query';
 
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
@@ -25,7 +26,7 @@ import { ResourceTypeCard } from './ResourceTypeCard';
 
 export const SEARCH_FOR_OBJECTS = gql`
   query search($searchText: String!) {
-    search(searchText: $searchText, from: 0) {
+    search(searchText: $searchText, from: 0, searchTextIsEsQuery: true) {
       totalResultCount
       results {
         __typename
@@ -93,9 +94,26 @@ const GalaxySearchPageLayout: React.FC<{ children: React.ReactNode }> = ({ child
 export const GalaxySearch: React.FC = () => {
   const [searchText, setSearchText] = useQueryParam('q', StringParam);
   const throttledSearchText = useThrottle(searchText || '');
+  const throttledQuery = useThrottleFn(
+    searchTextVal => {
+      if (!searchTextVal) return null;
+
+      try {
+        const expr = fromKueryExpression(searchTextVal);
+        const esQuery = toElasticsearchQuery(expr);
+
+        return JSON.stringify(esQuery);
+      } catch (err) {
+        return null;
+      }
+    },
+    200,
+    [searchText]
+  );
+
   const { loading, error, data, previousData } = useSearchQuery({
     variables: {
-      searchText: throttledSearchText,
+      searchText: throttledQuery || '',
     },
     returnPartialData: true,
   });

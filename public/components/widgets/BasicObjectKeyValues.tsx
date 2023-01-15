@@ -16,6 +16,7 @@ import ObjectLink from '../ObjectLink';
 import ConditionListing from '../ConditionListing';
 import SimpleValue from '../SimpleValue';
 import ShipPartPercentiles from '../ShipPartPercentiles';
+import UGCName from '../UGCName';
 
 import { useGetObjectDetailsQuery } from './BasicObjectKeyValues.queries';
 
@@ -156,7 +157,7 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
             <ObjectLink
               key={`loadWith-${data?.object.id}`}
               objectId={data?.object?.loadWithId}
-              textToDisplay={data?.object?.loadsWith?.resolvedName}
+              textToDisplay={<UGCName rawName={data?.object?.loadsWith?.resolvedName} />}
             />
           ) : null}
         </SimpleValue>
@@ -169,7 +170,7 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
           <ObjectLink
             key={`containedBy-${data?.object?.id ?? 'unknown'}`}
             objectId={data?.object?.containedById}
-            textToDisplay={data?.object?.container?.resolvedName}
+            textToDisplay={<UGCName rawName={data?.object?.container?.resolvedName} />}
           />
         </SimpleValue>
       ),

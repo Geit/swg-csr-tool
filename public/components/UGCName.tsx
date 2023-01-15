@@ -23,7 +23,7 @@ const UGCColorSection: React.FC<UGCColorName> = ({ remainingParts, color = 'curr
     if (REGEX_COLOR_ESCAPE.test(partToCheck)) {
       return (
         <span style={styles}>
-          {plainParts.join('')}
+          {plainParts.join('').replaceAll('\\', '')}
           <UGCColorSection color={partToCheck.replaceAll('\\', '')} remainingParts={remainingParts.slice(i + 1)} />
         </span>
       );
@@ -32,7 +32,7 @@ const UGCColorSection: React.FC<UGCColorName> = ({ remainingParts, color = 'curr
     plainParts.push(partToCheck);
   }
 
-  return <span style={styles}>{plainParts.join('')}</span>;
+  return <span style={styles}>{plainParts.join('').replaceAll('\\', '')}</span>;
 };
 
 interface UGCNameProps {
@@ -58,7 +58,7 @@ const UGCName: React.FC<UGCNameProps> = ({ rawName }) => {
  * @returns The input string with no modifiers.
  */
 export const stripUGCModifiers = (content: string) => {
-  return content.replaceAll(REGEX_COLOR_ESCAPE, '');
+  return content.replaceAll(REGEX_COLOR_ESCAPE, '').replaceAll('\\', '');
 };
 
 export default UGCName;

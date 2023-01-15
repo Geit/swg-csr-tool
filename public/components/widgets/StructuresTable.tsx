@@ -54,6 +54,13 @@ export const GET_STRUCTURES_FOR_ACCOUNT = gql`
         deletionDate
         deletionReason
         containedById
+
+        ... on ITangibleObject {
+          owner {
+            id
+            resolvedName
+          }
+        }
       }
     }
   }
@@ -69,9 +76,13 @@ interface Structure {
   deletionReason?: number | null | undefined;
   containedById?: string | null | undefined;
   basicName: string;
+  owner?: {
+    id: string;
+    resolvedName: string;
+  } | null;
 }
 
-const StructureTableRow: React.FC<Structure> = ({
+const StructureTableRow: React.FC<Structure & { enableOwnerDisplay: boolean }> = ({
   __typename,
   id,
   resolvedName,
@@ -81,6 +92,8 @@ const StructureTableRow: React.FC<Structure> = ({
   deletionReason,
   containedById,
   basicName,
+  owner,
+  enableOwnerDisplay,
 }) => {
   return (
     <EuiTableRow key={`item-${id}`}>
@@ -99,6 +112,13 @@ const StructureTableRow: React.FC<Structure> = ({
           [location?.map(Math.round).join(' '), scene].filter(Boolean).join(' - ')
         )}
       </EuiTableRowCell>
+
+      {enableOwnerDisplay && (
+        <EuiTableRowCell>
+          {owner ? <ObjectLink objectId={owner.id} textToDisplay={owner.resolvedName}></ObjectLink> : 'Unknown'}
+        </EuiTableRowCell>
+      )}
+
       <EuiTableRowCell>
         <DeletedItemBadge deletionDate={deletionDate ?? null} deletionReason={deletionReason ?? null} />
       </EuiTableRowCell>
@@ -130,13 +150,14 @@ const StructureTableEmpty: React.FC = () => (
   </EuiTableRow>
 );
 
-const StructureTableContainer: React.FC = ({ children }) => {
+const StructureTableContainer: React.FC<{ enableOwnerDisplay: boolean }> = ({ children, enableOwnerDisplay }) => {
   return (
     <EuiTable className="objectListingTable" tableLayout="auto">
       <EuiTableHeader>
         <EuiTableHeaderCell className="narrowDataCol">Object ID</EuiTableHeaderCell>
         <EuiTableHeaderCell>Structure Name</EuiTableHeaderCell>
         <EuiTableHeaderCell>Location</EuiTableHeaderCell>
+        {enableOwnerDisplay && <EuiTableHeaderCell>Owner</EuiTableHeaderCell>}
         <EuiTableHeaderCell className="narrowDataCol">Deletion Status</EuiTableHeaderCell>
       </EuiTableHeader>
 
@@ -145,11 +166,12 @@ const StructureTableContainer: React.FC = ({ children }) => {
   );
 };
 
-const StructureTable: React.FC<{ error?: ApolloError; loading: boolean; structures: Structure[] }> = ({
-  structures,
-  error,
-  loading,
-}) => {
+const StructureTable: React.FC<{
+  error?: ApolloError;
+  loading: boolean;
+  structures: Structure[];
+  enableOwnerDisplay?: boolean;
+}> = ({ structures, error, loading, enableOwnerDisplay = false }) => {
   if (error)
     return (
       <EuiCallOut title="Incomplete results" color="danger" iconType="alert">
@@ -159,22 +181,22 @@ const StructureTable: React.FC<{ error?: ApolloError; loading: boolean; structur
 
   if (loading)
     return (
-      <StructureTableContainer>
+      <StructureTableContainer enableOwnerDisplay={enableOwnerDisplay}>
         <StructureTableLoadingRows />
       </StructureTableContainer>
     );
 
   if (structures.length === 0)
     return (
-      <StructureTableContainer>
+      <StructureTableContainer enableOwnerDisplay={enableOwnerDisplay}>
         <StructureTableEmpty />
       </StructureTableContainer>
     );
 
   return (
-    <StructureTableContainer>
+    <StructureTableContainer enableOwnerDisplay={enableOwnerDisplay}>
       {structures.map(structure => (
-        <StructureTableRow {...structure} key={structure.id} />
+        <StructureTableRow {...structure} key={structure.id} enableOwnerDisplay={enableOwnerDisplay} />
       ))}
     </StructureTableContainer>
   );
@@ -205,5 +227,5 @@ export const AccountStructureTable: React.FC<{ stationId: string }> = ({ station
 
   const structures = data?.account?.structures ?? [];
 
-  return <StructureTable loading={loading} error={error} structures={structures} />;
+  return <StructureTable loading={loading} error={error} structures={structures} enableOwnerDisplay />;
 };

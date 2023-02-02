@@ -7,23 +7,26 @@ import { GetAllGuildsQuery, useGetAllGuildsQuery } from './GuildListing.queries'
 
 export const GET_ALL_GUILDS = gql`
   query getAllGuilds {
-    guilds {
-      id
-      name
-      abbreviation
-      leader {
+    guilds(limit: 1500) {
+      totalResults
+      results {
         id
-        resolvedName
+        name
+        abbreviation
+        leader {
+          id
+          resolvedName
+        }
+        memberCount
+        enemyCount
+        faction
+        gcwDefenderRegion
       }
-      memberCount
-      enemyCount
-      faction
-      gcwDefenderRegion
     }
   }
 `;
 
-type Guild = NonNullable<GetAllGuildsQuery['guilds']>[number];
+type Guild = NonNullable<GetAllGuildsQuery['guilds']['results']>[number];
 
 const GuildListing: React.FC = () => {
   const { data, loading } = useGetAllGuildsQuery();
@@ -100,7 +103,7 @@ const GuildListing: React.FC = () => {
           },
         }}
         pagination={paginationOptions}
-        items={data?.guilds ?? []}
+        items={data?.guilds.results ?? []}
         columns={columns}
         sorting={sorting}
         loading={loading}

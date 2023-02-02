@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  EuiPage,
-  EuiPageBody,
-  EuiPageSection,
-  EuiSpacer,
-  EuiPageHeaderSection,
-  EuiTitle,
-  EuiCallOut,
-  EuiText,
-} from '@elastic/eui';
+import { EuiSpacer, EuiCallOut } from '@elastic/eui';
 import { gql } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
@@ -19,7 +10,7 @@ import UGCName, { stripUGCModifiers } from '../../UGCName';
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
-import AppSidebar from '../../AppSidebar';
+import { FullWidthPage } from '../layouts/FullWidthPage';
 
 import { useGetObjectNameQuery } from './ObjectDetails.queries';
 
@@ -90,31 +81,16 @@ export const ObjectDetails: React.FC = () => {
     );
   }
 
+  const title = <UGCName rawName={data?.object?.resolvedName} /> ?? 'Object Details';
+
+  let subtitle: string | undefined;
+  if (data?.object?.resolvedName !== data?.object?.basicName) {
+    subtitle = data?.object?.basicName;
+  }
+
   return (
-    <EuiPage paddingSize="l">
-      <AppSidebar />
-      <EuiPageBody panelled paddingSize="l">
-        <EuiPageHeaderSection>
-          {data?.object?.resolvedName === data?.object?.basicName ? (
-            <EuiTitle size="l">
-              <h1>{data?.object?.resolvedName ?? 'Object Details'}</h1>
-            </EuiTitle>
-          ) : (
-            <>
-              <EuiTitle size="l">
-                <h1>
-                  <UGCName rawName={data?.object?.resolvedName ?? 'Object Details'} />
-                </h1>
-              </EuiTitle>
-              <EuiText color="subdued">{data?.object?.basicName}</EuiText>
-            </>
-          )}
-          <EuiSpacer />
-        </EuiPageHeaderSection>
-        <EuiPageSection paddingSize="none" color="transparent">
-          {content}
-        </EuiPageSection>
-      </EuiPageBody>
-    </EuiPage>
+    <FullWidthPage title={title} subtitle={subtitle}>
+      {content}
+    </FullWidthPage>
   );
 };

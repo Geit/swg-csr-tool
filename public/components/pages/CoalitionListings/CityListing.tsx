@@ -7,23 +7,26 @@ import { useGetAllCitiesQuery, GetAllCitiesQuery } from './CityListing.queries';
 
 export const GET_ALL_CITIES = gql`
   query getAllCities {
-    cities {
-      id
-      name
-      planet
-      location
-      radius
-      citizenCount
-      structureCount
-      mayor {
+    cities(limit: 1000) {
+      totalResults
+      results {
         id
-        resolvedName
+        name
+        planet
+        location
+        radius
+        citizenCount
+        structureCount
+        mayor {
+          id
+          resolvedName
+        }
       }
     }
   }
 `;
 
-type City = NonNullable<GetAllCitiesQuery['cities']>[number];
+type City = NonNullable<GetAllCitiesQuery['cities']['results']>[number];
 
 const CityListing: React.FC = () => {
   const { data, loading } = useGetAllCitiesQuery();
@@ -89,7 +92,7 @@ const CityListing: React.FC = () => {
           },
         }}
         pagination={paginationOptions}
-        items={data?.cities ?? []}
+        items={data?.cities.results ?? []}
         columns={columns}
         sorting={sorting}
         loading={loading}

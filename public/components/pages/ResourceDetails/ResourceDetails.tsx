@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
-  EuiPage,
-  EuiPageBody,
-  EuiPageSection,
   EuiSpacer,
-  EuiPageHeaderSection,
   EuiTitle,
   EuiCallOut,
-  EuiText,
   EuiPanel,
   EuiDescriptionList,
   EuiDescriptionListTitle,
@@ -24,7 +19,7 @@ import UGCName, { stripUGCModifiers } from '../../UGCName';
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
-import AppSidebar from '../../AppSidebar';
+import { FullWidthPage } from '../layouts/FullWidthPage';
 
 import { useGetResourceDetailsQuery } from './ResourceDetails.queries';
 import ResourceDistributionMap from './ResourceDistributionMap';
@@ -190,22 +185,11 @@ export const ResourceDetails: React.FC = () => {
   }
 
   return (
-    <EuiPage paddingSize="l">
-      <AppSidebar />
-      <EuiPageBody panelled paddingSize="l">
-        <EuiPageHeaderSection>
-          <EuiTitle size="l">
-            <h1>
-              <UGCName rawName={data?.resource?.name ?? 'Resource Details'} />
-            </h1>
-          </EuiTitle>
-          <EuiText color="subdued">{data?.resource?.className}</EuiText>
-          <EuiSpacer />
-        </EuiPageHeaderSection>
-        <EuiPageSection paddingSize="none" color="transparent">
-          {content}
-        </EuiPageSection>
-      </EuiPageBody>
-    </EuiPage>
+    <FullWidthPage
+      title={<UGCName rawName={data?.resource?.name ?? 'Resource Details'} />}
+      subtitle={data?.resource?.className}
+    >
+      {content}
+    </FullWidthPage>
   );
 };

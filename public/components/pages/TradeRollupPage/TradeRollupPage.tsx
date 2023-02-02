@@ -2,12 +2,7 @@ import React from 'react';
 import {
   EuiFlexGroup,
   EuiFlexItem,
-  EuiPage,
-  EuiPageBody,
-  EuiPageSection,
-  EuiPageHeaderSection,
   EuiSpacer,
-  EuiTitle,
   EuiSuperDatePicker,
   EuiText,
   EuiFormRow,
@@ -16,13 +11,14 @@ import {
 } from '@elastic/eui';
 import { useQueryParam, StringParam, withDefault } from 'use-query-params';
 
-import AppSidebar from '../../AppSidebar';
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
 import { useKibanaDateRange } from '../../../hooks/useKibanaDateRange';
 import commonlyUsedRanges from '../../../utils/commonlyUsedRanges';
 import { TradeRollupQuery } from '../../TradeRollup';
+import { FullWidthPage } from '../layouts/FullWidthPage';
+import { ObjectSearchAutoComplete } from '../../ObjectSearchAutoComplete';
 
 const DEFAULT_START_DATE = 'now-1M';
 const DEFAULT_END_DATE = 'now';
@@ -37,7 +33,7 @@ export const TradeRollupPage: React.FC = () => {
       href: '/trades',
     },
     {
-      text: 'Trade Rollups',
+      text: 'Trade Rollup',
       href: '/trade-rollup',
     },
   ]);
@@ -51,80 +47,65 @@ export const TradeRollupPage: React.FC = () => {
     timeRangeStart !== DEFAULT_START_DATE || timeRangeEnd !== DEFAULT_END_DATE
   );
 
-  return (
-    <EuiPage paddingSize="l">
-      <AppSidebar />
-      <EuiPageBody panelled paddingSize="l">
-        <EuiPageHeaderSection>
-          <EuiFlexGroup gutterSize="s">
-            <EuiFlexItem grow={2}>
-              <EuiTitle size="l">
-                <h1>Trade Rollup</h1>
-              </EuiTitle>
-            </EuiFlexItem>
-            <EuiFlexItem>
-              <EuiSuperDatePicker
-                width="auto"
-                onTimeChange={evt => {
-                  const from = evt.start === DEFAULT_START_DATE ? undefined : evt.start;
-                  const to = evt.end === DEFAULT_END_DATE ? undefined : evt.end;
+  const titleAsides = (
+    <div style={{ minWidth: '200px' }}>
+      <EuiSuperDatePicker
+        width="full"
+        onTimeChange={evt => {
+          const from = evt.start;
+          const to = evt.end;
 
-                  setDateRange({ from: from ?? DEFAULT_START_DATE, to: to ?? DEFAULT_END_DATE });
-                  setTimeRangeStart(from, 'replaceIn');
-                  setTimeRangeEnd(to, 'replaceIn');
-                }}
-                start={currentDateRange.from}
-                end={currentDateRange.to}
-                recentlyUsedRanges={recentDateRanges.map(m => ({ start: m.from, end: m.to }))}
-                isLoading={false}
-                showUpdateButton={false}
-                commonlyUsedRanges={commonlyUsedRanges}
-              />
-            </EuiFlexItem>
-          </EuiFlexGroup>
-          <EuiSpacer />
-          <EuiText>
-            <p>
-              A rollup displays a summary of a pair of player&apos;s trading activity with one another over a period of
-              time. It is useful for analysing potential foul-play (e.g. Credit Selling) as any trade-backs are
-              eliminated from the summary.
-            </p>
-          </EuiText>
-        </EuiPageHeaderSection>
-        <EuiPageSection paddingSize="none" color="transparent">
-          <EuiSpacer />
-          <EuiFlexGroup gutterSize="xl">
-            <EuiFlexItem grow={3}>
-              <EuiFormRow label="Party A" id={'party-a'} fullWidth>
-                <EuiFieldText
-                  fullWidth
-                  icon={'search'}
-                  placeholder="Enter a station ID or OID"
-                  value={partyA ?? ''}
-                  onChange={e => setPartyA(e.target.value || undefined, 'replaceIn')}
-                />
-              </EuiFormRow>
-            </EuiFlexItem>
-            <EuiFlexItem grow={3}>
-              <EuiFormRow label="Party B" id={'party-b'} fullWidth>
-                <EuiFieldText
-                  fullWidth
-                  icon={'search'}
-                  placeholder="Enter a station ID or OID"
-                  value={partyB ?? ''}
-                  onChange={e => setPartyB(e.target.value || undefined, 'replaceIn')}
-                />
-              </EuiFormRow>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-          <EuiSpacer />
-          {partyA && partyB ? (
-            <TradeRollupQuery partyAId={partyA} partyBId={partyB} fromDate={timeRangeStart} toDate={timeRangeEnd} />
-          ) : (
-            <EuiEmptyPrompt iconType="users" title={<h3>Enter account IDs to start a rollup</h3>} titleSize="s" />
-          )}
-        </EuiPageSection>
-      </EuiPageBody>
-    </EuiPage>
+          setDateRange({ from, to });
+          setTimeRangeStart(from, 'replaceIn');
+          setTimeRangeEnd(to, 'replaceIn');
+        }}
+        start={currentDateRange.from}
+        end={currentDateRange.to}
+        recentlyUsedRanges={recentDateRanges.map(m => ({ start: m.from, end: m.to }))}
+        isLoading={false}
+        showUpdateButton={false}
+        commonlyUsedRanges={commonlyUsedRanges}
+      />
+    </div>
+  );
+
+  const [partyAType, partyAId] = partyA?.split('_') ?? [];
+  const [partyBType, partyBId] = partyB?.split('_') ?? [];
+
+  return (
+    <FullWidthPage title="Trade Rollup" titleAsides={titleAsides}>
+      <EuiText>
+        <p>
+          A rollup displays a summary of a pair of player&apos;s trading activity with one another over a period of
+          time. It is useful for analysing potential foul-play (e.g. Credit Selling) as any trade-backs are eliminated
+          from the summary.
+        </p>
+      </EuiText>
+      <EuiSpacer />
+      <EuiFlexGroup gutterSize="xl">
+        <EuiFlexItem grow={1}>
+          <EuiFormRow label="Party A" id={'party-a'} fullWidth>
+            <ObjectSearchAutoComplete
+              initialSearchItem={partyA ? { itemType: partyAType as any, itemId: partyAId } : undefined}
+              onItemSelected={({ itemType, itemId }) => setPartyA(`${itemType}_${itemId}`)}
+            />
+          </EuiFormRow>
+        </EuiFlexItem>
+        <EuiFlexItem grow={1}>
+          <EuiFormRow label="Party B" id={'party-b'} fullWidth>
+            <ObjectSearchAutoComplete
+              initialSearchItem={partyB ? { itemType: partyBType as any, itemId: partyBId } : undefined}
+              onItemSelected={({ itemType, itemId }) => setPartyB(`${itemType}_${itemId}`)}
+            />
+          </EuiFormRow>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+      <EuiSpacer />
+      {partyAId && partyBId ? (
+        <TradeRollupQuery partyAId={partyAId} partyBId={partyBId} fromDate={timeRangeStart} toDate={timeRangeEnd} />
+      ) : (
+        <EuiEmptyPrompt iconType="users" title={<h3>Enter account IDs to start a rollup</h3>} titleSize="s" />
+      )}
+    </FullWidthPage>
   );
 };

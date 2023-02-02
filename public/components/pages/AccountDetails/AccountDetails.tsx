@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  EuiPage,
-  EuiPageBody,
-  EuiPageSection,
-  EuiSpacer,
-  EuiPageHeaderSection,
-  EuiTitle,
-  EuiCallOut,
-} from '@elastic/eui';
+import { EuiSpacer, EuiTitle, EuiCallOut } from '@elastic/eui';
 import { gql } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
@@ -15,9 +7,9 @@ import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
 import CharactersTable from '../../widgets/CharactersTable';
-import AppSidebar from '../../AppSidebar';
 import { AccountStructureTable } from '../../widgets/StructuresTable';
 import { AccountVeteranRewardTable } from '../../widgets/VeteranRewardTable';
+import { FullWidthPage } from '../layouts/FullWidthPage';
 
 import { useGetAccountNameQuery } from './AccountDetails.queries';
 
@@ -88,20 +80,5 @@ export const AccountDetails: React.FC = () => {
     );
   }
 
-  return (
-    <EuiPage paddingSize="l">
-      <AppSidebar />
-      <EuiPageBody panelled borderRadius={10} paddingSize="l">
-        <EuiPageHeaderSection>
-          <EuiTitle size="l">
-            <h1>{data?.account?.accountName ?? 'Account Details'}</h1>
-          </EuiTitle>
-          <EuiSpacer />
-        </EuiPageHeaderSection>
-        <EuiPageSection paddingSize="none" color="transparent">
-          {content}
-        </EuiPageSection>
-      </EuiPageBody>
-    </EuiPage>
-  );
+  return <FullWidthPage title={data?.account?.accountName ?? 'Account Details'}>{content}</FullWidthPage>;
 };

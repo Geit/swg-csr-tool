@@ -1,21 +1,12 @@
 import React from 'react';
-import {
-  EuiPage,
-  EuiPageBody,
-  EuiPageSection,
-  EuiSpacer,
-  EuiPageHeaderSection,
-  EuiTitle,
-  EuiText,
-  EuiCallOut,
-} from '@elastic/eui';
+import { EuiSpacer, EuiCallOut } from '@elastic/eui';
 import { gql } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
-import AppSidebar from '../../AppSidebar';
+import { FullWidthPage } from '../layouts/FullWidthPage';
 
 import { useGetGuildNameQuery } from './GuildDetails.queries';
 import { GuildMembersTable } from './GuildMembersTable';
@@ -85,21 +76,8 @@ export const GuildDetails: React.FC = () => {
   }
 
   return (
-    <EuiPage paddingSize="l">
-      <AppSidebar />
-      <EuiPageBody panelled paddingSize="l">
-        <EuiPageHeaderSection>
-          <>
-            <EuiTitle size="l">
-              <h1>{data?.guild?.name ?? 'Guild Details'}</h1>
-            </EuiTitle>
-            <EuiText color="subdued">{data?.guild?.abbreviation}</EuiText>
-          </>
-        </EuiPageHeaderSection>
-        <EuiPageSection paddingSize="none" color="transparent">
-          {content}
-        </EuiPageSection>
-      </EuiPageBody>
-    </EuiPage>
+    <FullWidthPage title={data?.guild?.name ?? 'Guild Details'} subtitle={data?.guild?.abbreviation}>
+      {content}
+    </FullWidthPage>
   );
 };

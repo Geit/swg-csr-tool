@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  EuiPage,
-  EuiPageBody,
-  EuiPageSection,
-  EuiSpacer,
-  EuiPageHeaderSection,
-  EuiTitle,
-  EuiText,
-  EuiCallOut,
-} from '@elastic/eui';
+import { EuiSpacer, EuiCallOut } from '@elastic/eui';
 import { gql } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
@@ -16,7 +7,7 @@ import { isPresent } from '../../../utils/utility-types';
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
-import AppSidebar from '../../AppSidebar';
+import { FullWidthPage } from '../layouts/FullWidthPage';
 
 import { useGetCityNameQuery } from './CityDetails.queries';
 import { CitizensTable } from './CitizensTable';
@@ -87,22 +78,11 @@ export const CityDetails: React.FC = () => {
   }
 
   return (
-    <EuiPage paddingSize="l">
-      <AppSidebar />
-      <EuiPageBody panelled paddingSize="l">
-        <EuiPageHeaderSection>
-          <>
-            <EuiTitle size="l">
-              <h1>{data?.city?.name ?? 'City Details'}</h1>
-            </EuiTitle>
-            {subtitleParts.length > 0 && <EuiText color="subdued">{subtitleParts.join(' - ')}</EuiText>}
-          </>
-          <EuiSpacer />
-        </EuiPageHeaderSection>
-        <EuiPageSection paddingSize="none" color="transparent">
-          {content}
-        </EuiPageSection>
-      </EuiPageBody>
-    </EuiPage>
+    <FullWidthPage
+      title={<h1>{data?.city?.name ?? 'City Details'}</h1>}
+      subtitle={subtitleParts.length > 0 ? subtitleParts.join(' - ') : undefined}
+    >
+      {content}
+    </FullWidthPage>
   );
 };

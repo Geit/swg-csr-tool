@@ -124,7 +124,7 @@ const AppSidebar: React.FC = () => {
   const navItemsWithHandlers = navItems.map(addClickHandlers);
 
   return (
-    <EuiPageSidebar paddingSize="m">
+    <EuiPageSidebar paddingSize="l">
       <EuiSideNav
         mobileTitle="SWG CSR Tool"
         isOpenOnMobile={mobileNavOpen}

@@ -1,14 +1,5 @@
-import React, { useEffect } from 'react';
-import {
-  EuiPage,
-  EuiPageBody,
-  EuiPageSection,
-  EuiFieldSearch,
-  EuiSpacer,
-  EuiEmptyPrompt,
-  EuiPageHeaderSection,
-  EuiTitle,
-} from '@elastic/eui';
+import React from 'react';
+import { EuiFieldSearch, EuiSpacer, EuiEmptyPrompt } from '@elastic/eui';
 import { gql } from '@apollo/client';
 import { useThrottle, useThrottleFn } from 'react-use';
 import { useQueryParam, StringParam } from 'use-query-params';
@@ -16,8 +7,8 @@ import { fromKueryExpression, toElasticsearchQuery } from '@kbn/es-query';
 
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
-import AppSidebar from '../../AppSidebar';
 import LoadingCover from '../../LoadingCover';
+import { FullWidthPage } from '../layouts/FullWidthPage';
 
 import { useSearchQuery } from './GalaxySearch.queries';
 import { AccountCard } from './AccountCard';
@@ -72,23 +63,8 @@ export const SEARCH_FOR_OBJECTS = gql`
   }
 `;
 
-const GalaxySearchPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <EuiPage paddingSize="l">
-      <AppSidebar />
-      <EuiPageBody panelled borderRadius paddingSize="l" grow={false}>
-        <EuiPageHeaderSection>
-          <EuiTitle size="l">
-            <h1>Search</h1>
-          </EuiTitle>
-          <EuiSpacer />
-        </EuiPageHeaderSection>
-        <EuiPageSection paddingSize="s" color="transparent">
-          {children}
-        </EuiPageSection>
-      </EuiPageBody>
-    </EuiPage>
-  );
+const GalaxySearchPageLayout: React.FC = ({ children }) => {
+  return <FullWidthPage title="Galaxy Search">{children}</FullWidthPage>;
 };
 
 export const GalaxySearch: React.FC = () => {

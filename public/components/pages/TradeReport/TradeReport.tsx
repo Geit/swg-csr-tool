@@ -1,16 +1,8 @@
 import React from 'react';
 import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiPage,
-  EuiPageBody,
-  EuiPageSection,
-  EuiPageHeaderSection,
   EuiSpacer,
-  EuiTitle,
   EuiSuperDatePicker,
   EuiText,
-  EuiFieldText,
   EuiEmptyPrompt,
   EuiLoadingSpinner,
   EuiDelayRender,
@@ -18,15 +10,16 @@ import {
 import { useQueryParam, StringParam, withDefault } from 'use-query-params';
 import { gql } from '@apollo/client';
 
-import AppSidebar from '../../AppSidebar';
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
 import { useKibanaDateRange } from '../../../hooks/useKibanaDateRange';
 import commonlyUsedRanges from '../../../utils/commonlyUsedRanges';
 import { TradeRollup } from '../../TradeRollup';
+import { FullWidthPage } from '../layouts/FullWidthPage';
+import { ObjectSearchAutoComplete } from '../../ObjectSearchAutoComplete';
 
-import { useGetTradeReportQuery } from './TradeActivity.queries';
+import { useGetTradeReportQuery } from './TradeReport.queries';
 
 export const GET_TRADE_REPORT = gql`
   query getTradeReport($stationId: String, $from: String, $until: String) {
@@ -62,12 +55,12 @@ export const GET_TRADE_REPORT = gql`
 const DEFAULT_START_DATE = 'now-1M';
 const DEFAULT_END_DATE = 'now';
 
-interface TradeActivityResultsProps {
+interface TradeReportResultsProps {
   dateRange: { to: string; from: string };
   stationId?: string | null;
 }
 
-export const TradeActivityResults: React.FC<TradeActivityResultsProps> = ({ dateRange, stationId }) => {
+export const TradeReportResults: React.FC<TradeReportResultsProps> = ({ dateRange, stationId }) => {
   const { data, error, loading } = useGetTradeReportQuery({
     variables: {
       stationId,
@@ -95,7 +88,9 @@ export const TradeActivityResults: React.FC<TradeActivityResultsProps> = ({ date
     );
 
   if (!data || !data.tradeReport)
-    return <EuiEmptyPrompt iconType="search" title={<h2>Enter a Account ID to generate a report</h2>} titleSize="s" />;
+    return (
+      <EuiEmptyPrompt iconType="search" title={<h2>Enter an account name to generate a report</h2>} titleSize="s" />
+    );
 
   if (data.tradeReport.length === 0)
     return (
@@ -120,7 +115,7 @@ export const TradeActivityResults: React.FC<TradeActivityResultsProps> = ({ date
   );
 };
 
-export const TradeActivity: React.FC = () => {
+export const TradeReport: React.FC = () => {
   const documentTitle = `Trade Report`;
   useDocumentTitle(documentTitle);
   useRecentlyAccessed(`/app/swgCsrTool/trade-report`, documentTitle, `trade-report`, true);
@@ -130,7 +125,7 @@ export const TradeActivity: React.FC = () => {
       href: '/trades',
     },
     {
-      text: 'Trade Rollups',
+      text: 'Trade Report',
       href: '/trade-report',
     },
   ]);
@@ -143,59 +138,42 @@ export const TradeActivity: React.FC = () => {
     timeRangeStart !== DEFAULT_START_DATE || timeRangeEnd !== DEFAULT_END_DATE
   );
 
-  return (
-    <EuiPage paddingSize="l">
-      <AppSidebar />
-      <EuiPageBody panelled paddingSize="l">
-        <EuiPageHeaderSection>
-          <EuiFlexGroup gutterSize="s">
-            <EuiFlexItem grow={2}>
-              <EuiTitle size="l">
-                <h1>Trade Report</h1>
-              </EuiTitle>
-            </EuiFlexItem>
-            <EuiFlexItem>
-              <EuiSuperDatePicker
-                width="auto"
-                onTimeChange={evt => {
-                  const from = evt.start === DEFAULT_START_DATE ? undefined : evt.start;
-                  const to = evt.end === DEFAULT_END_DATE ? undefined : evt.end;
+  const titleAsides = (
+    <div style={{ minWidth: '200px' }}>
+      <EuiSuperDatePicker
+        width="full"
+        onTimeChange={evt => {
+          const from = evt.start === DEFAULT_START_DATE ? undefined : evt.start;
+          const to = evt.end === DEFAULT_END_DATE ? undefined : evt.end;
 
-                  setDateRange({ from: from ?? DEFAULT_START_DATE, to: to ?? DEFAULT_END_DATE });
-                  setTimeRangeStart(from, 'replaceIn');
-                  setTimeRangeEnd(to, 'replaceIn');
-                }}
-                start={currentDateRange.from}
-                end={currentDateRange.to}
-                recentlyUsedRanges={recentDateRanges.map(m => ({ start: m.from, end: m.to }))}
-                isLoading={false}
-                showUpdateButton={false}
-                commonlyUsedRanges={commonlyUsedRanges}
-              />
-            </EuiFlexItem>
-          </EuiFlexGroup>
-          <EuiSpacer />
-          <EuiText>
-            <p>A trade report summarises all of a player&apos;s trade activity over a given time period.</p>
-          </EuiText>
-        </EuiPageHeaderSection>
-        <EuiPageSection paddingSize="none" color="transparent">
-          <EuiSpacer />
-          <EuiFlexGroup gutterSize="xl">
-            <EuiFlexItem grow={3}>
-              <EuiFieldText
-                fullWidth
-                icon={'search'}
-                placeholder="Enter a station ID or OID"
-                value={stationId ?? ''}
-                onChange={e => setStationId(e.target.value || undefined, 'replaceIn')}
-              />
-            </EuiFlexItem>
-          </EuiFlexGroup>
-          <EuiSpacer />
-          <TradeActivityResults stationId={stationId} dateRange={currentDateRange} />
-        </EuiPageSection>
-      </EuiPageBody>
-    </EuiPage>
+          setDateRange({ from: from ?? DEFAULT_START_DATE, to: to ?? DEFAULT_END_DATE });
+          setTimeRangeStart(from, 'replaceIn');
+          setTimeRangeEnd(to, 'replaceIn');
+        }}
+        start={currentDateRange.from}
+        end={currentDateRange.to}
+        recentlyUsedRanges={recentDateRanges.map(m => ({ start: m.from, end: m.to }))}
+        isLoading={false}
+        showUpdateButton={false}
+        commonlyUsedRanges={commonlyUsedRanges}
+      />
+    </div>
+  );
+
+  return (
+    <FullWidthPage title="Trade Report" titleAsides={titleAsides}>
+      <EuiText>
+        <p>A trade report summarises all of a player&apos;s trade activity over a given time period.</p>
+      </EuiText>
+      <EuiSpacer />
+      <ObjectSearchAutoComplete
+        allowedTypes={['Account']}
+        initialSearchItem={stationId ? { itemType: 'Account', itemId: stationId } : undefined}
+        onItemSelected={({ itemId }) => setStationId(itemId)}
+        placeholder="Search for an Account"
+      />
+      <EuiSpacer />
+      <TradeReportResults stationId={stationId} dateRange={currentDateRange} />
+    </FullWidthPage>
   );
 };

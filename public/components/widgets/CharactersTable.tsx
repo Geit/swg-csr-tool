@@ -33,6 +33,7 @@ export const GET_CHARACTERS_FOR_ACCOUNT = gql`
         scene
         sceneName
         location
+        worldspaceLocation
         playerObject {
           id
           workingSkill
@@ -74,6 +75,8 @@ const CharactersTableRows: React.FC<CharactersTableRowsProps> = ({ isLoading, da
       // eslint-disable-next-line react/jsx-no-useless-fragment
       <>
         {data.account?.characters.map(character => {
+          const location = character.worldspaceLocation ?? character.location;
+
           return (
             <EuiTableRow key={`item-${character.id}`}>
               <EuiTableRowCell>
@@ -87,7 +90,7 @@ const CharactersTableRows: React.FC<CharactersTableRowsProps> = ({ isLoading, da
               </EuiTableRowCell>
               <EuiTableRowCell>
                 <SimpleValue isLoading={false} numeric>
-                  {[character.location?.map(Math.round).join(' ')].filter(Boolean).join(' - ')}
+                  {[location?.map(Math.round).join(' ')].filter(Boolean).join(' - ')}
                   <EuiText color="subdued" size="xs">
                     {character.sceneName ?? 'Unknown Scene'}
                   </EuiText>

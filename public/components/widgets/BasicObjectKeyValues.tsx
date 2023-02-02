@@ -36,6 +36,7 @@ export const GET_OBJECT_DETAILS = gql`
       containedById
       location
       scene
+      sceneName
 
       template
       templateId
@@ -88,6 +89,7 @@ export const GET_OBJECT_DETAILS = gql`
       }
 
       ... on CreatureObject {
+        worldspaceLocation
         bankBalance
         cashBalance
       }
@@ -126,6 +128,11 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
         <EuiSpacer />
       </>
     );
+
+  const location =
+    data?.object && 'worldspaceLocation' in data.object && data.object.worldspaceLocation
+      ? data.object.worldspaceLocation
+      : data?.object?.location;
 
   const ObjectInformation = [
     {
@@ -179,9 +186,9 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
       title: 'Location',
       description: (
         <SimpleValue isLoading={loading} numeric>
-          {[data?.object?.location?.map(Math.round).join(' ')].filter(Boolean).join(' - ')}
+          {[location?.map(Math.round).join(' ')].filter(Boolean).join(' - ')}
           <EuiText color="subdued" size="xs">
-            {data?.object?.scene ?? 'Unknown Scene'}
+            {data?.object?.sceneName ?? data?.object?.scene ?? 'Unknown Scene'}
           </EuiText>
         </SimpleValue>
       ),

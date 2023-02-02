@@ -1,6 +1,6 @@
 import httpProxy from 'http-proxy';
 import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
-import { IRouter } from '@kbn/core-http-server';
+import { IRouter, RequestHandlerContext } from '@kbn/core-http-server';
 
 const proxy = httpProxy.createProxyServer();
 
@@ -12,7 +12,7 @@ server.on('upgrade', (req, socket, head) => {
 });
 server.listen(8080);
 
-export function defineRoutes(router: IRouter) {
+export function defineRoutes(router: IRouter<RequestHandlerContext>) {
   router.post(
     {
       path: '/api/swg_csr_tool/graphql',
@@ -23,7 +23,9 @@ export function defineRoutes(router: IRouter) {
       },
     },
     async (context, request, response) => {
-      const uiSettings = (await context.core).uiSettings;
+      const ctx = await context.resolve(['core']);
+
+      const uiSettings = ctx.core.uiSettings;
 
       const proxyUrl = await uiSettings.client.get('csrToolGraphQlUrl');
       await new Promise(resolve => {
@@ -48,10 +50,11 @@ export function defineRoutes(router: IRouter) {
       },
     },
     async (context, request, response) => {
-      const proxyUrl = `${(await context.core.uiSettings.client.get('csrToolGraphQlUrl')).replace(
-        '/graphql',
-        '/websocket_auth'
-      )}`;
+      const ctx = await context.resolve(['core']);
+      const uiSettings = ctx.core.uiSettings;
+
+      const proxyUrl = (await uiSettings.client.get('csrToolGraphQlUrl')).replace('/graphql', '/websocket_auth');
+
       await new Promise(resolve => {
         const rawRequest = ensureRawRequest(request);
         // Simply proxy the request through to swg-graphql.

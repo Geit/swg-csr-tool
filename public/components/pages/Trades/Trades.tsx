@@ -2,14 +2,9 @@ import React, { useState, useEffect } from 'react';
 import {
   EuiFlexGroup,
   EuiFlexItem,
-  EuiPage,
-  EuiPageBody,
-  EuiPageSection,
-  EuiPageHeaderSection,
   EuiSpacer,
   EuiTablePagination,
   EuiText,
-  EuiTitle,
   EuiSwitch,
   EuiEmptyPrompt,
   EuiSuperDatePicker,
@@ -28,13 +23,13 @@ import {
   DelimitedArrayParam,
 } from 'use-query-params';
 
-import AppSidebar from '../../AppSidebar';
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
 import commonlyUsedRanges from '../../../utils/commonlyUsedRanges';
 import { useKibanaDateRange } from '../../../hooks/useKibanaDateRange';
 import { isPresent } from '../../../utils/utility-types';
+import { FullWidthPage } from '../layouts/FullWidthPage';
 
 import { useSearchForTransactionsQuery } from './Trades.queries';
 import TransactionCard from './TransactionCard';
@@ -195,136 +190,122 @@ export const Trades: React.FC = () => {
       <EuiEmptyPrompt iconType="search" title={<h3>Search to find trades</h3>} titleSize="s" />
     );
 
+  const titleAsides = (
+    <div style={{ minWidth: '200px' }}>
+      <EuiSuperDatePicker
+        width="auto"
+        onTimeChange={evt => {
+          const from = evt.start === DEFAULT_START_DATE ? undefined : evt.start;
+          const to = evt.end === DEFAULT_END_DATE ? undefined : evt.end;
+
+          setDateRange({ from: from ?? DEFAULT_START_DATE, to: to ?? DEFAULT_END_DATE });
+          setTimeRangeStart(from, 'replaceIn');
+          setTimeRangeEnd(to, 'replaceIn');
+        }}
+        start={currentDateRange.from}
+        end={currentDateRange.to}
+        recentlyUsedRanges={recentDateRanges.map(m => ({ start: m.from, end: m.to }))}
+        onRefresh={() => {
+          refetch();
+        }}
+        showUpdateButton="iconOnly"
+        onRefreshChange={setRefreshOptions}
+        refreshInterval={Math.max(1000, refresh.refreshInterval)}
+        isPaused={refresh.isPaused}
+        isLoading={loading}
+        commonlyUsedRanges={commonlyUsedRanges}
+      />
+    </div>
+  );
+
   return (
-    <EuiPage paddingSize="l">
-      <AppSidebar />
-      <EuiPageBody panelled paddingSize="l">
-        <EuiPageHeaderSection>
-          <EuiFlexGroup gutterSize="s">
-            <EuiFlexItem grow={3}>
-              <EuiTitle size="l">
-                <h1>Trades</h1>
-              </EuiTitle>
+    <FullWidthPage title="Trades" titleAsides={titleAsides}>
+      <EuiFlexGroup gutterSize="s">
+        <EuiFlexItem grow={3}>
+          <EuiFieldText
+            fullWidth
+            icon="search"
+            placeholder="e.g. geit"
+            isLoading={loading}
+            value={searchQuery ?? ''}
+            onChange={e => setSearchQuery(e.target.value, 'replaceIn')}
+          />
+        </EuiFlexItem>
+        <EuiFlexItem>
+          <EuiSelect
+            prepend={<EuiIcon type="sortable" />}
+            fullWidth
+            options={SORT_OPTIONS}
+            value={sortOption}
+            onChange={e => {
+              setSortOption(e.target.value, 'replaceIn');
+            }}
+          />
+        </EuiFlexItem>
+      </EuiFlexGroup>
+      <EuiSpacer />
+      <EuiFlexGroup>
+        <EuiFlexItem>
+          <EuiFlexGroup justifyContent="flexStart">
+            <EuiFlexItem>
+              <EuiSwitch
+                label="View as table"
+                checked={viewAsTable}
+                onChange={e => setViewAsTable(e.target.checked, 'replaceIn')}
+              />
             </EuiFlexItem>
             <EuiFlexItem>
-              <EuiSuperDatePicker
-                width="auto"
-                onTimeChange={evt => {
-                  const from = evt.start === DEFAULT_START_DATE ? undefined : evt.start;
-                  const to = evt.end === DEFAULT_END_DATE ? undefined : evt.end;
+              <EuiSwitch
+                label="Show same account transactions"
+                checked={showSameAccountTransactions}
+                onChange={e => setShowSameAccountTransactions(e.target.checked, 'replaceIn')}
+              />
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </EuiFlexItem>
+        <EuiFlexItem>
+          {resultCount > 0 && (
+            <EuiText textAlign="right">
+              Viewing {curStartingResult}-{curEndingResult} of {resultCount}
+            </EuiText>
+          )}
+        </EuiFlexItem>
+      </EuiFlexGroup>
+      <EuiSpacer />
 
-                  setDateRange({ from: from ?? DEFAULT_START_DATE, to: to ?? DEFAULT_END_DATE });
-                  setTimeRangeStart(from, 'replaceIn');
-                  setTimeRangeEnd(to, 'replaceIn');
-                }}
-                start={currentDateRange.from}
-                end={currentDateRange.to}
-                recentlyUsedRanges={recentDateRanges.map(m => ({ start: m.from, end: m.to }))}
-                onRefresh={() => {
-                  refetch();
-                }}
-                showUpdateButton="iconOnly"
-                onRefreshChange={setRefreshOptions}
-                refreshInterval={Math.max(1000, refresh.refreshInterval)}
-                isPaused={refresh.isPaused}
-                isLoading={loading}
-                commonlyUsedRanges={commonlyUsedRanges}
-              />
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </EuiPageHeaderSection>
-        <EuiPageSection paddingSize="none" color="transparent">
-          <EuiSpacer />
-          <EuiFlexGroup gutterSize="s">
-            <EuiFlexItem grow={3}>
-              <EuiFieldText
-                fullWidth
-                icon="search"
-                placeholder="e.g. geit"
-                isLoading={loading}
-                value={searchQuery ?? ''}
-                onChange={e => setSearchQuery(e.target.value || undefined, 'replaceIn')}
-              />
-            </EuiFlexItem>
-            <EuiFlexItem>
-              <EuiSelect
-                prepend={<EuiIcon type="sortable" />}
-                fullWidth
-                options={SORT_OPTIONS}
-                value={sortOption}
-                onChange={e => {
-                  setSortOption(e.target.value, 'replaceIn');
-                }}
-              />
-            </EuiFlexItem>
-          </EuiFlexGroup>
-          <EuiSpacer />
-          <EuiFlexGroup>
-            <EuiFlexItem>
-              <EuiFlexGroup justifyContent="flexStart">
-                <EuiFlexItem>
-                  <EuiSwitch
-                    label="View as table"
-                    checked={viewAsTable}
-                    onChange={e => setViewAsTable(e.target.checked || undefined, 'replaceIn')}
-                  />
-                </EuiFlexItem>
-                <EuiFlexItem>
-                  <EuiSwitch
-                    label="Show same account transactions"
-                    checked={showSameAccountTransactions}
-                    onChange={e => setShowSameAccountTransactions(e.target.checked || undefined, 'replaceIn')}
-                  />
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            </EuiFlexItem>
-            <EuiFlexItem>
-              {resultCount > 0 && (
-                <EuiText textAlign="right">
-                  Viewing {curStartingResult}-{curEndingResult} of {resultCount}
-                </EuiText>
-              )}
-            </EuiFlexItem>
-          </EuiFlexGroup>
-          <EuiSpacer />
-
-          {resultCount > 0 ? (
+      {resultCount > 0 ? (
+        <>
+          {viewAsTable ? (
             <>
-              {viewAsTable ? (
-                <>
-                  <TransactionTable
-                    key="transaction-table"
-                    transactions={realData?.transactions?.results ?? null}
-                    showSameAccountTransactions={showSameAccountTransactions}
-                  />
-                  <EuiSpacer />
-                </>
-              ) : (
-                <div key="transaction-cards">
-                  {realData?.transactions?.results.map(tx => (
-                    <TransactionCard key={tx.id} transaction={tx} />
-                  ))}
-                </div>
-              )}
-              <EuiTablePagination
-                pageCount={Math.ceil((realData?.transactions?.totalResults ?? 0) / rowsPerPage)}
-                activePage={page}
-                onChangePage={pageNum => {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                  setPage(pageNum === DEFAULT_PAGE ? undefined : pageNum);
-                }}
-                itemsPerPage={rowsPerPage}
-                onChangeItemsPerPage={perPage =>
-                  setRowsPerPage(perPage !== DEFAULT_PER_PAGE ? perPage : undefined, 'replaceIn')
-                }
-                itemsPerPageOptions={PER_PAGE_OPTIONS}
+              <TransactionTable
+                key="transaction-table"
+                transactions={realData?.transactions?.results ?? null}
+                showSameAccountTransactions={showSameAccountTransactions}
               />
+              <EuiSpacer />
             </>
           ) : (
-            emptyMessage
+            <div key="transaction-cards">
+              {realData?.transactions?.results.map(tx => (
+                <TransactionCard key={tx.id} transaction={tx} />
+              ))}
+            </div>
           )}
-        </EuiPageSection>
-      </EuiPageBody>
-    </EuiPage>
+          <EuiTablePagination
+            pageCount={Math.ceil((realData?.transactions?.totalResults ?? 0) / rowsPerPage)}
+            activePage={page}
+            onChangePage={pageNum => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              setPage(pageNum === DEFAULT_PAGE ? undefined : pageNum);
+            }}
+            itemsPerPage={rowsPerPage}
+            onChangeItemsPerPage={perPage => setRowsPerPage(perPage, 'replaceIn')}
+            itemsPerPageOptions={PER_PAGE_OPTIONS}
+          />
+        </>
+      ) : (
+        emptyMessage
+      )}
+    </FullWidthPage>
   );
 };

@@ -12,7 +12,7 @@ interface TransactionItemProps {
 const TransactionItem: React.FC<TransactionItemProps> = props => {
   const displayText = (
     <div>
-      {props.count > 1 && <span>{props.count}&nbsp;x&nbsp;</span>}
+      {props.count > 1 && <span>{props.count.toLocaleString()}&nbsp;x&nbsp;</span>}
       <UGCName rawName={props.name} />
     </div>
   );

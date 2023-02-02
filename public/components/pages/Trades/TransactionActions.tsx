@@ -72,7 +72,7 @@ const TransactionActions: React.FC<TranasctionActionsProps> = ({ id, partyA, par
           <EuiContextMenuItem
             key="view-character-rollup"
             icon="fold"
-            href={`${appUrl}/trade-rollup?party_a=${partyA.oid}&party_b=${partyB.oid}`}
+            href={`${appUrl}/trade-rollup?party_a=Object_${partyA.oid}&party_b=Object_${partyB.oid}`}
             onClick={handleLinkClick}
           >
             View rollup between characters
@@ -80,7 +80,7 @@ const TransactionActions: React.FC<TranasctionActionsProps> = ({ id, partyA, par
           <EuiContextMenuItem
             key="view-account-rollup"
             icon="reporter"
-            href={`${appUrl}/trade-rollup?party_a=${partyA.stationId}&party_b=${partyB.stationId}`}
+            href={`${appUrl}/trade-rollup?party_a=Account_${partyA.stationId}&party_b=Account_${partyB.stationId}`}
             onClick={handleLinkClick}
           >
             View rollup between accounts

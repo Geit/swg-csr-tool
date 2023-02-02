@@ -1,6 +1,11 @@
 {
-  "extends": "../../tsconfig.json",
+  // "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "strict": true,
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "target": "ES2020",
+    "moduleResolution": "node",
     "outDir": "./target",
     "skipLibCheck": true,
     "resolveJsonModule": true,
@@ -17,5 +22,13 @@
     "server/**/*.ts",
     "../../typings/**/*"
   ],
-  "exclude": []
+  "exclude": [],
+  "kbn_references": [
+    "@kbn/core",
+    "@kbn/core-http-server",
+    "@kbn/core-http-router-server-internal",
+    "@kbn/i18n-react",
+    "@kbn/es-query",
+    "@kbn/config-schema",
+  ]
 }

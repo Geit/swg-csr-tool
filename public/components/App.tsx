@@ -11,15 +11,17 @@ import {
 } from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
 import { QueryParamProvider } from 'use-query-params';
-import { WebSocketLink } from '@apollo/client/link/ws';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { Redirect } from 'react-router';
 import { EuiErrorBoundary } from '@elastic/eui';
 import { I18nProvider } from '@kbn/i18n-react';
+import { createClient as createWsClient } from 'graphql-ws';
 
 import { CoreStart, ScopedHistory } from '../../../../src/core/public';
 import introspectionResult from '../fragment-possibleTypes.generated.json';
 import { AppPluginStartDependencies } from '../types';
+import { ReactRouter5Adapter } from '../utils/useQueryParamReactAdapter';
 
 import { GalaxySearch } from './pages/GalaxySearch';
 import { ObjectDetails } from './pages/ObjectDetails/ObjectDetails';
@@ -31,7 +33,7 @@ import { CityDetails } from './pages/CityDetails';
 import { GuildDetails } from './pages/GuildDetails';
 import { Trades } from './pages/Trades';
 import { TradeRollupPage } from './pages/TradeRollupPage';
-import { TradeActivity } from './pages/TradeActivity';
+import { TradeReport } from './pages/TradeReport';
 import { ResourceDetails } from './pages/ResourceDetails';
 import { ResourceListing } from './pages/ResourceListing';
 
@@ -44,11 +46,9 @@ interface CSRToolAppProps {
 export default function CSRToolApp({ coreServices, history, injectedPlugins }: CSRToolAppProps) {
   const uri = `${location.host}${coreServices.http.basePath.prepend(`/api/swg_csr_tool/graphql`)}`;
 
-  const wsLink = new WebSocketLink({
-    uri: coreServices.uiSettings.get('csrToolWebsocketUrl'),
-    options: {
-      reconnect: true,
-      lazy: true,
+  const wsLink = new GraphQLWsLink(
+    createWsClient({
+      url: coreServices.uiSettings.get('csrToolWebsocketUrl'),
       connectionParams: async () => {
         const result = await coreServices.http.post('/api/swg_csr_tool/graphql/websocket_auth', {
           body: '{ "auth": 1 }',
@@ -56,8 +56,10 @@ export default function CSRToolApp({ coreServices, history, injectedPlugins }: C
 
         return result;
       },
-    },
-  });
+      lazy: true,
+      lazyCloseTimeout: 60 * 1000,
+    })
+  );
 
   const retryLink = new RetryLink();
 
@@ -153,7 +155,7 @@ export default function CSRToolApp({ coreServices, history, injectedPlugins }: C
         <KibanaCoreServicesProvider coreServices={coreServices} injectedPlugins={injectedPlugins}>
           <ApolloProvider client={client}>
             <Router history={history}>
-              <QueryParamProvider ReactRouterRoute={Route}>
+              <QueryParamProvider adapter={ReactRouter5Adapter} options={{ removeDefaultsFromUrl: true }}>
                 <Switch>
                   <Route path="/search">
                     <GalaxySearch />
@@ -189,7 +191,7 @@ export default function CSRToolApp({ coreServices, history, injectedPlugins }: C
                   </Route>
 
                   <Route path="/trade-report">
-                    <TradeActivity />
+                    <TradeReport />
                   </Route>
 
                   <Route path="/resources/:id">

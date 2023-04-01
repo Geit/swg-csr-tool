@@ -41,7 +41,6 @@ const PlanetWatcherMapView: React.FC<PlanetWatcherMapViewProps> = ({ planet }) =
           <EuiSpacer size="m" />
           <EuiTabbedContent
             size="s"
-            display="condensed"
             tabs={[
               {
                 id: 'server-summary',

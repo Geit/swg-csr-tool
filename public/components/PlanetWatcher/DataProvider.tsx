@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useEffect, useReducer, useRef } from 'react';
 import { Subject } from 'rxjs';
 
 import { colorPalette } from './ColorPalette';
@@ -219,12 +219,12 @@ const reducer: React.Reducer<ReturnType<typeof createInitialData>, ReducerAction
 
 const DataProvider: React.FC<DataProviderProps> = ({ children, planet }) => {
   const [data, dispatch] = useReducer(reducer, createInitialData());
-  const [gameServerIndex, setGameServerIndex] = useState(0);
+  const gameServerIndex = useRef(0);
   const [clientId] = useState(Math.floor(Math.random() * 1000000).toString(36));
 
   useEffect(() => {
     dispatch({ type: 'CLEAR_DATA', planet });
-    setGameServerIndex(0);
+    gameServerIndex.current = 0;
   }, [planet]);
 
   useOnGameServerUpdateSubscription({
@@ -240,14 +240,11 @@ const DataProvider: React.FC<DataProviderProps> = ({ children, planet }) => {
 
           const gsWithClientData = {
             ...gameServer,
-            color:
-              previousNodeStatus !== undefined
-                ? previousNodeStatus.color
-                : colorPalette[gameServerIndex % colorPalette.length],
+            color: previousNodeStatus?.color ?? colorPalette[gameServerIndex.current % colorPalette.length],
           };
 
           if (previousNodeStatus === undefined) {
-            setGameServerIndex(prev => prev + 1);
+            gameServerIndex.current += 1;
           }
 
           data.gameServerStatus.set(gameServer.serverId, gsWithClientData);

@@ -33,6 +33,10 @@ export const GET_RESOURCE_DETAILS = gql`
       className
       depletedTimeReal
       depletedTime
+      circulationData {
+        containerObjects
+        totalQuantity
+      }
       fractalData {
         amplitude
         octaves
@@ -104,7 +108,7 @@ export const ResourceDetails: React.FC = () => {
   let content = (
     <>
       <EuiTitle>
-        <h2>Attributes</h2>
+        <h2>Stats</h2>
       </EuiTitle>
       <EuiSpacer />
       <EuiPanel color="subdued" hasBorder>
@@ -143,6 +147,18 @@ export const ResourceDetails: React.FC = () => {
               </div>
             );
           })}
+          <div key={`amountInCirculation`}>
+            <EuiDescriptionListTitle>Amount in Circulation</EuiDescriptionListTitle>
+            <EuiDescriptionListDescription>
+              {(data?.resource?.circulationData?.totalQuantity ?? 0).toLocaleString()}
+            </EuiDescriptionListDescription>
+          </div>
+          <div key={`totalContainers`}>
+            <EuiDescriptionListTitle>Total Containers</EuiDescriptionListTitle>
+            <EuiDescriptionListDescription>
+              {(data?.resource?.circulationData?.containerObjects ?? 0).toLocaleString()}
+            </EuiDescriptionListDescription>
+          </div>
         </EuiDescriptionList>
       </EuiPanel>
       <EuiSpacer />

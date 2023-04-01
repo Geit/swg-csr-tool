@@ -197,15 +197,13 @@ class ObjectLayer extends THREE.InstancedMesh {
   }
 
   createFreshObject(instanceIdx: number, obj: MapValueType<DataProviderContextData['objects']>) {
-    const dummy = new THREE.Object3D();
-
-    dummy.position.set(obj.location[0], obj.location[1], obj.location[2]);
+    const dummyMatrix = new THREE.Matrix4();
+    dummyMatrix.setPosition(obj.location[0], obj.location[1], obj.location[2]);
     const scaleFactor = this.calculateCurrentObjectScaleFactor(this.camera.zoom);
-    dummy.scale.set(scaleFactor, scaleFactor, scaleFactor);
-    dummy.updateMatrix();
+    dummyMatrix.scale(new THREE.Vector3(scaleFactor, scaleFactor, scaleFactor));
 
     this.setColorAt(instanceIdx, getColorForObject(obj));
-    this.setMatrixAt(instanceIdx, dummy.matrix);
+    this.setMatrixAt(instanceIdx, dummyMatrix);
     this.objectIdToInstanceId.set(obj.networkId, instanceIdx);
     this.instanceIdToObjectId.set(instanceIdx, obj.networkId);
   }
@@ -218,25 +216,30 @@ class ObjectLayer extends THREE.InstancedMesh {
 
     // Get the existing position from the instance
     const position = new THREE.Vector3();
+    const quaternion = new THREE.Quaternion();
+    const scale = new THREE.Vector3();
     const matrix = new THREE.Matrix4();
     this.getMatrixAt(instanceIdx, matrix);
+    matrix.decompose(position, quaternion, scale);
     position.setFromMatrixPosition(matrix);
 
     // Calculate the bearing between the old position and new
     const newPosition = new THREE.Vector3(obj.location[0], obj.location[1], obj.location[2]);
-    const bearing = Math.PI - getBearingBetweenPoints(position.x, position.z, newPosition.x, newPosition.z);
+    if (newPosition.x !== position.x || newPosition.z !== position.z) {
+      const bearing = Math.PI - getBearingBetweenPoints(position.x, position.z, newPosition.x, newPosition.z);
 
-    // We start with a cone facing upwards.
-    // We then rotate it to the object's current bearing
-    // We "knock" the cone down so it's the bearing.
-    const newRotation = new THREE.Euler(Math.PI / 2, bearing, 0, 'ZYX');
+      // We start with a cone facing upwards.
+      // We then rotate it to the object's current bearing
+      // We "knock" the cone down so it's the bearing.
+      const newRotation = new THREE.Euler(Math.PI / 2, bearing, 0, 'ZYX');
 
-    // Then apply that to the quat.
-    const quaternion = new THREE.Quaternion();
-    quaternion.setFromEuler(newRotation);
+      // Then apply that to the quat.
+
+      quaternion.setFromEuler(newRotation);
+    }
 
     const scaleFactor = this.calculateCurrentObjectScaleFactor(this.camera.zoom);
-    const scale = new THREE.Vector3(scaleFactor, scaleFactor, scaleFactor);
+    scale.setScalar(scaleFactor);
 
     matrix.compose(newPosition, quaternion, scale);
 

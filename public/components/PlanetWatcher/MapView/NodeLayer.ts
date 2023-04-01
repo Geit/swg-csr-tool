@@ -1,9 +1,22 @@
-import { PlaneGeometry, MeshBasicMaterial, Mesh, Group, Raycaster, Vector2, OrthographicCamera } from 'three';
-import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils';
+import {
+  PlaneGeometry,
+  MeshBasicMaterial,
+  Group,
+  Raycaster,
+  Vector2,
+  OrthographicCamera,
+  InstancedMesh,
+  Matrix4,
+  Vector3,
+} from 'three';
 import throttle from 'lodash.throttle';
+import { Required } from 'utility-types';
+import debounce from 'lodash.debounce';
 
-import { isPresent } from '../../../utils/utility-types';
 import { DataProviderContextData } from '../DataProvider';
+import { PlanetWatcherNodeStatusUpdate } from '../../../graphql.generated';
+
+const NODE_SIZE = 100;
 
 /**
  * Nodes (or cells) are the individual areas within a planet that objects can be partitioned into.
@@ -16,43 +29,27 @@ import { DataProviderContextData } from '../DataProvider';
  * We do not care if the geometries overlap, as this is how they are in the game too.
  */
 class NodeLayer extends Group {
-  nodeUpdates: DataProviderContextData['nodeUpdates'];
-  nodeStatus: DataProviderContextData['nodeStatus'];
-  gameServerStatus: DataProviderContextData['gameServerStatus'];
-  serverCellIndexes: Map<number, Set<string>>;
+  serverCellIndexes: Map<number, Set<string>> = new Map();
   timeoutId: number;
   raycaster: Raycaster;
   camera: OrthographicCamera;
 
   constructor(
-    nodeStatus: DataProviderContextData['nodeStatus'],
-    nodeUpdates: DataProviderContextData['nodeUpdates'],
-    gameServerStatus: DataProviderContextData['gameServerStatus'],
+    private readonly nodeStatus: DataProviderContextData['nodeStatus'],
+    private readonly nodeUpdates: DataProviderContextData['nodeUpdates'],
+    private readonly gameServerStatus: DataProviderContextData['gameServerStatus'],
+    private readonly gameServerUpdates: DataProviderContextData['gameServerUpdates'],
     camera: OrthographicCamera,
     canvasElement: HTMLCanvasElement
   ) {
     super();
+    this.setupSubscribers();
 
-    this.serverCellIndexes = new Map();
-
-    for (const [, ns] of nodeStatus) {
-      ns.serverIds?.forEach(serverId => {
-        let existingIndexes = this.serverCellIndexes.get(serverId);
-
-        if (!existingIndexes) {
-          existingIndexes = new Set();
-        }
-
-        existingIndexes.add(`${ns.location[0]}|${ns.location[2]}`);
-
-        this.serverCellIndexes.set(serverId, existingIndexes);
-      });
+    for (const ns of nodeStatus.values()) {
+      this.updateCellIndexesFromNodeStatus(ns);
     }
 
-    this.nodeUpdates = nodeUpdates;
-    this.nodeStatus = nodeStatus;
     this.gameServerStatus = gameServerStatus;
-    this.setupSubscriber();
     this.timeoutId = setTimeout(() => this.rebuildChildren(), 250) as unknown as number;
 
     const throttledMouseMove = throttle(this.handleHover.bind(this), 100);
@@ -69,7 +66,7 @@ class NodeLayer extends Group {
     this.camera = camera;
   }
 
-  handleHover(e: MouseEvent) {
+  private handleHover(e: MouseEvent) {
     const renderRect = (e.target as HTMLCanvasElement).getBoundingClientRect();
     const x = e.clientX - renderRect.left; //x position within the element.
     const y = e.clientY - renderRect.top;
@@ -87,63 +84,78 @@ class NodeLayer extends Group {
     document.dispatchEvent(evtToFire);
   }
 
-  setupSubscriber() {
+  private updateCellIndexesFromNodeStatus(newNodeStatus: Required<Partial<PlanetWatcherNodeStatusUpdate>, 'location'>) {
+    newNodeStatus.serverIds?.forEach(serverId => {
+      const existingIndexes = this.serverCellIndexes.get(serverId) ?? new Set();
+
+      existingIndexes.add(`${newNodeStatus.location[0]}|${newNodeStatus.location[2]}`);
+
+      this.serverCellIndexes.set(serverId, existingIndexes);
+    });
+  }
+
+  private queueChildRebuild() {
+    clearTimeout(this.timeoutId);
+    this.timeoutId = setTimeout(() => this.rebuildChildren(), 100) as unknown as number;
+  }
+
+  private setupSubscribers() {
     this.nodeUpdates.subscribe({
       next: ({ type, data: ns }) => {
         if (type === 'UPDATED') {
-          ns.serverIds?.forEach(serverId => {
-            let existingIndexes = this.serverCellIndexes.get(serverId);
-
-            if (!existingIndexes) {
-              existingIndexes = new Set();
-            }
-
-            existingIndexes.add(`${ns.location[0]}|${ns.location[2]}`);
-
-            this.serverCellIndexes.set(serverId, existingIndexes);
-          });
-          //console.log('reset rebuild');
-          clearTimeout(this.timeoutId);
-          this.timeoutId = setTimeout(() => this.rebuildChildren(), 250) as unknown as number;
+          this.updateCellIndexesFromNodeStatus(ns);
+          this.debouncedChildRebuild();
         }
+      },
+    });
+
+    this.gameServerUpdates.subscribe({
+      next: () => {
+        this.debouncedChildRebuild();
       },
     });
   }
 
-  rebuildChildren() {
+  private debouncedChildRebuild = debounce(() => this.rebuildChildren(), 100);
+
+  private rebuildChildren() {
     this.clear();
     for (const [serverId, cellIndexes] of this.serverCellIndexes) {
-      const geometries = [...cellIndexes]
-        .map(cellIndex => {
-          const ns = this.nodeStatus.get(cellIndex);
+      const gameServerDetails = this.gameServerStatus.get(serverId);
+      if (!gameServerDetails) {
+        continue;
+      }
 
-          if (!ns) return null;
+      const matrix = new Matrix4();
+      const geometry = new PlaneGeometry(NODE_SIZE, NODE_SIZE).rotateX(Math.PI / 2);
+      const material = new MeshBasicMaterial({
+        transparent: true,
+        opacity: 0.4,
+        color: gameServerDetails.color,
+      });
+      const instancedMesh = new InstancedMesh(geometry, material, cellIndexes.size);
 
-          const geometry = new PlaneGeometry(100, 100)
-            .rotateX(Math.PI / 2)
-            .translate(ns.location[0], ns.location[1], ns.location[2]);
+      let currentCellIndexId = 0;
+      for (const cellIndex of cellIndexes) {
+        const nodeStatus = this.nodeStatus.get(cellIndex);
 
-          return geometry;
-        })
-        .filter(isPresent);
+        if (nodeStatus) {
+          matrix.setPosition(nodeStatus.location[0], nodeStatus.location[1], nodeStatus.location[2]);
+          matrix.scale(new Vector3(1, 1, 1));
+        } else {
+          matrix.scale(new Vector3(0, 0, 0));
+        }
 
-      if (geometries.length === 0) continue;
+        instancedMesh.setMatrixAt(currentCellIndexId, matrix);
 
-      // @ts-expect-error threejs types are currently wrong.
-      const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
+        currentCellIndexId += 1;
+      }
 
-      const mesh = new Mesh(
-        mergedGeometry,
-        new MeshBasicMaterial({
-          transparent: true,
-          opacity: 0.4,
-          color: this.gameServerStatus.get(serverId)!.color,
-        })
-      );
+      if (currentCellIndexId === 0) continue;
 
-      mesh.userData.serverId = serverId;
+      instancedMesh.userData.serverId = serverId;
 
-      this.add(mesh);
+      this.add(instancedMesh);
     }
   }
 }

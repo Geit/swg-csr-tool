@@ -14,16 +14,19 @@ const WorldViewerThree: React.FC = () => {
   const renderElem = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    console.log('Mounting renderer...');
     if (!renderElem.current) {
       return;
     }
 
+    const mountingRef = renderElem.current;
+
     const stats = new Stats();
     stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-    renderElem.current!.appendChild(stats.dom);
+    mountingRef.appendChild(stats.dom);
     stats.dom.style.position = 'absolute';
 
-    const rect = renderElem.current!.getBoundingClientRect();
+    const rect = mountingRef.getBoundingClientRect();
 
     const mapConfig = mapConfigs.find(map => map.id === data.planet);
 
@@ -48,10 +51,10 @@ const WorldViewerThree: React.FC = () => {
       antialias: true,
     });
     renderer.setSize(rect.width, rect.height);
-    renderElem.current!.appendChild(renderer.domElement);
+    mountingRef.appendChild(renderer.domElement);
 
     window.addEventListener('resize', () => {
-      const renderRect = renderElem.current!.getBoundingClientRect();
+      const renderRect = mountingRef.getBoundingClientRect();
       const newAspect = renderRect.width / renderRect.height;
 
       camera.left = -FRUSTRUM_SIZE * newAspect;
@@ -67,11 +70,10 @@ const WorldViewerThree: React.FC = () => {
     const orbit = new OrbitControls(camera, renderer.domElement);
     orbit.enableRotate = false;
     orbit.enablePan = true;
-    // @ts-expect-error
-    orbit.mouseButtons = { LEFT: THREE.MOUSE.PAN };
-    // @ts-expect-error
+    orbit.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.MIDDLE, RIGHT: THREE.MOUSE.RIGHT };
     orbit.touches = {
       ONE: THREE.TOUCH.DOLLY_PAN,
+      TWO: THREE.TOUCH.PAN,
     };
     orbit.maxPolarAngle = Math.PI;
     orbit.minPolarAngle = Math.PI;
@@ -99,6 +101,7 @@ const WorldViewerThree: React.FC = () => {
       data.nodeStatus,
       data.nodeUpdates,
       data.gameServerStatus,
+      data.gameServerUpdates,
       camera,
       renderer.domElement
     );
@@ -118,17 +121,24 @@ const WorldViewerThree: React.FC = () => {
     };
     animate();
 
-    const mountingRef = renderElem.current;
-
     return function cleanup() {
+      console.log('Cleaning up existing renderer...');
+      cancelAnimationFrame(rafId);
+      scene.clear();
+      renderer.dispose();
       if (mountingRef) {
-        cancelAnimationFrame(rafId);
-        scene.clear();
-        renderer.dispose();
         mountingRef.removeChild(renderer.domElement);
       }
     };
-  }, [data.gameServerStatus, data.nodeStatus, data.nodeUpdates, data.objectUpdates, data.objects, data.planet]);
+  }, [
+    data.gameServerStatus,
+    data.nodeStatus,
+    data.nodeUpdates,
+    data.objectUpdates,
+    data.objects,
+    data.planet,
+    data.gameServerUpdates,
+  ]);
 
   return (
     <div

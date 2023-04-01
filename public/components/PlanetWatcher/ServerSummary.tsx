@@ -1,6 +1,7 @@
 import { EuiBadge, EuiCard, EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiText } from '@elastic/eui';
-import React, { useContext, useEffect, useState, useLayoutEffect } from 'react';
+import React, { useContext, useEffect, useState, useLayoutEffect, useRef } from 'react';
 import { Sparklines, SparklinesLine, SparklinesSpots } from 'react-sparklines';
+import { useRaf, useThrottle, useThrottleFn, useUpdate, useInterval } from 'react-use';
 
 import { PlanetWatcherContext } from './DataProvider';
 
@@ -11,30 +12,34 @@ interface ZoneHoverEvent extends Event {
 }
 
 const ObjectOnServerCount: React.FC<{ serverId: number }> = ({ serverId }) => {
-  const [objectOnServerCount, setObjectOnServerCount] = useState(0);
+  const [objectOnServerCountReal, setObjectOnServerCountReal] = useState(0);
+  const objectOnServerCount = useRef(0);
   const data = useContext(PlanetWatcherContext);
+  useInterval(() => {
+    if (objectOnServerCountReal !== objectOnServerCount.current)
+      setObjectOnServerCountReal(objectOnServerCount.current);
+  }, 100);
 
   useEffect(() => {
-    const startingCount = [...data.objects].reduce(
-      (acc, [networkId, obj]) => (obj.visible && obj.authoritativeServer === serverId ? acc + 1 : acc),
-      0
-    );
-    setObjectOnServerCount(startingCount);
+    objectOnServerCount.current = 0;
+    for (const obj of data.objects.values()) {
+      if (obj.visible && obj.authoritativeServer === serverId) objectOnServerCount.current += 1;
+    }
 
     const sub = data.objectUpdates.subscribe(update => {
       if (update.type === 'CREATED') {
         if (update.data.authoritativeServer === serverId) {
-          setObjectOnServerCount(prev => prev + 1);
+          objectOnServerCount.current += 1;
         }
       } else if (update.type === 'DELETED') {
         if (update.data.authoritativeServer === serverId) {
-          setObjectOnServerCount(prev => prev - 1);
+          objectOnServerCount.current -= 1;
         }
       } else if (update.type === 'UPDATED' && update.prevData) {
         if (update.prevData.authoritativeServer === serverId && update.data.authoritativeServer !== serverId) {
-          setObjectOnServerCount(prev => prev - 1);
+          objectOnServerCount.current -= 1;
         } else if (update.prevData.authoritativeServer !== serverId && update.data.authoritativeServer === serverId) {
-          setObjectOnServerCount(prev => prev + 1);
+          objectOnServerCount.current += 1;
         }
       }
     });
@@ -42,7 +47,7 @@ const ObjectOnServerCount: React.FC<{ serverId: number }> = ({ serverId }) => {
     return () => sub.unsubscribe();
   }, [data.objectUpdates, data.objects, serverId]);
 
-  return <span>{objectOnServerCount.toLocaleString()}</span>;
+  return <span>{objectOnServerCount.current.toLocaleString()}</span>;
 };
 
 const FrameTimeSparklines: React.FC<{ serverId: number }> = ({ serverId }) => {

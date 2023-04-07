@@ -34,9 +34,10 @@ export const GET_CHARACTERS_FOR_ACCOUNT = gql`
         sceneName
         location
         worldspaceLocation
+        level
         playerObject {
           id
-          workingSkill
+          skillTemplate
           playedTime
         }
       }
@@ -85,7 +86,7 @@ const CharactersTableRows: React.FC<CharactersTableRowsProps> = ({ isLoading, da
               <EuiTableRowCell>
                 {character.resolvedName}
                 <EuiText color="subdued" size="xs">
-                  {character.playerObject.workingSkill}
+                  Level {character.level} {character.playerObject.skillTemplate}
                 </EuiText>
               </EuiTableRowCell>
               <EuiTableRowCell>

@@ -67,9 +67,6 @@ export const ObjectDetails: React.FC = () => {
         // This next line is horrible, sorry.
         stationId={data && data.object && 'account' in data.object ? data.object.account?.id : undefined}
       />
-
-      {/* Prevents this page being sized based on its content */}
-      <EuiSpacer style={{ width: '2000px' }} />
     </>
   );
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { gql } from '@apollo/client';
 import {
   EuiDualRange,
@@ -6,14 +6,12 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
-  EuiBasicTable,
   EuiSpacer,
   EuiTableFieldDataColumnType,
   EuiText,
   EuiBadge,
   EuiToolTip,
   EuiSwitch,
-  EuiTablePagination,
   EuiEmptyPrompt,
 } from '@elastic/eui';
 import { Link } from 'react-router-dom';
@@ -21,6 +19,7 @@ import { useThrottle } from 'react-use';
 
 import { useDebouncedMemo } from '../../../hooks/useDebouncedMemo';
 import { resourceAttributes } from '../../../utils/resourceAttributes';
+import PaginatedGQLTable, { DEFAULT_PAGE, DEFAULT_PER_PAGE } from '../../PaginatedGQLTable';
 
 import { SearchForResourcesQuery, useSearchForResourcesQuery } from './ResourceListingTable.queries';
 
@@ -141,10 +140,6 @@ const columns: EuiTableFieldDataColumnType<Resource>[] = [
   }),
 ];
 
-const DEFAULT_PAGE = 0;
-const PER_PAGE_OPTIONS = [10, 25, 50, 100];
-const DEFAULT_PER_PAGE: typeof PER_PAGE_OPTIONS[number] = 25;
-
 const ResourceListingTable: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PER_PAGE);
@@ -193,11 +188,7 @@ const ResourceListingTable: React.FC = () => {
   const hasCurrentData = Object.keys(data ?? {}).length > 0;
   const realData = hasCurrentData ? data : previousData;
 
-  useEffect(() => {
-    if (!loading && realData && resultToStartAtRaw > realData.search.totalResultCount) {
-      setPage(0);
-    }
-  }, [realData, resultToStartAtRaw, loading, setPage]);
+  const filteredResults = realData?.search.results?.filter(isResourceType) ?? [];
 
   return (
     <>
@@ -232,24 +223,16 @@ const ResourceListingTable: React.FC = () => {
               body={<p>There was an error while querying. The results displayed may be incorrect.</p>}
             />
           ) : (
-            <>
-              <EuiBasicTable
-                items={realData?.search.results?.filter(isResourceType) ?? []}
-                columns={columns}
-                loading={loading}
-              />
-              <EuiTablePagination
-                pageCount={Math.ceil((realData?.search?.totalResultCount ?? 0) / rowsPerPage)}
-                activePage={page}
-                onChangePage={pageNum => {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                  setPage(pageNum);
-                }}
-                itemsPerPage={rowsPerPage}
-                onChangeItemsPerPage={perPage => setRowsPerPage(perPage)}
-                itemsPerPageOptions={PER_PAGE_OPTIONS}
-              />
-            </>
+            <PaginatedGQLTable
+              data={filteredResults}
+              columns={columns}
+              loading={loading}
+              page={page}
+              onPageChanged={setPage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChanged={setRowsPerPage}
+              totalResultCount={realData?.search?.totalResultCount ?? 0}
+            />
           )}
         </EuiFlexItem>
         <EuiFlexItem>

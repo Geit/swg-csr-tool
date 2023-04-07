@@ -18,7 +18,7 @@ export const createApolloClient = (coreServices: CoreStart) => {
           body: '{ "auth": 1 }',
         });
 
-        return result;
+        return result as Record<string, unknown>;
       },
       lazy: true,
       lazyCloseTimeout: 60 * 1000,

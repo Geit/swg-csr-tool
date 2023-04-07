@@ -7,4 +7,4 @@ import { SwgCsrToolPlugin } from './plugin';
 export function plugin() {
   return new SwgCsrToolPlugin();
 }
-export { SwgCsrToolPluginSetup, SwgCsrToolPluginStart } from './types';
+export type { SwgCsrToolPluginSetup, SwgCsrToolPluginStart } from './types';

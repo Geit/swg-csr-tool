@@ -1,17 +1,17 @@
 import React from 'react';
-import { EuiSpacer, EuiTitle, EuiCallOut } from '@elastic/eui';
+import { EuiCallOut, EuiTabbedContentTab, EuiTabbedContent } from '@elastic/eui';
 import { gql } from '@apollo/client';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
-import CharactersTable from '../../widgets/CharactersTable';
-import { AccountStructureTable } from '../../widgets/StructuresTable';
-import { AccountVeteranRewardTable } from '../../widgets/VeteranRewardTable';
 import { FullWidthPage } from '../layouts/FullWidthPage';
 
 import { useGetAccountNameQuery } from './AccountDetails.queries';
+import { AccountOverviewTab } from './AccountOverviewTab';
+import { AccountVeteranRewardTab } from './AccountVeteranRewardTab';
+import { AccountLoginsTab } from './AccountLoginsTab';
 
 export const GET_ACCOUNT_NAME = gql`
   query getAccountName($id: String!) {
@@ -22,11 +22,40 @@ export const GET_ACCOUNT_NAME = gql`
   }
 `;
 
+export interface AccountDetailsRouteParams {
+  id: string;
+  tab?: string;
+}
+
+const tabs: EuiTabbedContentTab[] = [
+  {
+    id: 'overview',
+    name: 'Overview',
+    content: <AccountOverviewTab />,
+  },
+  {
+    id: 'logins',
+    name: 'Logins',
+    content: <AccountLoginsTab />,
+  },
+  // {
+  //   id: 'logs',
+  //   name: 'Logs',
+  //   content: <div>Hello world 3</div>,
+  // },
+  {
+    id: 'veteran-rewards',
+    name: 'Veteran Rewards',
+    content: <AccountVeteranRewardTab />,
+  },
+];
+
 export const AccountDetails: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const history = useHistory();
+  const { id: accountStationId, tab: selectedTabId = 'overview' } = useParams<AccountDetailsRouteParams>();
   const { data, loading } = useGetAccountNameQuery({
     variables: {
-      id,
+      id: accountStationId,
     },
     returnPartialData: true,
   });
@@ -35,7 +64,12 @@ export const AccountDetails: React.FC = () => {
   const documentTitle = [accountName, `Account Details`].filter(Boolean).join(' - ');
 
   useDocumentTitle(documentTitle);
-  useRecentlyAccessed(`/app/swgCsrTool/account/${id}`, documentTitle, `account-details-${id}`, Boolean(accountName));
+  useRecentlyAccessed(
+    `/app/swgCsrTool/account/${accountStationId}/${selectedTabId}`,
+    documentTitle,
+    `account-details-${accountStationId}`,
+    Boolean(accountName)
+  );
   useBreadcrumbs([
     {
       text: 'Galaxy Search',
@@ -45,31 +79,14 @@ export const AccountDetails: React.FC = () => {
       text: documentTitle,
     },
   ]);
+  const selectedTab = tabs.find(tab => tab.id === selectedTabId);
 
   let content = (
-    <>
-      <EuiTitle>
-        <h2>Characters</h2>
-      </EuiTitle>
-      <CharactersTable stationId={id} />
-      <EuiSpacer size="l" />
-      <>
-        <EuiTitle>
-          <h2>Structures</h2>
-        </EuiTitle>
-        <AccountStructureTable stationId={id} />
-      </>
-      <EuiSpacer size="l" />
-      <>
-        <EuiTitle>
-          <h2>Veteran Rewards</h2>
-        </EuiTitle>
-        <EuiSpacer />
-        <AccountVeteranRewardTable stationId={id} />
-      </>
-      {/* Prevents this page being sized based on its content */}
-      <EuiSpacer style={{ width: '2000px' }} />
-    </>
+    <EuiTabbedContent
+      tabs={tabs}
+      selectedTab={selectedTab}
+      onTabClick={tab => tab.id !== selectedTabId && history.push(`/account/${accountStationId}/${tab.id}`)}
+    />
   );
 
   if (Object.keys(data?.account ?? {}).length === 0 && !loading) {
@@ -80,5 +97,9 @@ export const AccountDetails: React.FC = () => {
     );
   }
 
-  return <FullWidthPage title={data?.account?.accountName ?? 'Account Details'}>{content}</FullWidthPage>;
+  return (
+    <FullWidthPage disableHeaderSpacing title={data?.account?.accountName ?? 'Account Details'}>
+      {content}
+    </FullWidthPage>
+  );
 };

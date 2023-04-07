@@ -49,7 +49,7 @@ export default function CSRToolApp({ coreServices, history, injectedPlugins }: C
                     <Route path="/object/:id">
                       <ObjectDetails />
                     </Route>
-                    <Route path="/account/:id">
+                    <Route path="/account/:id/:tab?">
                       <AccountDetails />
                     </Route>
                     <Route path="/planets/:planet">

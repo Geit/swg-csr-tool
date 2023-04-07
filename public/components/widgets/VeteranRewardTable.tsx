@@ -108,7 +108,7 @@ export const AccountVeteranRewardTable: React.FC<{ stationId: string }> = ({ sta
 
   return (
     <EuiInMemoryTable
-      pagination={{ initialPageSize: 10 }}
+      pagination={{ initialPageSize: 50 }}
       loading={loading}
       error={error}
       items={items}
@@ -117,6 +117,7 @@ export const AccountVeteranRewardTable: React.FC<{ stationId: string }> = ({ sta
         box: {
           incremental: true,
           compressed: true,
+          placeholder: 'Search by reward or character name...',
         },
       }}
       message={loading ? 'Loading veteran rewards...' : <VetRewardTableEmpty />}

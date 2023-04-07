@@ -23,4 +23,4 @@ export const config: PluginConfigDescriptor<ConfigType> = {
   schema: configSchema,
 };
 
-export { SwgCsrToolPluginSetup, SwgCsrToolPluginStart } from './types';
+export type { SwgCsrToolPluginSetup, SwgCsrToolPluginStart } from './types';

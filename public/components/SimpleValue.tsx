@@ -1,4 +1,4 @@
-import { EuiLoadingContent } from '@elastic/eui';
+import { EuiSkeletonText } from '@elastic/eui';
 import React from 'react';
 
 interface SimpleValueProps {
@@ -13,7 +13,7 @@ interface SimpleValueProps {
  */
 const SimpleValue: React.FC<SimpleValueProps> = ({ children, isLoading, fallbackText = 'Not Set', numeric }) => {
   if (!children) {
-    if (isLoading) return <EuiLoadingContent lines={1} />;
+    if (isLoading) return <EuiSkeletonText lines={1} />;
 
     // eslint-disable-next-line react/jsx-no-useless-fragment
     return <>{fallbackText}</>;

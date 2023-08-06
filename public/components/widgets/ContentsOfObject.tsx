@@ -10,7 +10,7 @@ import {
   EuiIcon,
   EuiTableRow,
   EuiTableRowCell,
-  EuiLoadingContent,
+  EuiSkeletonText,
   EuiDelayRender,
   EuiFlexItem,
   EuiFlexGroup,
@@ -219,7 +219,7 @@ const ContentsOfObjectRows: React.FC<ContentsOfObjectRowsProps> = props => {
               return (
                 <EuiTableRow key={`expectedItem-${idx}`}>
                   <EuiTableRowCell colSpan={3} textOnly={false}>
-                    <EuiLoadingContent lines={1} className="inTableLoadingIndicator" />
+                    <EuiSkeletonText lines={1} className="inTableLoadingIndicator" />
                   </EuiTableRowCell>
                 </EuiTableRow>
               );

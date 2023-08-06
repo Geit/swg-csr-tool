@@ -4,6 +4,7 @@ import { gql } from '@apollo/client';
 import { useThrottle, useThrottleFn } from 'react-use';
 import { useQueryParam, StringParam } from 'use-query-params';
 import { fromKueryExpression, toElasticsearchQuery } from '@kbn/es-query';
+import { UnifiedSearchPublicPluginStart } from '@kbn/unified-search-plugin/public';
 
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';

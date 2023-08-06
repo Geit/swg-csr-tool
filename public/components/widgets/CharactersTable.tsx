@@ -1,9 +1,13 @@
 import React from 'react';
 import { gql } from '@apollo/client';
 import {
+  EuiBadge,
+  EuiBeacon,
   EuiCallOut,
   EuiEmptyPrompt,
-  EuiLoadingContent,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiSkeletonText,
   EuiTable,
   EuiTableBody,
   EuiTableHeader,
@@ -40,6 +44,11 @@ export const GET_CHARACTERS_FOR_ACCOUNT = gql`
           skillTemplate
           playedTime
         }
+        session {
+          id
+          currentState
+          startedTime
+        }
       }
     }
   }
@@ -63,7 +72,7 @@ const CharactersTableRows: React.FC<CharactersTableRowsProps> = ({ isLoading, da
             return (
               <EuiTableRow key={`expectedItem-${idx}`}>
                 <EuiTableRowCell colSpan={NUM_COLUMNS} textOnly={false}>
-                  <EuiLoadingContent lines={1} className="inTableLoadingIndicator" />
+                  <EuiSkeletonText lines={1} className="inTableLoadingIndicator" />
                 </EuiTableRowCell>
               </EuiTableRow>
             );
@@ -84,14 +93,18 @@ const CharactersTableRows: React.FC<CharactersTableRowsProps> = ({ isLoading, da
                 <ObjectLink disablePopup objectId={character.id} />
               </EuiTableRowCell>
               <EuiTableRowCell>
-                {character.resolvedName}
+                {character.resolvedName}{' '}
+                {character.session?.currentState === 'Playing' && (
+                  <EuiBeacon title={`Online since ${character.session.startedTime}`} className="loggedInBeacon" />
+                )}
+                <br />{' '}
                 <EuiText color="subdued" size="xs">
                   Level {character.level} {character.playerObject.skillTemplate}
                 </EuiText>
               </EuiTableRowCell>
               <EuiTableRowCell>
                 <SimpleValue isLoading={false} numeric>
-                  {[location?.map(Math.round).join(' ')].filter(Boolean).join(' - ')}
+                  {[location?.map(Math.round).join(' ')].filter(Boolean).join(' - ')} <br />
                   <EuiText color="subdued" size="xs">
                     {character.sceneName ?? 'Unknown Scene'}
                   </EuiText>

@@ -3,8 +3,6 @@ import {
   EuiAccordion,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiListGroup,
-  EuiListGroupItem,
   EuiPanel,
   EuiSpacer,
   EuiText,
@@ -59,15 +57,15 @@ const TradeRollupPartyComponent: React.FC<{ party: TradeRollupParty }> = ({ part
           Received
         </EuiText>
         {itemsReceived.length || party.creditsReceived > 0 ? (
-          <EuiListGroup flush={true} maxWidth={false} bordered={false}>
-            {party.creditsReceived > 0 && (
-              <EuiListGroupItem label={`${party.creditsReceived.toLocaleString()} Credits`} />
-            )}
+          <ul style={{ listStyle: 'none' }}>
+            {party.creditsReceived > 0 && <li>{party.creditsReceived.toLocaleString()} Credits</li>}
 
             {itemsReceived.map(item => (
-              <EuiListGroupItem key={item.oid} label={<TransactionItem {...item} />} />
+              <li key={item.oid}>
+                <TransactionItem {...item} />
+              </li>
             ))}
-          </EuiListGroup>
+          </ul>
         ) : (
           <>
             <EuiSpacer />
@@ -85,11 +83,13 @@ const TradeRollupPartyComponent: React.FC<{ party: TradeRollupParty }> = ({ part
               </EuiToolTip>
             }
           >
-            <EuiListGroup flush={true} maxWidth={false} bordered={false}>
+            <ul style={{ listStyle: 'none' }}>
               {itemsReturned.map(item => (
-                <EuiListGroupItem key={item.oid} label={<TransactionItem {...item} />} />
+                <li key={item.oid}>
+                  <TransactionItem {...item} />
+                </li>
               ))}
-            </EuiListGroup>
+            </ul>
           </EuiAccordion>
         )}
       </EuiPanel>

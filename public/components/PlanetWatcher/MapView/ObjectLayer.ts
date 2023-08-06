@@ -11,7 +11,7 @@ import {
   STATIC_TAG,
   TANGIBLE_TAG,
 } from '../../../utils/tagify';
-import { MapValueType } from '../../../utils/utility-types';
+import { MapValueType, isPresent } from '../../../utils/utility-types';
 import { DataProviderContextData } from '../DataProvider';
 
 const EXTRA_OBJECT_BUDGET = 10000;
@@ -64,6 +64,7 @@ class ObjectLayer extends THREE.InstancedMesh {
   maximumCount: number;
   raycaster: THREE.Raycaster;
   prevZoom: number;
+  boundingSphereChange = false;
 
   constructor(
     objects: DataProviderContextData['objects'],
@@ -129,14 +130,16 @@ class ObjectLayer extends THREE.InstancedMesh {
     const mouse = new THREE.Vector2((x / renderRect.width) * 2 - 1, -(y / renderRect.height) * 2 + 1);
 
     this.raycaster.setFromCamera(mouse, this.camera);
-    const intersection = this.raycaster.intersectObject(this);
-    if (intersection.length > 0) {
-      const instanceId = intersection[0].instanceId;
+    const intersections = this.raycaster.intersectObject(this);
+    if (intersections.length > 0) {
+      const objectIds = intersections
+        .map(({ instanceId }) => (instanceId ? this.instanceIdToObjectId.get(instanceId) : null))
+        .filter(isPresent);
 
-      if (!instanceId || !this.instanceIdToObjectId.has(instanceId)) return;
+      if (objectIds.length === 0) return;
 
       const evtToFire = new CustomEvent('objectSelected', {
-        detail: { objectId: this.instanceIdToObjectId.get(instanceId) },
+        detail: { objectIds },
       });
       document.dispatchEvent(evtToFire);
     }
@@ -178,6 +181,7 @@ class ObjectLayer extends THREE.InstancedMesh {
     this.count += 1;
     this.instanceMatrix.needsUpdate = true;
     this.instanceColor!.needsUpdate = true;
+    this.boundingSphereChange = true;
   }
 
   expandAttributes() {
@@ -245,6 +249,7 @@ class ObjectLayer extends THREE.InstancedMesh {
 
     this.setMatrixAt(instanceIdx, matrix);
     this.instanceMatrix.needsUpdate = true;
+    this.boundingSphereChange = true;
   }
 
   removeObject(obj: MapValueType<DataProviderContextData['objects']>) {
@@ -288,6 +293,7 @@ class ObjectLayer extends THREE.InstancedMesh {
     this.count -= 1;
     this.instanceMatrix.needsUpdate = true;
     this.instanceColor!.needsUpdate = true;
+    this.boundingSphereChange = true;
   }
 
   handleBeforeRender(
@@ -298,6 +304,10 @@ class ObjectLayer extends THREE.InstancedMesh {
     // material: THREE.Material,
     // group: THREE.Group
   ): void {
+    if (this.boundingSphereChange) {
+      this.computeBoundingSphere();
+      this.boundingSphereChange = false;
+    }
     const newZoom = (camera as THREE.OrthographicCamera).zoom;
     if (newZoom !== this.prevZoom) {
       const scaleFactor = this.calculateCurrentObjectScaleFactor(newZoom);

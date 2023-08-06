@@ -1,5 +1,5 @@
 import React from 'react';
-import { EuiInMemoryTable, EuiLoadingContent, EuiSpacer, EuiTableFieldDataColumnType, EuiTitle } from '@elastic/eui';
+import { EuiInMemoryTable, EuiSkeletonText, EuiSpacer, EuiTableFieldDataColumnType, EuiTitle } from '@elastic/eui';
 import { gql } from '@apollo/client';
 
 import ObjectLink from '../../ObjectLink';
@@ -47,7 +47,7 @@ export const GuildMembersTable: React.FC<GuildMembersTableProps> = ({ guildId })
           <h2>Members</h2>
         </EuiTitle>
         <EuiSpacer />
-        <EuiLoadingContent lines={5} />
+        <EuiSkeletonText lines={5} />
       </>
     );
 

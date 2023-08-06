@@ -89,7 +89,7 @@ const DEFAULT_START_DATE = 'now-1M';
 const DEFAULT_END_DATE = 'now';
 const DEFAULT_PAGE = 0;
 const PER_PAGE_OPTIONS = [10, 25, 50, 100];
-const DEFAULT_PER_PAGE: typeof PER_PAGE_OPTIONS[number] = 25;
+const DEFAULT_PER_PAGE: (typeof PER_PAGE_OPTIONS)[number] = 25;
 
 const SORT_OPTIONS = [
   {

@@ -6,8 +6,6 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
-  EuiListGroup,
-  EuiListGroupItem,
   EuiPanel,
   EuiSpacer,
   EuiText,
@@ -76,14 +74,14 @@ const TransactionCard: React.FC<{
                   Received
                 </EuiText>
                 {party.itemsReceived.length || party.creditsReceived > 0 ? (
-                  <EuiListGroup flush={true} maxWidth={false} bordered={false}>
-                    {party.creditsReceived > 0 && (
-                      <EuiListGroupItem label={`${party.creditsReceived.toLocaleString()} Credits`} />
-                    )}
+                  <ul style={{ listStyle: 'none' }}>
+                    {party.creditsReceived > 0 && <li>{party.creditsReceived.toLocaleString()} Credits</li>}
                     {party.itemsReceived.map(item => (
-                      <EuiListGroupItem key={item.oid} label={<TransactionItem {...item} />} />
+                      <li key={item.oid}>
+                        <TransactionItem {...item} />
+                      </li>
                     ))}
-                  </EuiListGroup>
+                  </ul>
                 ) : (
                   <>
                     <EuiSpacer />

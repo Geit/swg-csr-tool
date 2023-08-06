@@ -97,9 +97,5 @@ export const AccountDetails: React.FC = () => {
     );
   }
 
-  return (
-    <FullWidthPage disableHeaderSpacing title={data?.account?.accountName ?? 'Account Details'}>
-      {content}
-    </FullWidthPage>
-  );
+  return <FullWidthPage title={data?.account?.accountName ?? 'Account Details'}>{content}</FullWidthPage>;
 };

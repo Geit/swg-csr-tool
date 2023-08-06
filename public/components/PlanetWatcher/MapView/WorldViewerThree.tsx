@@ -86,6 +86,7 @@ const WorldViewerThree: React.FC = () => {
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(1, 1);
+    texture.colorSpace = THREE.SRGBColorSpace;
 
     const planeGeo = new THREE.PlaneGeometry(FRUSTRUM_SIZE * 2, FRUSTRUM_SIZE * 2);
     const planeMat = new THREE.MeshBasicMaterial({ color: 0xffffff, map: texture, side: THREE.FrontSide });

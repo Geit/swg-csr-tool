@@ -1,5 +1,5 @@
 import React from 'react';
-import { EuiSpacer, EuiCallOut } from '@elastic/eui';
+import { EuiSpacer, EuiCallOut, EuiBeacon } from '@elastic/eui';
 import { gql } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
@@ -25,6 +25,11 @@ export const GET_OBJECT_NAME = gql`
       ... on PlayerCreatureObject {
         account {
           id
+        }
+        session {
+          id
+          currentState
+          startedTime
         }
       }
     }
@@ -78,7 +83,15 @@ export const ObjectDetails: React.FC = () => {
     );
   }
 
-  const title = <UGCName rawName={data?.object?.resolvedName} /> ?? 'Object Details';
+  const title =
+    (
+      <>
+        <UGCName rawName={data?.object?.resolvedName} />
+        {data?.object?.__typename === 'PlayerCreatureObject' && data.object.session && (
+          <EuiBeacon title={`Online since ${data.object.session.startedTime}`} className="loggedInBeacon" />
+        )}
+      </>
+    ) ?? 'Object Details';
 
   let subtitle: string | undefined;
   if (data?.object?.resolvedName !== data?.object?.basicName) {

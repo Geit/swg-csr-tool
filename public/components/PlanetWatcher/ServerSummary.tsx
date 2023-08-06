@@ -1,7 +1,8 @@
-import { EuiBadge, EuiCard, EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiText } from '@elastic/eui';
+import { EuiBadge, EuiCard, EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiText, useEuiTheme } from '@elastic/eui';
 import React, { useContext, useEffect, useState, useLayoutEffect, useRef } from 'react';
 import { Sparklines, SparklinesLine, SparklinesSpots } from 'react-sparklines';
 import { useRaf, useThrottle, useThrottleFn, useUpdate, useInterval } from 'react-use';
+import { css } from '@emotion/react';
 
 import { PlanetWatcherContext } from './DataProvider';
 
@@ -90,9 +91,18 @@ const FrameTime: React.FC<{ serverId: number }> = ({ serverId }) => {
 };
 
 const ServerSummary: React.FC = () => {
+  const { euiTheme } = useEuiTheme();
   const data = useContext(PlanetWatcherContext);
   const [, setUpdateCount] = useState(0);
   const [hoveredServers, setHoverServers] = useState(new Set());
+
+  const serverSummaryCard = css`
+    margin-bottom: ${euiTheme.base}px;
+
+    :last-of-type {
+      margin-bottom: 0;
+    }
+  `;
 
   useEffect(() => {
     const sub = data.gameServerUpdates.subscribe(() => {
@@ -120,65 +130,63 @@ const ServerSummary: React.FC = () => {
   return (
     <div>
       {Array.from(data.gameServerStatus).map(([id, gs]) => (
-        <>
-          <EuiCard
-            key={id}
-            layout="horizontal"
-            titleSize="xs"
-            paddingSize="s"
-            title={
-              <>
-                <EuiBadge
-                  className={hoveredServers.has(gs.serverId) ? 'serverBadge hoveredServerBadge' : 'serverBadge'}
-                  color={gs.color}
-                  style={{
-                    marginRight: '0.7rem',
-                    textShadow: hoveredServers.has(gs.serverId) ? 'text-shadow: 0 0 0.01px black;' : '',
-                  }}
-                  // We use a key here to make sure the hover pulse is synced across all
-                  // badges when hovering intersections.
-                  key={`server-count-${hoveredServers.size}`}
-                >
-                  <span style={{ fontVariantNumeric: 'tabular-nums' }}>#{String(gs.serverId).padStart(3, '0')}</span>
-                </EuiBadge>
-                {gs.hostName}
-              </>
-            }
-            description={
-              <EuiText size="xs">
-                <EuiFlexGroup gutterSize="m">
-                  <EuiFlexItem grow={false}>
-                    <dl className="serverSummaryStat">
-                      <dt>PID</dt>
-                      <dd>{gs.systemPid}</dd>
-                    </dl>
-                  </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
-                    <dl className="serverSummaryStat">
-                      <dt>Objects</dt>
-                      <dd>
-                        <ObjectOnServerCount serverId={gs.serverId} />
-                      </dd>
-                    </dl>
-                  </EuiFlexItem>
+        <EuiCard
+          key={id}
+          layout="horizontal"
+          titleSize="xs"
+          paddingSize="s"
+          css={serverSummaryCard}
+          title={
+            <>
+              <EuiBadge
+                className={hoveredServers.has(gs.serverId) ? 'serverBadge hoveredServerBadge' : 'serverBadge'}
+                color={gs.color}
+                style={{
+                  marginRight: '0.7rem',
+                  textShadow: hoveredServers.has(gs.serverId) ? 'text-shadow: 0 0 0.01px black;' : '',
+                }}
+                // We use a key here to make sure the hover pulse is synced across all
+                // badges when hovering intersections.
+                key={`server-count-${hoveredServers.size}`}
+              >
+                <span style={{ fontVariantNumeric: 'tabular-nums' }}>#{String(gs.serverId).padStart(3, '0')}</span>
+              </EuiBadge>
+              {gs.hostName}
+            </>
+          }
+          description={
+            <EuiText size="xs">
+              <EuiFlexGroup gutterSize="m">
+                <EuiFlexItem grow={false}>
+                  <dl className="serverSummaryStat">
+                    <dt>PID</dt>
+                    <dd>{gs.systemPid}</dd>
+                  </dl>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <dl className="serverSummaryStat">
+                    <dt>Objects</dt>
+                    <dd>
+                      <ObjectOnServerCount serverId={gs.serverId} />
+                    </dd>
+                  </dl>
+                </EuiFlexItem>
 
-                  <EuiFlexItem grow={false}>
-                    <dl className="serverSummaryStat">
-                      <dt>Frame Time</dt>
-                      <dd>
-                        <FrameTime serverId={gs.serverId} />
-                      </dd>
-                    </dl>
-                  </EuiFlexItem>
-                  <EuiFlexItem grow>
-                    <FrameTimeSparklines serverId={gs.serverId} />
-                  </EuiFlexItem>
-                </EuiFlexGroup>
-              </EuiText>
-            }
-          />
-          <EuiSpacer size="s" />
-        </>
+                <EuiFlexItem grow={false}>
+                  <dl className="serverSummaryStat">
+                    <dt>Frame Time</dt>
+                    <dd>
+                      <FrameTime serverId={gs.serverId} />
+                    </dd>
+                  </dl>
+                </EuiFlexItem>
+                <EuiFlexItem grow>
+                  <FrameTimeSparklines serverId={gs.serverId} />
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiText>
+          }
+        />
       ))}
     </div>
   );

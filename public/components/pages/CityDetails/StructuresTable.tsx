@@ -1,5 +1,5 @@
 import React from 'react';
-import { EuiInMemoryTable, EuiLoadingContent, EuiSpacer, EuiTableFieldDataColumnType, EuiTitle } from '@elastic/eui';
+import { EuiInMemoryTable, EuiSkeletonText, EuiSpacer, EuiTableFieldDataColumnType, EuiTitle } from '@elastic/eui';
 import { gql } from '@apollo/client';
 
 import ObjectLink from '../../ObjectLink';
@@ -46,7 +46,7 @@ export const StructuresTable: React.FC<StructuresTableProps> = ({ cityId }) => {
           <h2>Structures</h2>
         </EuiTitle>
         <EuiSpacer />
-        <EuiLoadingContent lines={5} />
+        <EuiSkeletonText lines={5} />
       </>
     );
 

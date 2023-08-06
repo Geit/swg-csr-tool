@@ -8,23 +8,26 @@ import {
   EuiDescriptionListTitle,
   EuiDescriptionListDescription,
   EuiPanel,
-  EuiCallOut,
   EuiSpacer,
+  EuiAccordion,
+  EuiBadge,
 } from '@elastic/eui';
 import { gql } from '@apollo/client';
+import { css } from '@emotion/react';
 
 import ObjectInfoWidget from '../widgets/BasicObjectKeyValues';
 import ContentsOfObject from '../widgets/ContentsOfObject';
 import { AiMovementType } from '../../types/AIMovementType';
 import { typeTagToString } from '../../utils/typeTagToString';
 import UGCName from '../UGCName';
+import { isPresent } from '../../utils/utility-types';
 
 import { PlanetWatcherContext, PlanetWatcherObject } from './DataProvider';
-import { useGetObjectNameQuery } from './ObjectDetailsAside.queries';
+import { useGetObjectNamesQuery } from './ObjectDetailsAside.queries';
 
-export const GET_OBJECT_NAME = gql`
-  query getObjectName($id: String!) {
-    object(objectId: $id) {
+export const GET_OBJECT_NAMES = gql`
+  query getObjectNames($objectIds: [ID!]!) {
+    objects(objectIds: $objectIds) {
       __typename
       id
       resolvedName
@@ -34,26 +37,143 @@ export const GET_OBJECT_NAME = gql`
 
 interface ObjectSelectedEvent extends Event {
   detail?: {
-    objectId: string;
+    objectIds: string[];
   };
 }
 
+const SingleObjectDetails: React.FC<{ object: PlanetWatcherObject }> = ({ object }) => {
+  return (
+    <EuiDescriptionList className="objectInformationList" textStyle="reverse">
+      <div>
+        <EuiDescriptionListTitle>Object ID</EuiDescriptionListTitle>
+        <EuiDescriptionListDescription>
+          <code>{object.networkId}</code>
+        </EuiDescriptionListDescription>
+      </div>
+      <div>
+        <EuiDescriptionListTitle>Location</EuiDescriptionListTitle>
+        <EuiDescriptionListDescription>
+          <code>{object.location.join(' ')}</code>
+        </EuiDescriptionListDescription>
+      </div>
+      <div>
+        <EuiDescriptionListTitle>Template CRC</EuiDescriptionListTitle>
+        <EuiDescriptionListDescription>
+          <code>{object.templateCrc}</code>
+        </EuiDescriptionListDescription>
+      </div>
+      <div>
+        <EuiDescriptionListTitle>Type Tag</EuiDescriptionListTitle>
+        <EuiDescriptionListDescription>
+          <code>{typeTagToString(object.objectTypeTag)}</code>
+        </EuiDescriptionListDescription>
+      </div>
+      <div>
+        <EuiDescriptionListTitle>Interest Radius</EuiDescriptionListTitle>
+        <EuiDescriptionListDescription>
+          <code>{object.interestRadius}</code>
+        </EuiDescriptionListDescription>
+      </div>
+      <div>
+        <EuiDescriptionListTitle>Authoritative Server</EuiDescriptionListTitle>
+        <EuiDescriptionListDescription>
+          <code>{object.authoritativeServer}</code>
+        </EuiDescriptionListDescription>
+      </div>
+      <div>
+        <EuiDescriptionListTitle>Level</EuiDescriptionListTitle>
+        <EuiDescriptionListDescription>
+          <code>{object.level}</code>
+        </EuiDescriptionListDescription>
+      </div>
+      <div>
+        <EuiDescriptionListTitle>Hibernating</EuiDescriptionListTitle>
+        <EuiDescriptionListDescription>
+          <code>{object.hibernating > 0 ? 'Yes' : 'No'}</code>
+        </EuiDescriptionListDescription>
+      </div>
+      <div>
+        <EuiDescriptionListTitle>AI Activity</EuiDescriptionListTitle>
+        <EuiDescriptionListDescription>
+          <code>{AiMovementType[object.aiActivity] || 'Unknown'}</code>
+        </EuiDescriptionListDescription>
+      </div>
+      <div>
+        <EuiDescriptionListTitle>Creation Type</EuiDescriptionListTitle>
+        <EuiDescriptionListDescription>
+          <code>{object.creationType}</code>
+        </EuiDescriptionListDescription>
+      </div>
+    </EuiDescriptionList>
+  );
+};
+
+const ObjectDetailsAccordion: React.FC<{
+  baseObjectData: PlanetWatcherObject;
+  enrichedObjectData?: { __typename: string; resolvedName: string };
+  initialIsOpen: boolean;
+}> = ({ baseObjectData, enrichedObjectData, initialIsOpen }) => {
+  const [isOpen, setIsOpen] = useState(initialIsOpen);
+
+  const badgeMargin = css`
+    margin-right: 8px;
+  `;
+
+  let title = (
+    <>
+      <EuiBadge css={badgeMargin}>Non Persisted</EuiBadge>
+      {baseObjectData.networkId}
+    </>
+  );
+  let contents = isOpen ? <SingleObjectDetails object={baseObjectData} /> : null;
+
+  if (enrichedObjectData) {
+    title = (
+      <>
+        <EuiBadge css={badgeMargin}>{enrichedObjectData.__typename}</EuiBadge>
+        <UGCName rawName={enrichedObjectData.resolvedName} />
+      </>
+    );
+    contents = isOpen ? (
+      <>
+        <ObjectInfoWidget objectId={baseObjectData.networkId} />
+        <EuiSpacer />
+        <ContentsOfObject objectId={baseObjectData.networkId} />
+      </>
+    ) : null;
+  }
+
+  return (
+    <EuiAccordion
+      forceState={isOpen ? 'open' : 'closed'}
+      onToggle={() => setIsOpen(s => !s)}
+      id={`accordion-${baseObjectData.networkId}`}
+      key={baseObjectData.networkId}
+      buttonContent={title}
+      paddingSize="m"
+    >
+      <EuiPanel color="subdued" hasBorder>
+        {contents}
+      </EuiPanel>
+    </EuiAccordion>
+  );
+};
+
 const ObjectDetailsAside: React.FC = () => {
   const data = useContext(PlanetWatcherContext);
-  const [selectedObject, setSelectedObject] = useState<null | PlanetWatcherObject>(null);
-  const { data: objectData, loading: persistedDataLoading } = useGetObjectNameQuery({
-    skip: !selectedObject,
-    variables: { id: selectedObject?.networkId ?? '' },
+  const [selectedObjects, setSelectedObjects] = useState<null | PlanetWatcherObject[]>(null);
+  const { data: objectData } = useGetObjectNamesQuery({
+    skip: !selectedObjects,
+    variables: { objectIds: selectedObjects?.map(o => o.networkId) ?? '' },
   });
 
   useLayoutEffect(() => {
     const eventHandler = (evt: ObjectSelectedEvent): any => {
-      const objectId = evt.detail?.objectId ?? null;
+      const objectIds = evt.detail?.objectIds ?? null;
 
-      if (!objectId || !data.objects.has(objectId)) return;
-      const object = data.objects.get(objectId);
+      const objects = objectIds?.map(oid => data.objects.get(oid)).filter(isPresent) ?? [];
 
-      setSelectedObject(object!);
+      setSelectedObjects(objects);
     };
 
     document.addEventListener('objectSelected', eventHandler);
@@ -65,112 +185,47 @@ const ObjectDetailsAside: React.FC = () => {
 
   useEffect(() => {
     const sub = data.objectUpdates.subscribe(update => {
-      if (!selectedObject || update.data.networkId !== selectedObject.networkId) return;
+      if (
+        !selectedObjects ||
+        selectedObjects.length === 0 ||
+        selectedObjects.findIndex(o => o.networkId === update.data.networkId) === -1
+      )
+        return;
 
       if (update.type === 'DELETED') {
-        setSelectedObject(null);
+        setSelectedObjects(selectedObjects.filter(s => s.networkId !== update.data.networkId));
       }
 
-      setSelectedObject(update.data);
+      // Don't do this with lots of selected objects, or we'll lag out the client with rerenders.
+      if (selectedObjects.length < 5)
+        setSelectedObjects(selectedObjects.map(s => (s.networkId !== update.data.networkId ? s : update.data)));
     });
 
     return () => sub.unsubscribe();
-  }, [data.objectUpdates, selectedObject]);
+  }, [data.objectUpdates, selectedObjects]);
 
-  if (!selectedObject) return null;
-
-  const isNonPersistedObject = persistedDataLoading || !objectData || objectData.object === null;
-
-  const nonPersistedCallout = (
-    <EuiCallOut
-      iconType="iInCircle"
-      size="s"
-      title="This object is not stored within the database, available information is limited."
-    />
-  );
+  if (!selectedObjects) return null;
 
   return (
-    <EuiFlyout size="s" ownFocus={false} onClose={() => setSelectedObject(null)}>
+    <EuiFlyout size="m" ownFocus={false} onClose={() => setSelectedObjects(null)}>
       <EuiFlyoutHeader hasBorder>
         <EuiTitle>
-          <h2>
-            {objectData?.object?.resolvedName ? <UGCName rawName={objectData.object.resolvedName} /> : 'Object Details'}
-          </h2>
+          <h2>Object Details</h2>
         </EuiTitle>
       </EuiFlyoutHeader>
-      <EuiFlyoutBody banner={isNonPersistedObject ? nonPersistedCallout : null}>
-        {isNonPersistedObject ? (
-          <EuiPanel color="subdued" hasBorder>
-            <EuiDescriptionList className="objectInformationList" textStyle="reverse">
-              <div>
-                <EuiDescriptionListTitle>Object ID</EuiDescriptionListTitle>
-                <EuiDescriptionListDescription>
-                  <code>{selectedObject.networkId}</code>
-                </EuiDescriptionListDescription>
-              </div>
-              <div>
-                <EuiDescriptionListTitle>Location</EuiDescriptionListTitle>
-                <EuiDescriptionListDescription>
-                  <code>{selectedObject.location.join(' ')}</code>
-                </EuiDescriptionListDescription>
-              </div>
-              <div>
-                <EuiDescriptionListTitle>Template CRC</EuiDescriptionListTitle>
-                <EuiDescriptionListDescription>
-                  <code>{selectedObject.templateCrc}</code>
-                </EuiDescriptionListDescription>
-              </div>
-              <div>
-                <EuiDescriptionListTitle>Type Tag</EuiDescriptionListTitle>
-                <EuiDescriptionListDescription>
-                  <code>{typeTagToString(selectedObject.objectTypeTag)}</code>
-                </EuiDescriptionListDescription>
-              </div>
-              <div>
-                <EuiDescriptionListTitle>Interest Radius</EuiDescriptionListTitle>
-                <EuiDescriptionListDescription>
-                  <code>{selectedObject.interestRadius}</code>
-                </EuiDescriptionListDescription>
-              </div>
-              <div>
-                <EuiDescriptionListTitle>Authoritative Server</EuiDescriptionListTitle>
-                <EuiDescriptionListDescription>
-                  <code>{selectedObject.authoritativeServer}</code>
-                </EuiDescriptionListDescription>
-              </div>
-              <div>
-                <EuiDescriptionListTitle>Level</EuiDescriptionListTitle>
-                <EuiDescriptionListDescription>
-                  <code>{selectedObject.level}</code>
-                </EuiDescriptionListDescription>
-              </div>
-              <div>
-                <EuiDescriptionListTitle>Hibernating</EuiDescriptionListTitle>
-                <EuiDescriptionListDescription>
-                  <code>{selectedObject.hibernating > 0 ? 'Yes' : 'No'}</code>
-                </EuiDescriptionListDescription>
-              </div>
-              <div>
-                <EuiDescriptionListTitle>AI Activity</EuiDescriptionListTitle>
-                <EuiDescriptionListDescription>
-                  <code>{AiMovementType[selectedObject.aiActivity] || 'Unknown'}</code>
-                </EuiDescriptionListDescription>
-              </div>
-              <div>
-                <EuiDescriptionListTitle>Creation Type</EuiDescriptionListTitle>
-                <EuiDescriptionListDescription>
-                  <code>{selectedObject.creationType}</code>
-                </EuiDescriptionListDescription>
-              </div>
-            </EuiDescriptionList>
-          </EuiPanel>
-        ) : (
-          <>
-            <ObjectInfoWidget objectId={selectedObject.networkId} />
-            <EuiSpacer />
-            <ContentsOfObject objectId={selectedObject.networkId} />
-          </>
-        )}
+      <EuiFlyoutBody>
+        {selectedObjects.map((obj, idx) => {
+          const enrichedObjectData = objectData?.objects?.find(o => o.id === obj.networkId);
+
+          return (
+            <ObjectDetailsAccordion
+              key={obj.networkId}
+              baseObjectData={obj}
+              enrichedObjectData={enrichedObjectData}
+              initialIsOpen={idx === 0}
+            />
+          );
+        })}
       </EuiFlyoutBody>
     </EuiFlyout>
   );

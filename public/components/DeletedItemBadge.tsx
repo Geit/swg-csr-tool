@@ -1,4 +1,4 @@
-import { EuiBadge, EuiLoadingContent, EuiToolTip } from '@elastic/eui';
+import { EuiBadge, EuiSkeletonText, EuiToolTip } from '@elastic/eui';
 import React from 'react';
 
 import { DeletionReasons } from '../utils/deletionReasons';
@@ -14,7 +14,7 @@ interface DeletedItemBadgeProps {
  */
 const DeletedItemBadge: React.FC<DeletedItemBadgeProps> = ({ deletionReason, deletionDate }) => {
   if (deletionReason === null) {
-    <EuiLoadingContent lines={1} />;
+    <EuiSkeletonText lines={1} />;
   }
 
   if (deletionReason === 0 || deletionDate === null) {

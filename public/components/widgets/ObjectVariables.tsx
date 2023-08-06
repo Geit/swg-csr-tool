@@ -1,6 +1,6 @@
 import React from 'react';
 import { gql } from '@apollo/client';
-import { EuiSpacer, EuiLoadingContent, EuiTreeViewProps, EuiToken, EuiTreeView } from '@elastic/eui';
+import { EuiSpacer, EuiSkeletonText, EuiTreeViewProps, EuiToken, EuiTreeView } from '@elastic/eui';
 import groupBy from 'lodash.groupby';
 import reduce from 'lodash.reduce';
 
@@ -225,7 +225,7 @@ const ObjectVariables: React.FC<ObjectVariableProps> = ({ objectId }) => {
     return (
       <>
         <EuiSpacer />
-        <EuiLoadingContent lines={5} />
+        <EuiSkeletonText lines={5} />
       </>
     );
 

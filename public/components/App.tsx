@@ -5,6 +5,7 @@ import { QueryParamProvider } from 'use-query-params';
 import { Redirect } from 'react-router';
 import { EuiErrorBoundary, EuiThemeProvider } from '@elastic/eui';
 import { I18nProvider } from '@kbn/i18n-react';
+import { useObservable } from 'react-use/';
 
 import { CoreStart, ScopedHistory } from '../../../../src/core/public';
 import { AppPluginStartDependencies } from '../types';
@@ -33,12 +34,17 @@ interface CSRToolAppProps {
 
 export default function CSRToolApp({ coreServices, history, injectedPlugins }: CSRToolAppProps) {
   const client = createApolloClient(coreServices);
+  const isDarkMode =
+    ('__kbnThemeTag__' in window &&
+      typeof window.__kbnThemeTag__ === 'string' &&
+      window.__kbnThemeTag__.includes('dark')) ||
+    coreServices.uiSettings.get('theme:darkMode');
 
   return (
     <EuiErrorBoundary>
       <I18nProvider>
         <KibanaCoreServicesProvider coreServices={coreServices} injectedPlugins={injectedPlugins}>
-          <EuiThemeProvider colorMode={coreServices.uiSettings.get('theme:darkMode') ? 'dark' : 'light'}>
+          <EuiThemeProvider colorMode={isDarkMode ? 'dark' : 'light'}>
             <ApolloProvider client={client}>
               <Router history={history}>
                 <QueryParamProvider adapter={ReactRouter5Adapter} options={{ removeDefaultsFromUrl: true }}>

@@ -1,7 +1,5 @@
 import React from 'react';
 import {
-  EuiListGroup,
-  EuiListGroupItem,
   EuiTable,
   EuiTableBody,
   EuiTableHeader,
@@ -38,12 +36,14 @@ const PartyItemSummary: React.FC<{ party: TransactionParty }> = ({ party }) => {
       <EuiText style={{ marginBottom: '8px' }}>
         <ObjectLink objectId={party.oid} textToDisplay={party.name} /> received
       </EuiText>
-      <EuiListGroup flush={true} maxWidth={false} bordered={false}>
+      <ul style={{ listStyle: 'none' }}>
         {party.itemsReceived.map(item => (
-          <EuiListGroupItem key={item.oid} label={<TransactionItem {...item} />} />
+          <li key={item.oid}>
+            <TransactionItem {...item} />
+          </li>
         ))}
-        {party.creditsReceived > 0 && <EuiListGroupItem label={`${party.creditsReceived.toLocaleString()} Credits`} />}
-      </EuiListGroup>
+        {party.creditsReceived > 0 && <li>{party.creditsReceived.toLocaleString()} Credits</li>}
+      </ul>
     </>
   );
 };

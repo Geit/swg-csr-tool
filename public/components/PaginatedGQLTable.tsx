@@ -3,7 +3,7 @@ import { EuiBasicTable, EuiTableFieldDataColumnType, EuiTablePagination } from '
 
 export const DEFAULT_PAGE = 0;
 const PER_PAGE_OPTIONS = [10, 25, 50, 100];
-export const DEFAULT_PER_PAGE: typeof PER_PAGE_OPTIONS[number] = 25;
+export const DEFAULT_PER_PAGE: (typeof PER_PAGE_OPTIONS)[number] = 25;
 
 interface PaginatedGQLTableProps<T> {
   columns: EuiTableFieldDataColumnType<T>[];

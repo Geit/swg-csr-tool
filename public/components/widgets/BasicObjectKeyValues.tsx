@@ -71,6 +71,10 @@ export const GET_OBJECT_DETAILS = gql`
             name
             value
             percentile
+            stajTier {
+              name
+              color
+            }
           }
         }
       }
@@ -100,6 +104,15 @@ export const GET_OBJECT_DETAILS = gql`
         account {
           id
           accountName
+        }
+        guild {
+          id
+          name
+          abbreviation
+        }
+        city {
+          id
+          name
         }
       }
     }
@@ -301,17 +314,38 @@ const ObjectInfoWidget: React.FC<ObjectInfoWidgetProps> = ({ objectId }) => {
     );
   }
 
-  if (data?.object?.__typename === 'PlayerCreatureObject' && data.object.account) {
-    ObjectInformation.push({
-      title: 'Account',
-      description: (
-        <SimpleValue isLoading={loading}>
-          <Link to={`/account/${data.object.account.id}`}>
-            {data.object.account.accountName ?? data.object.account.id}
-          </Link>
-        </SimpleValue>
-      ),
-    });
+  if (data?.object?.__typename === 'PlayerCreatureObject') {
+    if (data.object.account)
+      ObjectInformation.push({
+        title: 'Account',
+        description: (
+          <SimpleValue isLoading={loading}>
+            <Link to={`/account/${data.object.account.id}`}>
+              {data.object.account.accountName ?? data.object.account.id}
+            </Link>
+          </SimpleValue>
+        ),
+      });
+
+    if (data.object.guild)
+      ObjectInformation.push({
+        title: 'Guild',
+        description: (
+          <SimpleValue isLoading={loading}>
+            <Link to={`/coalitions/guilds/${data.object.guild.id}`}>{data.object.guild.abbreviation}</Link>
+          </SimpleValue>
+        ),
+      });
+
+    if (data.object.city)
+      ObjectInformation.push({
+        title: 'City',
+        description: (
+          <SimpleValue isLoading={loading}>
+            <Link to={`/coalitions/cities/${data.object.city.id}`}>{data.object.city.name}</Link>
+          </SimpleValue>
+        ),
+      });
   }
 
   return (

@@ -3,13 +3,14 @@ import { ApolloError, gql } from '@apollo/client';
 import {
   EuiCallOut,
   EuiEmptyPrompt,
-  EuiLoadingContent,
+  EuiSkeletonText,
   EuiTable,
   EuiTableBody,
   EuiTableHeader,
   EuiTableHeaderCell,
   EuiTableRow,
   EuiTableRowCell,
+  EuiText,
 } from '@elastic/eui';
 
 import { BUILDING_TAG, HARVESTER_TAG, INSTALLATION_TAG, MANF_INSTALLATION_TAG } from '../../utils/tagify';
@@ -50,7 +51,7 @@ export const GET_STRUCTURES_FOR_ACCOUNT = gql`
         resolvedName
         basicName: resolvedName(resolveCustomNames: false)
         location
-        scene
+        sceneName
         deletionDate
         deletionReason
         containedById
@@ -71,7 +72,7 @@ interface Structure {
   id: string;
   resolvedName: string;
   location?: number[] | null | undefined;
-  scene?: string | null | undefined;
+  sceneName?: string | null | undefined;
   deletionDate?: string | null | undefined;
   deletionReason?: number | null | undefined;
   containedById?: string | null | undefined;
@@ -87,7 +88,7 @@ const StructureTableRow: React.FC<Structure & { enableOwnerDisplay: boolean }> =
   id,
   resolvedName,
   location,
-  scene,
+  sceneName,
   deletionDate,
   deletionReason,
   containedById,
@@ -101,15 +102,26 @@ const StructureTableRow: React.FC<Structure & { enableOwnerDisplay: boolean }> =
         <ObjectLink disablePopup objectId={id} />
       </EuiTableRowCell>
       <EuiTableRowCell>
-        <UGCName rawName={resolvedName} /> ({basicName})
+        <UGCName rawName={resolvedName} /> <br />
+        <EuiText color="subdued" size="xs">
+          {basicName}
+        </EuiText>
       </EuiTableRowCell>
       <EuiTableRowCell>
         {containedById !== '0' ? (
           <>
-            Packed in: <ObjectLink objectId={containedById} />
+            <EuiText color="subdued" size="xs">
+              Packed in: <br />
+            </EuiText>
+            <ObjectLink objectId={containedById} />
           </>
         ) : (
-          [location?.map(Math.round).join(' '), scene].filter(Boolean).join(' - ')
+          <>
+            {[location?.map(Math.round).join(' ')].filter(Boolean).join(' - ')} <br />
+            <EuiText color="subdued" size="xs">
+              {sceneName ?? 'Unknown Scene'}
+            </EuiText>
+          </>
         )}
       </EuiTableRowCell>
 
@@ -134,7 +146,7 @@ const StructureTableLoadingRows: React.FC = () => (
         return (
           <EuiTableRow key={`expectedItem-${idx}`}>
             <EuiTableRowCell colSpan={5} textOnly={false}>
-              <EuiLoadingContent lines={1} className="inTableLoadingIndicator" />
+              <EuiSkeletonText lines={1} className="inTableLoadingIndicator" />
             </EuiTableRowCell>
           </EuiTableRow>
         );

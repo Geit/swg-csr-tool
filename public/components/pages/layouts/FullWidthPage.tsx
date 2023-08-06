@@ -17,16 +17,9 @@ interface FullWidthPageProps {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
   titleAsides?: React.ReactNode;
-  disableHeaderSpacing?: boolean;
 }
 
-export const FullWidthPage: React.FC<FullWidthPageProps> = ({
-  children,
-  title,
-  subtitle,
-  titleAsides,
-  disableHeaderSpacing = false,
-}) => {
+export const FullWidthPage: React.FC<FullWidthPageProps> = ({ children, title, subtitle, titleAsides }) => {
   return (
     <EuiPage>
       <AppSidebar />
@@ -38,14 +31,11 @@ export const FullWidthPage: React.FC<FullWidthPageProps> = ({
                 <h1>{title}</h1>
               </EuiTitle>
               {subtitle && <EuiText color="subdued">{subtitle}</EuiText>}
-              {!disableHeaderSpacing && <EuiSpacer />}
             </EuiFlexItem>
             <EuiFlexItem grow={false}>{titleAsides}</EuiFlexItem>
           </EuiFlexGroup>
         </EuiPageHeaderSection>
-        <EuiPageSection paddingSize="s" color="transparent">
-          {children}
-        </EuiPageSection>
+        <EuiPageSection>{children}</EuiPageSection>
       </EuiPageBody>
     </EuiPage>
   );

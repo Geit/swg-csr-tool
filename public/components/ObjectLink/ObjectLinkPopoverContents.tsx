@@ -44,6 +44,10 @@ export const GET_OBJECT_DETAILS = gql`
             name
             value
             percentile
+            stajTier {
+              name
+              color
+            }
           }
         }
       }

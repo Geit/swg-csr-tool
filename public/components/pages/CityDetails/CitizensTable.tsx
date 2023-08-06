@@ -1,5 +1,5 @@
 import React from 'react';
-import { EuiInMemoryTable, EuiLoadingContent, EuiSpacer, EuiTableFieldDataColumnType, EuiTitle } from '@elastic/eui';
+import { EuiInMemoryTable, EuiSkeletonText, EuiSpacer, EuiTableFieldDataColumnType, EuiTitle } from '@elastic/eui';
 import { gql } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
@@ -46,7 +46,7 @@ export const CitizensTable: React.FC<CitizensTableProps> = ({ cityId }) => {
           <h2>Citizens</h2>
         </EuiTitle>
         <EuiSpacer />
-        <EuiLoadingContent lines={5} />
+        <EuiSkeletonText lines={5} />
       </>
     );
 

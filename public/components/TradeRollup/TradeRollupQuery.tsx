@@ -1,6 +1,6 @@
 import React from 'react';
 import { gql } from '@apollo/client';
-import { EuiEmptyPrompt, EuiLoadingContent } from '@elastic/eui';
+import { EuiEmptyPrompt, EuiSkeletonText } from '@elastic/eui';
 
 import { useGetTransactionRollupQuery } from './TradeRollupQuery.queries';
 
@@ -55,7 +55,7 @@ export const TradeRollupQuery: React.FC<TradeRollupProps> = props => {
     },
   });
 
-  if (loading || !data?.transactionRollup) return <EuiLoadingContent lines={10} />;
+  if (loading || !data?.transactionRollup) return <EuiSkeletonText lines={10} />;
 
   if (error) return <div>Error while querying</div>;
 

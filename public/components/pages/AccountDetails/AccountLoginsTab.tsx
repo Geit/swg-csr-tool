@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { gql } from '@apollo/client';
-import { EuiCallOut, EuiSpacer, EuiTableFieldDataColumnType } from '@elastic/eui';
+import { EuiCallOut, EuiSpacer, EuiTableFieldDataColumnType, EuiText } from '@elastic/eui';
 import { useParams } from 'react-router';
 
 import PaginatedGQLTable, { DEFAULT_PAGE, DEFAULT_PER_PAGE } from '../../PaginatedGQLTable';
@@ -21,6 +21,8 @@ export const GET_LOGINS_FOR_ACCOUNT = gql`
           isProxy
           isVirtualised
           architecture
+          newGuid
+          ignoredFailureReasons
 
           ipData {
             autonomousSystemNumber
@@ -56,12 +58,37 @@ const columns: EuiTableFieldDataColumnType<LoginEntry>[] = [
     name: 'IP',
     truncateText: true,
     width: '20ex',
+    className: 'tableCellFlexColumn',
+    render(val, record) {
+      return (
+        <>
+          {record.ip} <br />
+          <EuiText size="xs">
+            {record.ipData?.autonomousSystemOrganization}
+            <br />
+            <code>{record.ipData?.autonomousSystemNumber}</code>
+          </EuiText>
+        </>
+      );
+    },
   },
   {
     field: 'guid',
     name: 'GUID',
     truncateText: true,
-    width: '20ex',
+    width: '30ex',
+    render(val, record) {
+      return record.newGuid ? (
+        <div>
+          {record.newGuid} <br />
+          <EuiText color="subdued" size="xs">
+            {record.guid}
+          </EuiText>
+        </div>
+      ) : (
+        record.guid
+      );
+    },
   },
   {
     field: 'success',
@@ -76,33 +103,25 @@ const columns: EuiTableFieldDataColumnType<LoginEntry>[] = [
     field: 'flags',
     name: 'Flags',
     truncateText: false,
+    className: 'tableCellFlexColumn',
     render(val, record) {
       const flags = [
         record.isProxy && '⚠️ Proxied (VPN) login!',
         record.isVirtualised && '⚠️ Virtualised login!',
       ].filter(Boolean);
 
+      record.ignoredFailureReasons?.forEach(f => flags.push(`ℹ️ Skipped: ${f}`));
+
       if (flags.length === 0) return 'None';
 
-      return flags.map((f, idx) => <div key={idx}>{f}</div>);
+      return flags.map((f, idx) => (
+        <div key={idx}>
+          {f}
+          <br />
+        </div>
+      ));
     },
     width: '30ex',
-  },
-  {
-    field: 'aso',
-    name: 'Autonomous System',
-    truncateText: false,
-    render(val, record) {
-      return (
-        <div>
-          <div>
-            {record.ipData?.autonomousSystemOrganization}
-            <br />
-          </div>
-          <code>{record.ipData?.autonomousSystemNumber}</code>
-        </div>
-      );
-    },
   },
   {
     field: 'region',
@@ -113,7 +132,7 @@ const columns: EuiTableFieldDataColumnType<LoginEntry>[] = [
         <div>
           {record.ipData?.city}
           <br />
-          {record.ipData?.region}, {record.ipData?.country}
+          {[record.ipData?.region, record.ipData?.country].filter(Boolean).join(', ')}
         </div>
       );
     },

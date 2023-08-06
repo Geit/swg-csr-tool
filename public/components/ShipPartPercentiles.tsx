@@ -10,6 +10,8 @@ import {
 } from '@elastic/eui';
 import React, { useState } from 'react';
 
+import UGCName from './UGCName';
+
 interface ShipPartPercentilesProps {
   headlinePercentile: number;
   isReverseEngineered: boolean;
@@ -18,6 +20,7 @@ interface ShipPartPercentilesProps {
     name: string;
     value?: number | null;
     percentile?: number | null;
+    stajTier?: { name: string; color: string } | null;
   }[];
 }
 
@@ -67,11 +70,12 @@ const ShipPartPercentiles: React.FC<ShipPartPercentilesProps> = ({
             <li>Reverse Engineering Level {reverseEngineeringLevel}</li>
             <li>Reverse Engineered Part: {isReverseEngineered ? 'yes' : 'no'}</li>
           </ul>
-          <EuiTable style={{ width: '300px' }} tableLayout="fixed">
+          <EuiTable style={{ width: '400px' }} tableLayout="fixed">
             <EuiTableHeader>
               <EuiTableHeaderCell>Stat Name</EuiTableHeaderCell>
               <EuiTableHeaderCell>Value</EuiTableHeaderCell>
               <EuiTableHeaderCell>Percentile</EuiTableHeaderCell>
+              <EuiTableHeaderCell>STAJ Tier</EuiTableHeaderCell>
             </EuiTableHeader>
             <EuiTableBody>
               {stats.map(stat => (
@@ -79,6 +83,13 @@ const ShipPartPercentiles: React.FC<ShipPartPercentilesProps> = ({
                   <EuiTableRowCell>{stat.name}</EuiTableRowCell>
                   <EuiTableRowCell>{stat.value?.toFixed(3)}</EuiTableRowCell>
                   <EuiTableRowCell>{getDisplayPercentile(stat.percentile)}</EuiTableRowCell>
+                  <EuiTableRowCell>
+                    {stat.stajTier ? (
+                      <UGCName rawName={`\\#${stat.stajTier?.color}${stat.stajTier?.name}`} />
+                    ) : (
+                      <>Unknown</>
+                    )}
+                  </EuiTableRowCell>
                 </EuiTableRow>
               ))}
             </EuiTableBody>

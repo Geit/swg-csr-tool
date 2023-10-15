@@ -1,11 +1,13 @@
-import React from 'react';
-import { EuiFieldSearch, EuiSpacer, EuiEmptyPrompt } from '@elastic/eui';
+import React, { useEffect, useState } from 'react';
+import { EuiSpacer, EuiEmptyPrompt } from '@elastic/eui';
 import { gql } from '@apollo/client';
-import { useThrottle, useThrottleFn } from 'react-use';
-import { useQueryParam, StringParam } from 'use-query-params';
-import { fromKueryExpression, toElasticsearchQuery } from '@kbn/es-query';
-import { UnifiedSearchPublicPluginStart } from '@kbn/unified-search-plugin/public';
+import { useDebounce } from 'react-use';
+import { useQueryParam, JsonParam, withDefault, StringParam } from 'use-query-params';
+import { Filter } from '@kbn/es-query';
+import { DataView } from '@kbn/data-views-plugin/common';
+import { SortDirection } from '@kbn/data-plugin/common';
 
+import { useKibanaPlugins } from '../../../hooks/useKibanaPlugins';
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
 import LoadingCover from '../../LoadingCover';
@@ -68,34 +70,65 @@ const GalaxySearchPageLayout: React.FC = ({ children }) => {
   return <FullWidthPage title="Galaxy Search">{children}</FullWidthPage>;
 };
 
+const FiltersParamJson = withDefault(JsonParam, []);
+
 export const GalaxySearch: React.FC = () => {
-  const [searchText, setSearchText] = useQueryParam('q', StringParam);
-  const throttledSearchText = useThrottle(searchText || '');
-  const throttledQuery = useThrottleFn(
-    searchTextVal => {
-      if (!searchTextVal) return null;
+  const { unifiedSearch, data: dataPlugin } = useKibanaPlugins();
+  const [dataView, setDataView] = useState<DataView>();
+  const [searchQuery, setSearchQuery] = useState('');
 
-      try {
-        const expr = fromKueryExpression(searchTextVal);
-        const esQuery = toElasticsearchQuery(expr);
+  const { SearchBar } = unifiedSearch.ui;
+  const [filters, setFilters] = useQueryParam<Filter[]>('f', FiltersParamJson, { updateType: 'replaceIn' });
+  const [query, setQuery] = useQueryParam('q', withDefault(StringParam, ''));
+  const realQuery = { language: 'kuery', query: query ?? '' };
 
-        return JSON.stringify(esQuery);
-      } catch (err) {
-        return null;
-      }
+  useDebounce(
+    async () => {
+      if (!dataView) return;
+      if (filters.length === 0 && !realQuery?.query) return;
+      const searchSource = await dataPlugin.search.searchSource.create();
+
+      searchSource.setField('filter', filters);
+      searchSource.setField('query', realQuery);
+      searchSource.setField('sort', {
+        _score: SortDirection.desc,
+      });
+      const data = searchSource.getSearchRequestBody();
+      setSearchQuery(JSON.stringify(data.query));
     },
     200,
-    [searchText]
+    [filters, dataView, query]
   );
 
-  const { loading, error, data, previousData } = useSearchQuery({
+  const {
+    loading: gqlLoading,
+    error,
+    data,
+    previousData,
+  } = useSearchQuery({
     variables: {
-      searchText: throttledQuery || '',
+      searchText: searchQuery ?? '',
     },
     returnPartialData: true,
   });
 
-  const documentTitle = [throttledSearchText, `Galaxy Search`].filter(Boolean).join(' - ');
+  const loading = gqlLoading;
+
+  useEffect(() => {
+    let canceled = false;
+    const loadDataView = async () => {
+      const [loadedDataView] = await dataPlugin.dataViews.find('object_search_index');
+      if (canceled) return;
+      setDataView(loadedDataView);
+    };
+
+    loadDataView();
+    return () => {
+      canceled = true;
+    };
+  }, [dataPlugin]);
+
+  const documentTitle = [query, `Galaxy Search`].filter(Boolean).join(' - ');
 
   useDocumentTitle(documentTitle);
   useBreadcrumbs([
@@ -106,20 +139,39 @@ export const GalaxySearch: React.FC = () => {
 
   const fieldSearch = (
     <>
-      <EuiFieldSearch
+      <SearchBar
+        appName="swgCsrTool_galaxySearch"
+        iconType="search"
         placeholder="Search for objects, characters or accounts"
-        value={searchText || ''}
-        isClearable={!loading}
-        onChange={e => setSearchText((e.target as HTMLInputElement).value, 'replaceIn')}
-        isLoading={loading}
-        fullWidth
+        indexPatterns={dataView ? [dataView] : undefined}
+        useDefaultBehaviors
+        showQueryInput
+        showQueryMenu={false}
+        showDatePicker={false}
+        showSubmitButton
+        disableQueryLanguageSwitcher
+        displayStyle="inPage"
+        suggestionsSize="s"
+        filters={filters}
+        query={realQuery}
+        onFiltersUpdated={newFilters => {
+          dataPlugin.query.filterManager.setFilters(newFilters);
+          setFilters(newFilters);
+        }}
+        onQuerySubmit={({ query: newQuery }) => {
+          if (typeof newQuery?.query === 'object') {
+            throw new Error('Unhandled query type!');
+          }
+
+          setQuery(newQuery?.query ?? '');
+        }}
       />
       <EuiSpacer />
     </>
   );
 
   const emptyMessage =
-    throttledSearchText.length > 0 && !loading ? (
+    (filters?.length > 0 || realQuery?.query) && !loading ? (
       <EuiEmptyPrompt iconType="search" title={<h3>No Objects Found</h3>} titleSize="s" />
     ) : (
       <EuiEmptyPrompt iconType="search" title={<h3>Search to find objects</h3>} titleSize="s" />

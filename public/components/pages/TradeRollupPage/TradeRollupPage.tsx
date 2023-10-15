@@ -6,10 +6,9 @@ import {
   EuiSuperDatePicker,
   EuiText,
   EuiFormRow,
-  EuiFieldText,
   EuiEmptyPrompt,
 } from '@elastic/eui';
-import { useQueryParam, StringParam, withDefault } from 'use-query-params';
+import { useQueryParam, StringParam } from 'use-query-params';
 
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
@@ -19,9 +18,6 @@ import commonlyUsedRanges from '../../../utils/commonlyUsedRanges';
 import { TradeRollupQuery } from '../../TradeRollup';
 import { FullWidthPage } from '../layouts/FullWidthPage';
 import { ObjectSearchAutoComplete } from '../../ObjectSearchAutoComplete';
-
-const DEFAULT_START_DATE = 'now-1M';
-const DEFAULT_END_DATE = 'now';
 
 export const TradeRollupPage: React.FC = () => {
   const documentTitle = `Trade Rollup`;
@@ -39,13 +35,7 @@ export const TradeRollupPage: React.FC = () => {
   ]);
   const [partyA, setPartyA] = useQueryParam('party_a', StringParam);
   const [partyB, setPartyB] = useQueryParam('party_b', StringParam);
-  const [timeRangeStart, setTimeRangeStart] = useQueryParam('ds', withDefault(StringParam, DEFAULT_START_DATE));
-  const [timeRangeEnd, setTimeRangeEnd] = useQueryParam('de', withDefault(StringParam, DEFAULT_END_DATE));
-  const { setDateRange, currentDateRange, recentDateRanges } = useKibanaDateRange(
-    timeRangeStart,
-    timeRangeEnd,
-    timeRangeStart !== DEFAULT_START_DATE || timeRangeEnd !== DEFAULT_END_DATE
-  );
+  const { setDateRange, currentDateRange, recentDateRanges } = useKibanaDateRange();
 
   const titleAsides = (
     <div style={{ minWidth: '200px' }}>
@@ -56,8 +46,6 @@ export const TradeRollupPage: React.FC = () => {
           const to = evt.end;
 
           setDateRange({ from, to });
-          setTimeRangeStart(from, 'replaceIn');
-          setTimeRangeEnd(to, 'replaceIn');
         }}
         start={currentDateRange.from}
         end={currentDateRange.to}
@@ -102,7 +90,12 @@ export const TradeRollupPage: React.FC = () => {
       </EuiFlexGroup>
       <EuiSpacer />
       {partyAId && partyBId ? (
-        <TradeRollupQuery partyAId={partyAId} partyBId={partyBId} fromDate={timeRangeStart} toDate={timeRangeEnd} />
+        <TradeRollupQuery
+          partyAId={partyAId}
+          partyBId={partyBId}
+          fromDate={currentDateRange.from}
+          toDate={currentDateRange.to}
+        />
       ) : (
         <EuiEmptyPrompt iconType="users" title={<h3>Enter account IDs to start a rollup</h3>} titleSize="s" />
       )}

@@ -66,7 +66,6 @@ const ConditionListing: React.FC<ConditionListingProps> = ({ conditionBits }) =>
         </a>
       }
       isOpen={popOverOpen}
-      initialFocus={false}
       ownFocus={false}
       hasArrow={false}
       anchorPosition="downCenter"

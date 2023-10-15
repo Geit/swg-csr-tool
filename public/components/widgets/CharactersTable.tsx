@@ -20,6 +20,7 @@ import {
 import ObjectLink from '../ObjectLink';
 import DeletedItemBadge from '../DeletedItemBadge';
 import SimpleValue from '../SimpleValue';
+import PlayerOnlineBeacon from '../PlayerOnlineBeacon';
 
 import { GetCharactersForAccountQuery, useGetCharactersForAccountQuery } from './CharactersTable.queries';
 
@@ -93,11 +94,8 @@ const CharactersTableRows: React.FC<CharactersTableRowsProps> = ({ isLoading, da
                 <ObjectLink disablePopup objectId={character.id} />
               </EuiTableRowCell>
               <EuiTableRowCell>
-                {character.resolvedName}{' '}
-                {character.session?.currentState === 'Playing' && (
-                  <EuiBeacon title={`Online since ${character.session.startedTime}`} className="loggedInBeacon" />
-                )}
-                <br />{' '}
+                {character.resolvedName} <PlayerOnlineBeacon session={character.session} />
+                <br />
                 <EuiText color="subdued" size="xs">
                   Level {character.level} {character.playerObject.skillTemplate}
                 </EuiText>

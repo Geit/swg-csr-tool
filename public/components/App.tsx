@@ -5,7 +5,7 @@ import { QueryParamProvider } from 'use-query-params';
 import { Redirect } from 'react-router';
 import { EuiErrorBoundary, EuiThemeProvider } from '@elastic/eui';
 import { I18nProvider } from '@kbn/i18n-react';
-import { useObservable } from 'react-use/';
+import { Storage } from '@kbn/kibana-utils-plugin/public';
 
 import { CoreStart, ScopedHistory } from '../../../../src/core/public';
 import { AppPluginStartDependencies } from '../types';
@@ -25,12 +25,15 @@ import { TradeReport } from './pages/TradeReport';
 import { ResourceDetails } from './pages/ResourceDetails';
 import { ResourceListing } from './pages/ResourceListing';
 import { createApolloClient } from './apolloClient';
+import { LogSearch } from './pages/LogSearch';
 
 interface CSRToolAppProps {
   coreServices: CoreStart;
   history: ScopedHistory;
   injectedPlugins: AppPluginStartDependencies;
 }
+
+const storage = new Storage(localStorage);
 
 export default function CSRToolApp({ coreServices, history, injectedPlugins }: CSRToolAppProps) {
   const client = createApolloClient(coreServices);
@@ -43,7 +46,7 @@ export default function CSRToolApp({ coreServices, history, injectedPlugins }: C
   return (
     <EuiErrorBoundary>
       <I18nProvider>
-        <KibanaCoreServicesProvider coreServices={coreServices} injectedPlugins={injectedPlugins}>
+        <KibanaCoreServicesProvider {...{ ...coreServices, ...injectedPlugins, storage }}>
           <EuiThemeProvider colorMode={isDarkMode ? 'dark' : 'light'}>
             <ApolloProvider client={client}>
               <Router history={history}>
@@ -51,6 +54,9 @@ export default function CSRToolApp({ coreServices, history, injectedPlugins }: C
                   <Switch>
                     <Route path="/search">
                       <GalaxySearch />
+                    </Route>
+                    <Route path="/logs">
+                      <LogSearch />
                     </Route>
                     <Route path="/object/:id">
                       <ObjectDetails />

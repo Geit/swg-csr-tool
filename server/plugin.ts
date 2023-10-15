@@ -51,6 +51,15 @@ export class SwgCsrToolPlugin implements Plugin<SwgCsrToolPluginSetup, SwgCsrToo
     });
 
     deps.features.registerKibanaFeature({
+      id: 'logSearch',
+      name: 'Logs',
+      order: 0,
+      category: APP_CATEGORY,
+      app: ['swgCsrTool'],
+      privileges: sharedPrivileges,
+    });
+
+    deps.features.registerKibanaFeature({
       id: 'planetWatcher',
       name: 'Planet Watcher',
       order: 0,

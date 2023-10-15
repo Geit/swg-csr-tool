@@ -32,6 +32,12 @@ export class SwgCsrToolPlugin implements Plugin<SwgCsrToolPluginSetup, SwgCsrToo
           path: '/search',
         },
         {
+          id: 'logSearch',
+          title: 'Log Search',
+          navLinkStatus: AppNavLinkStatus.visible,
+          path: '/logs',
+        },
+        {
           id: 'coalitionListings',
           title: 'Coalition Listings',
           navLinkStatus: AppNavLinkStatus.visible,

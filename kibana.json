@@ -1,10 +1,21 @@
 {
   "id": "swgCsrTool",
-  "version": "1.0.60",
+  "version": "1.0.77",
   "kibanaVersion": "kibana",
   "server": true,
   "ui": true,
-  "requiredPlugins": ["navigation", "features", "data"],
+  "requiredPlugins": [
+    "navigation",
+    "features",
+    "data",
+    "unifiedSearch",
+    "unifiedHistogram",
+    "uiActions",
+    "fieldFormats",
+    "lens",
+    "expressions",
+    "kibanaUtils"
+  ],
   "optionalPlugins": [],
   "owner": {
     "name": "Geit"

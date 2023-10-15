@@ -17,13 +17,22 @@ interface FullWidthPageProps {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
   titleAsides?: React.ReactNode;
+  pageContentProps?: any;
+  grow?: boolean;
 }
 
-export const FullWidthPage: React.FC<FullWidthPageProps> = ({ children, title, subtitle, titleAsides }) => {
+export const FullWidthPage: React.FC<FullWidthPageProps> = ({
+  children,
+  title,
+  subtitle,
+  titleAsides,
+  pageContentProps,
+  grow = false,
+}) => {
   return (
     <EuiPage>
       <AppSidebar />
-      <EuiPageBody panelled borderRadius paddingSize="l" grow={false}>
+      <EuiPageBody panelled borderRadius paddingSize="l" grow={grow}>
         <EuiPageHeaderSection>
           <EuiFlexGroup justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
@@ -35,7 +44,10 @@ export const FullWidthPage: React.FC<FullWidthPageProps> = ({ children, title, s
             <EuiFlexItem grow={false}>{titleAsides}</EuiFlexItem>
           </EuiFlexGroup>
         </EuiPageHeaderSection>
-        <EuiPageSection>{children}</EuiPageSection>
+        <EuiSpacer />
+        <EuiPageSection paddingSize="none" grow={grow} contentProps={pageContentProps}>
+          {children}
+        </EuiPageSection>
       </EuiPageBody>
     </EuiPage>
   );

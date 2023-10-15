@@ -138,13 +138,7 @@ export const Trades: React.FC = () => {
   );
   const [searchQuery, setSearchQuery] = useQueryParam('q', StringParam);
   const [parties] = useQueryParam('parties', DelimitedArrayParam);
-  const [timeRangeStart, setTimeRangeStart] = useQueryParam('ds', withDefault(StringParam, DEFAULT_START_DATE));
-  const [timeRangeEnd, setTimeRangeEnd] = useQueryParam('de', withDefault(StringParam, DEFAULT_END_DATE));
-  const { setDateRange, currentDateRange, recentDateRanges } = useKibanaDateRange(
-    timeRangeStart,
-    timeRangeEnd,
-    timeRangeStart !== DEFAULT_START_DATE || timeRangeEnd !== DEFAULT_END_DATE
-  );
+  const { setDateRange, currentDateRange, recentDateRanges } = useKibanaDateRange();
 
   const [sortOption, setSortOption] = useQueryParam('sort', withDefault(StringParam, DEFAULT_SORT_OPTION.value));
   const [refresh, setRefreshOptions] = useState<OnRefreshChangeProps>({ isPaused: true, refreshInterval: 10000 });
@@ -199,8 +193,6 @@ export const Trades: React.FC = () => {
           const to = evt.end === DEFAULT_END_DATE ? undefined : evt.end;
 
           setDateRange({ from: from ?? DEFAULT_START_DATE, to: to ?? DEFAULT_END_DATE });
-          setTimeRangeStart(from, 'replaceIn');
-          setTimeRangeEnd(to, 'replaceIn');
         }}
         start={currentDateRange.from}
         end={currentDateRange.to}

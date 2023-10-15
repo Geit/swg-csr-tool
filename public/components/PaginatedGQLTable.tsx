@@ -14,6 +14,7 @@ interface PaginatedGQLTableProps<T> {
   onRowsPerPageChanged: (rowsPerPage: number) => void;
   loading: boolean;
   totalResultCount: number;
+  perPageOptions?: number[];
 }
 
 const PaginatedGQLTable = <T extends object>({
@@ -25,6 +26,7 @@ const PaginatedGQLTable = <T extends object>({
   page,
   rowsPerPage,
   onRowsPerPageChanged,
+  perPageOptions = PER_PAGE_OPTIONS,
 }: PaginatedGQLTableProps<T>) => {
   const resultToStartAtRaw = page * rowsPerPage;
 
@@ -44,7 +46,7 @@ const PaginatedGQLTable = <T extends object>({
         }}
         itemsPerPage={rowsPerPage}
         onChangeItemsPerPage={perPage => onRowsPerPageChanged(perPage)}
-        itemsPerPageOptions={PER_PAGE_OPTIONS}
+        itemsPerPageOptions={perPageOptions}
       />
     </>
   );

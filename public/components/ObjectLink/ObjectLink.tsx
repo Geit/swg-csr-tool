@@ -1,4 +1,4 @@
-import React, { useState, ReactNode } from 'react';
+import React, { useState, ReactNode, CSSProperties } from 'react';
 import { EuiPopover } from '@elastic/eui';
 import { Link } from 'react-router-dom';
 
@@ -8,9 +8,10 @@ interface ObjectLinkProps {
   objectId?: string | null;
   textToDisplay?: ReactNode | null;
   disablePopup?: boolean;
+  display?: CSSProperties['display'];
 }
 
-const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId, disablePopup, textToDisplay }) => {
+const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId, disablePopup, textToDisplay, display }) => {
   const [mouseOverLink, setMouseOverLink] = useState(false);
   const [mouseOverPopover, setMouseOverPopOver] = useState(false);
 
@@ -39,6 +40,8 @@ const ObjectLink: React.FC<ObjectLinkProps> = ({ objectId, disablePopup, textToD
 
   return (
     <EuiPopover
+      display={display}
+      style={{ verticalAlign: display === 'inline' ? 'baseline' : undefined }}
       button={button}
       isOpen={popOverOpen}
       ownFocus={false}

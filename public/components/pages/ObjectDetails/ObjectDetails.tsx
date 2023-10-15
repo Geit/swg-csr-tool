@@ -11,6 +11,7 @@ import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useRecentlyAccessed } from '../../../hooks/useRecentlyAccessed';
 import { useBreadcrumbs } from '../../../hooks/useBreadcrumbs';
 import { FullWidthPage } from '../layouts/FullWidthPage';
+import PlayerOnlineBeacon from '../../PlayerOnlineBeacon';
 
 import { useGetObjectNameQuery } from './ObjectDetails.queries';
 
@@ -83,13 +84,12 @@ export const ObjectDetails: React.FC = () => {
     );
   }
 
+  const session = data?.object?.__typename === 'PlayerCreatureObject' ? data.object.session : undefined;
   const title =
     (
       <>
         <UGCName rawName={data?.object?.resolvedName} />
-        {data?.object?.__typename === 'PlayerCreatureObject' && data.object.session && (
-          <EuiBeacon title={`Online since ${data.object.session.startedTime}`} className="loggedInBeacon" />
-        )}
+        <PlayerOnlineBeacon session={session} />
       </>
     ) ?? 'Object Details';
 

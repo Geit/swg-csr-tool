@@ -5,7 +5,7 @@ interface UGCColorName {
   color?: string;
 }
 
-const REGEX_COLOR_ESCAPE = /(\\#[A-Fa-f0-9]{6})/g;
+const REGEX_COLOR_ESCAPE = /(\\#[A-Fa-f0-9]{6}|\\#)/g;
 
 const UGCColorSection: React.FC<UGCColorName> = ({ remainingParts, color = 'currentcolor' }) => {
   const plainParts: string[] = [];
@@ -21,10 +21,14 @@ const UGCColorSection: React.FC<UGCColorName> = ({ remainingParts, color = 'curr
     const partToCheck = remainingParts[i];
 
     if (REGEX_COLOR_ESCAPE.test(partToCheck)) {
+      let colorForSubpart: string | undefined = partToCheck.replaceAll('\\', '');
+
+      if (colorForSubpart.length < 3) colorForSubpart = undefined;
+
       return (
         <span style={styles}>
           {plainParts.join('').replaceAll('\\', '')}
-          <UGCColorSection color={partToCheck.replaceAll('\\', '')} remainingParts={remainingParts.slice(i + 1)} />
+          <UGCColorSection color={colorForSubpart} remainingParts={remainingParts.slice(i + 1)} />
         </span>
       );
     }

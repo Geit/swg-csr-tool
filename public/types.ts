@@ -1,4 +1,10 @@
 //import { FeaturesPluginStart } from '../../../x-pack/plugins/features/public';
+import { UnifiedSearchPublicPluginStart } from '@kbn/unified-search-plugin/public';
+import { UiActionsStart } from '@kbn/ui-actions-plugin/public';
+import { FieldFormatsStart } from '@kbn/field-formats-plugin/public';
+import { LensPublicStart } from '@kbn/lens-plugin/public';
+import { ExpressionsStart } from '@kbn/expressions-plugin/public';
+
 import { DataPublicPluginStart } from '../../../src/plugins/data/public';
 
 /**
@@ -21,4 +27,9 @@ export interface AppPluginStartDependencies {
   //navigation: NavigationPublicPluginStart;
   //features: FeaturesPluginStart;
   data: DataPublicPluginStart;
+  unifiedSearch: UnifiedSearchPublicPluginStart;
+  uiActions: UiActionsStart;
+  fieldFormats: FieldFormatsStart;
+  lens: LensPublicStart;
+  expressions: ExpressionsStart;
 }

@@ -1,6 +1,8 @@
 # SWG CSR Tool
 A Kibana Plugin that allows server operators to search for and view information about in-game objects when dealing with Customer Support requests.
 
+> Note, this plugin relies heavily on Legends-specific extensions to [`swg-graphql`](https://github.com/Geit/swg-graphql) and is totally untested without those extensions. Contributions that feature-flag those dependencies are welcome, but it's likely a complex undertaking.
+
 ---
 
 ## Development
@@ -17,7 +19,7 @@ yarn start
 Kibana starts at http://localhost:5601 and the default username/password is elastic/changeme
 ```
 
-If you're running this for the first time, you'll need to setup [swg-graphql](https://github.com/Geit/swg-graphql) and run `yarn codegen` first.
+If you're running this for the first time, you'll need to setup [`swg-graphql`](https://github.com/Geit/swg-graphql) and run `yarn codegen` first.
 
 ## Project Structure
 This repo is structured as a standard Kibana plugin. The [Kibana Developer Guide](https://www.elastic.co/guide/en/kibana/current/kibana-architecture.html) gives a good overview of the overall conventions that plugins follow. Briefly: Frontend code is served from `public`, and is compiled into an async bundle that is loaded when the Plugin's routes are active. Serverside code is run from `server`, this primarily consists of a proxy route to an `swg-graphql` instance, the location of which can be configured through Kibana's advanced settings. Finally, any code (mostly constants) shared by both server and Frontend is stored in `common.

@@ -20,6 +20,12 @@ const AppSidebar: React.FC = () => {
       icon: <span>🔍</span>,
     },
     {
+      name: 'Logs',
+      id: 'logSearch',
+      href: `${appUrl}/logs`,
+      icon: <span>🪵</span>,
+    },
+    {
       name: 'Coalitions',
       id: 'coalitionListings',
       items: [

@@ -342,9 +342,9 @@ const mapConfigs: readonly MapConfiguration[] = [
     raster: null,
   },
   {
-    id: 'space_rori',
+    id: 'space_naboo',
     waypointCommandId: false,
-    displayName: 'Space - Rori',
+    displayName: 'Space - Naboo',
     planetMap: {
       size: DEFAULT_SWG_MAP_SIZE,
       offset: { x: 0, z: 0 },
@@ -352,7 +352,7 @@ const mapConfigs: readonly MapConfiguration[] = [
     raster: null,
   },
   {
-    id: 'space_naboo',
+    id: 'space_endor',
     waypointCommandId: false,
     displayName: 'Space - Endor',
     planetMap: {

@@ -28,61 +28,61 @@ export const GET_ALL_GUILDS = gql`
 
 type Guild = NonNullable<GetAllGuildsQuery['guilds']['results']>[number];
 
+const columns: EuiTableFieldDataColumnType<Guild>[] = [
+  {
+    field: 'id',
+    name: 'ID',
+    sortable: true,
+    truncateText: true,
+    render(val, record) {
+      return <Link to={`/coalitions/guilds/${record.id}`}>{val}</Link>;
+    },
+    width: '10ex',
+  },
+  {
+    field: 'abbreviation',
+    name: 'Abbreviation',
+    sortable: true,
+    truncateText: true,
+    render(val, record) {
+      return <Link to={`/coalitions/guilds/${record.id}`}>{val}</Link>;
+    },
+    width: '10ex',
+  },
+  {
+    field: 'name',
+    name: 'Name',
+    sortable: true,
+    truncateText: true,
+    render(val, record) {
+      return <Link to={`/coalitions/guilds/${record.id}`}>{val}</Link>;
+    },
+  },
+  {
+    field: 'leader.resolvedName',
+    name: 'Leader',
+    sortable: false,
+    truncateText: true,
+    dataType: 'string',
+  },
+  {
+    field: 'memberCount',
+    name: 'Members',
+    dataType: 'number',
+    sortable: true,
+    truncateText: true,
+  },
+  {
+    field: 'enemyCount',
+    name: 'Enemies',
+    dataType: 'number',
+    sortable: true,
+    truncateText: true,
+  },
+];
+
 const GuildListing: React.FC = () => {
   const { data, loading } = useGetAllGuildsQuery();
-
-  const columns: EuiTableFieldDataColumnType<Guild>[] = [
-    {
-      field: 'id',
-      name: 'ID',
-      sortable: true,
-      truncateText: true,
-      render(val, record) {
-        return <Link to={`/coalitions/guilds/${record.id}`}>{val}</Link>;
-      },
-      width: '10ex',
-    },
-    {
-      field: 'abbreviation',
-      name: 'Abbreviation',
-      sortable: true,
-      truncateText: true,
-      render(val, record) {
-        return <Link to={`/coalitions/guilds/${record.id}`}>{val}</Link>;
-      },
-      width: '10ex',
-    },
-    {
-      field: 'name',
-      name: 'Name',
-      sortable: true,
-      truncateText: true,
-      render(val, record) {
-        return <Link to={`/coalitions/guilds/${record.id}`}>{val}</Link>;
-      },
-    },
-    {
-      field: 'leader.resolvedName',
-      name: 'Leader',
-      sortable: false,
-      truncateText: true,
-      dataType: 'string',
-    },
-    {
-      field: 'memberCount',
-      name: 'Members',
-      dataType: 'number',
-      sortable: true,
-      truncateText: true,
-    },
-    {
-      field: 'enemyCount',
-      name: 'Enemies',
-      dataType: 'number',
-      sortable: true,
-      truncateText: true,
-    },
-  ];
 
   const sorting = {
     sort: {

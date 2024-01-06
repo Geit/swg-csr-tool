@@ -69,6 +69,15 @@ export class SwgCsrToolPlugin implements Plugin<SwgCsrToolPluginSetup, SwgCsrToo
     });
 
     deps.features.registerKibanaFeature({
+      id: 'sessionListings',
+      name: 'Session Listings',
+      order: 0,
+      category: APP_CATEGORY,
+      app: ['swgCsrTool'],
+      privileges: sharedPrivileges,
+    });
+
+    deps.features.registerKibanaFeature({
       id: 'coalitionListings',
       name: 'Coalition Listings',
       order: 0,

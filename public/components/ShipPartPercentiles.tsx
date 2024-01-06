@@ -56,7 +56,6 @@ const ShipPartPercentiles: React.FC<ShipPartPercentilesProps> = ({
         </a>
       }
       isOpen={popOverOpen}
-      initialFocus={false}
       ownFocus={false}
       hasArrow={false}
       anchorPosition="downCenter"

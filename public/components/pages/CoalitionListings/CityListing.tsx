@@ -28,50 +28,50 @@ export const GET_ALL_CITIES = gql`
 
 type City = NonNullable<GetAllCitiesQuery['cities']['results']>[number];
 
+const columns: EuiTableFieldDataColumnType<City>[] = [
+  {
+    field: 'id',
+    name: 'ID',
+    sortable: true,
+    truncateText: true,
+    render(val, record) {
+      return <Link to={`/coalitions/cities/${record.id}`}>{val}</Link>;
+    },
+    width: '10ex',
+  },
+  {
+    field: 'name',
+    name: 'Name',
+    sortable: true,
+    truncateText: true,
+    render(val, record) {
+      return <Link to={`/coalitions/cities/${record.id}`}>{val}</Link>;
+    },
+  },
+  {
+    field: 'mayor.resolvedName',
+    name: 'Mayor',
+    sortable: true,
+    truncateText: true,
+  },
+  {
+    field: 'citizenCount',
+    name: 'Citzens',
+    dataType: 'number',
+    sortable: true,
+    truncateText: true,
+  },
+  {
+    field: 'structureCount',
+    name: 'Structures',
+    dataType: 'number',
+    sortable: true,
+    truncateText: true,
+  },
+];
+
 const CityListing: React.FC = () => {
   const { data, loading } = useGetAllCitiesQuery();
-
-  const columns: EuiTableFieldDataColumnType<City>[] = [
-    {
-      field: 'id',
-      name: 'ID',
-      sortable: true,
-      truncateText: true,
-      render(val, record) {
-        return <Link to={`/coalitions/cities/${record.id}`}>{val}</Link>;
-      },
-      width: '10ex',
-    },
-    {
-      field: 'name',
-      name: 'Name',
-      sortable: true,
-      truncateText: true,
-      render(val, record) {
-        return <Link to={`/coalitions/cities/${record.id}`}>{val}</Link>;
-      },
-    },
-    {
-      field: 'mayor.resolvedName',
-      name: 'Mayor',
-      sortable: true,
-      truncateText: true,
-    },
-    {
-      field: 'citizenCount',
-      name: 'Citzens',
-      dataType: 'number',
-      sortable: true,
-      truncateText: true,
-    },
-    {
-      field: 'structureCount',
-      name: 'Structures',
-      dataType: 'number',
-      sortable: true,
-      truncateText: true,
-    },
-  ];
 
   const sorting = {
     sort: {

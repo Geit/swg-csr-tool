@@ -1,5 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { EuiSpacer, EuiTableFieldDataColumnType, EuiSuperDatePicker } from '@elastic/eui';
+import {
+  EuiSpacer,
+  EuiTableFieldDataColumnType,
+  EuiSuperDatePicker,
+  EuiEmptyPrompt,
+  EuiLoadingLogo,
+} from '@elastic/eui';
 import { useDebounce } from 'react-use';
 import { useQueryParam, JsonParam, withDefault, StringParam, NumberParam } from 'use-query-params';
 import { Filter } from '@kbn/es-query';
@@ -98,6 +104,20 @@ const PER_PAGE_OPTIONS = [50, 100, 250, 500, 1000];
 export const DEFAULT_PER_PAGE: (typeof PER_PAGE_OPTIONS)[number] = 100;
 const DEFAULT_START_DATE = 'now-1M';
 const DEFAULT_END_DATE = 'now';
+
+const LogSearchPageLayout: React.FC<{ titleAsides: React.ReactNode }> = ({ children, titleAsides }) => {
+  return (
+    <FullWidthPage
+      title="Log Search"
+      titleAsides={titleAsides}
+      pageContentProps={{
+        style: { display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'start' },
+      }}
+    >
+      {children}
+    </FullWidthPage>
+  );
+};
 
 export const LogSearch: React.FC = () => {
   const services = useKibanaPlugins();
@@ -274,16 +294,15 @@ export const LogSearch: React.FC = () => {
 
   const totalHits = typeof elasticResults?.total === 'number' ? elasticResults?.total : elasticResults?.total?.value;
 
-  if (!dataView) return null;
+  if (!dataView)
+    return (
+      <LogSearchPageLayout titleAsides={titleAsides}>
+        <EuiEmptyPrompt icon={<EuiLoadingLogo logo="logoKibana" size="xl" />} title={<h2>Loading</h2>} />
+      </LogSearchPageLayout>
+    );
 
   return (
-    <FullWidthPage
-      title="Log Search"
-      titleAsides={titleAsides}
-      pageContentProps={{
-        style: { display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'start' },
-      }}
-    >
+    <LogSearchPageLayout titleAsides={titleAsides}>
       {fieldSearch}
       <div ref={resizeRef} style={{ marginBottom: '0', display: 'flex', flex: 1 }}>
         <UnifiedHistogramContainer
@@ -315,6 +334,6 @@ export const LogSearch: React.FC = () => {
           perPageOptions={PER_PAGE_OPTIONS}
         />
       </LoadingCover>
-    </FullWidthPage>
+    </LogSearchPageLayout>
   );
 };

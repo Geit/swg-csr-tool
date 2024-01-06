@@ -1,7 +1,7 @@
-import { EuiBadge, EuiCard, EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiText, useEuiTheme } from '@elastic/eui';
+import { EuiBadge, EuiCard, EuiFlexGroup, EuiFlexItem, EuiText, useEuiTheme } from '@elastic/eui';
 import React, { useContext, useEffect, useState, useLayoutEffect, useRef } from 'react';
 import { Sparklines, SparklinesLine, SparklinesSpots } from 'react-sparklines';
-import { useRaf, useThrottle, useThrottleFn, useUpdate, useInterval } from 'react-use';
+import { useInterval } from 'react-use';
 import { css } from '@emotion/react';
 
 import { PlanetWatcherContext } from './DataProvider';
@@ -143,7 +143,7 @@ const ServerSummary: React.FC = () => {
                 color={gs.color}
                 style={{
                   marginRight: '0.7rem',
-                  textShadow: hoveredServers.has(gs.serverId) ? 'text-shadow: 0 0 0.01px black;' : '',
+                  textShadow: hoveredServers.has(gs.serverId) ? '0 0 0.01px black' : '',
                 }}
                 // We use a key here to make sure the hover pulse is synced across all
                 // badges when hovering intersections.
@@ -154,39 +154,48 @@ const ServerSummary: React.FC = () => {
               {gs.hostName}
             </>
           }
-          description={
-            <EuiText size="xs">
-              <EuiFlexGroup gutterSize="m">
-                <EuiFlexItem grow={false}>
-                  <dl className="serverSummaryStat">
-                    <dt>PID</dt>
-                    <dd>{gs.systemPid}</dd>
-                  </dl>
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <dl className="serverSummaryStat">
-                    <dt>Objects</dt>
-                    <dd>
-                      <ObjectOnServerCount serverId={gs.serverId} />
-                    </dd>
-                  </dl>
-                </EuiFlexItem>
+        >
+          <EuiFlexGroup gutterSize="m">
+            <EuiFlexItem grow={false}>
+              <dl className="serverSummaryStat">
+                <dt>
+                  <EuiText size="xs">PID</EuiText>
+                </dt>
+                <dd>
+                  <EuiText size="xs">{gs.systemPid}</EuiText>
+                </dd>
+              </dl>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <dl className="serverSummaryStat">
+                <dt>
+                  <EuiText size="xs">Objects</EuiText>
+                </dt>
+                <dd>
+                  <EuiText size="xs">
+                    <ObjectOnServerCount serverId={gs.serverId} />
+                  </EuiText>
+                </dd>
+              </dl>
+            </EuiFlexItem>
 
-                <EuiFlexItem grow={false}>
-                  <dl className="serverSummaryStat">
-                    <dt>Frame Time</dt>
-                    <dd>
-                      <FrameTime serverId={gs.serverId} />
-                    </dd>
-                  </dl>
-                </EuiFlexItem>
-                <EuiFlexItem grow>
-                  <FrameTimeSparklines serverId={gs.serverId} />
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            </EuiText>
-          }
-        />
+            <EuiFlexItem grow={false}>
+              <dl className="serverSummaryStat">
+                <dt>
+                  <EuiText size="xs">Frame Time</EuiText>
+                </dt>
+                <dd>
+                  <EuiText size="xs">
+                    <FrameTime serverId={gs.serverId} />
+                  </EuiText>
+                </dd>
+              </dl>
+            </EuiFlexItem>
+            <EuiFlexItem grow>
+              <FrameTimeSparklines serverId={gs.serverId} />
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </EuiCard>
       ))}
     </div>
   );

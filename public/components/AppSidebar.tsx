@@ -43,6 +43,18 @@ const AppSidebar: React.FC = () => {
       icon: <span>👯</span>,
     },
     {
+      name: 'Sessions',
+      id: 'sessionListings',
+      items: [
+        {
+          id: 'active-sessions',
+          name: 'Active Sessions',
+          href: `${appUrl}/sessions/active`,
+        },
+      ],
+      icon: <span>🕒</span>,
+    },
+    {
       name: 'Trades',
       id: 'tradeListings',
       items: [

@@ -26,6 +26,7 @@ import { ResourceDetails } from './pages/ResourceDetails';
 import { ResourceListing } from './pages/ResourceListing';
 import { createApolloClient } from './apolloClient';
 import { LogSearch } from './pages/LogSearch';
+import { SessionListings } from './pages/SessionListings';
 
 interface CSRToolAppProps {
   coreServices: CoreStart;
@@ -98,6 +99,11 @@ export default function CSRToolApp({ coreServices, history, injectedPlugins }: C
                     <Route path="/resources">
                       <ResourceListing />
                     </Route>
+
+                    <Route path="/sessions/:type">
+                      <SessionListings />
+                    </Route>
+                    <Redirect exact from="/sessions" to="/sessions/active" />
                   </Switch>
                 </QueryParamProvider>
               </Router>

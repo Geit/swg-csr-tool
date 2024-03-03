@@ -13,14 +13,14 @@ interface PaginatedGQLTableProps<T> {
   rowsPerPage: number;
   onRowsPerPageChanged: (rowsPerPage: number) => void;
   loading: boolean;
-  totalResultCount: number;
+  totalResults: number;
   perPageOptions?: number[];
 }
 
 const PaginatedGQLTable = <T extends object>({
   data,
   loading,
-  totalResultCount,
+  totalResults,
   columns,
   onPageChanged,
   page,
@@ -30,7 +30,7 @@ const PaginatedGQLTable = <T extends object>({
 }: PaginatedGQLTableProps<T>) => {
   const resultToStartAtRaw = page * rowsPerPage;
 
-  if (!loading && data.length > 0 && resultToStartAtRaw > totalResultCount) {
+  if (!loading && data.length > 0 && resultToStartAtRaw > totalResults) {
     onPageChanged(0);
   }
 
@@ -38,7 +38,7 @@ const PaginatedGQLTable = <T extends object>({
     <>
       <EuiBasicTable items={data} columns={columns} loading={loading} />
       <EuiTablePagination
-        pageCount={Math.ceil((totalResultCount ?? 0) / rowsPerPage)}
+        pageCount={Math.ceil((totalResults ?? 0) / rowsPerPage)}
         activePage={page}
         onChangePage={pageNum => {
           window.scrollTo({ top: 0, behavior: 'smooth' });

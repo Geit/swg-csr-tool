@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { EuiInputPopover, EuiFieldText, EuiSuggestItem, EuiSuggestionProps } from '@elastic/eui';
+import { EuiInputPopover, EuiIcon, EuiSelectable, EuiSelectableOption } from '@elastic/eui';
 import { gql } from '@apollo/client';
 
 import { isPresent } from '../../utils/utility-types';
@@ -14,7 +14,7 @@ import {
 export const AUTOCOMPLETE_BY_CHAR_OR_ACC = gql`
   query getAccountOrCharacter($searchText: String!, $types: [String!]) {
     search(searchText: $searchText, types: $types, size: 5) {
-      totalResultCount
+      totalResults
       results {
         ... on Account {
           id
@@ -61,10 +61,6 @@ interface ObjectSearchAutoCompleteProps {
   allowedTypes?: AutoCompleteResultType[];
 }
 
-interface AutoCompleteSuggestion extends EuiSuggestionProps {
-  value: { type: AutoCompleteResultType; id: string };
-}
-
 const useFirstTimeSetup = (initialSearchItem: AutoCompleteItem | undefined, setSearchValue: (item: string) => void) => {
   const accountNameResult = useGetAccountNameForSidQuery({
     variables: {
@@ -96,7 +92,6 @@ export const ObjectSearchAutoComplete: React.FC<ObjectSearchAutoCompleteProps> =
 }) => {
   const [searchValue, setSearchValue] = useState('');
   const [searchDirty, setSearchDirty] = useState(false);
-  const [popoverCanOpen, setPopoverCanOpen] = useState(false);
   useFirstTimeSetup(initialSearchItem, setSearchValue);
 
   const { data, previousData, error, loading } = useGetAccountOrCharacterQuery({
@@ -110,27 +105,26 @@ export const ObjectSearchAutoComplete: React.FC<ObjectSearchAutoCompleteProps> =
 
   const autocompleteData = data || (loading ? previousData : undefined);
 
-  const setSearch = (itemType: AutoCompleteResultType, itemId: string, label: string) => () => {
+  const setSearch = (itemType: AutoCompleteResultType, itemId: string, label: string) => {
     setSearchValue(label);
-    setPopoverCanOpen(false);
     setSearchDirty(false);
     onItemSelected({ itemType, itemId });
   };
 
-  const suggestionsData: AutoCompleteSuggestion[] =
+  const comboOptions: EuiSelectableOption<{ value: { type: AutoCompleteResultType; id: string } }>[] =
     autocompleteData?.search.results
       ?.map(sr => {
         if (sr.__typename === 'Account') {
           const label = stripUGCModifiers(sr.accountName ?? 'unknown account');
           return {
-            type: { iconType: 'users', color: 'tint4' },
+            prepend: <EuiIcon type="users" color="primary" />,
             label,
             value: { type: 'Account' as const, id: sr.id },
           };
         } else if ('id' in sr && 'resolvedName' in sr) {
           const label = stripUGCModifiers(sr.resolvedName ?? 'unknown character');
           return {
-            type: { iconType: 'user', color: 'tint1' },
+            prepend: <EuiIcon type="user" color="secondary" />,
             label,
             value: { type: 'Object' as const, id: sr.id },
           };
@@ -139,49 +133,43 @@ export const ObjectSearchAutoComplete: React.FC<ObjectSearchAutoCompleteProps> =
       })
       .filter(isPresent) ?? [];
 
-  const suggestions = suggestionsData.map(sd => (
-    <EuiSuggestItem
-      key={sd.value.id}
-      type={sd.type}
-      label={sd.label}
-      onClick={setSearch(sd.value.type, sd.value.id, sd.label)}
-    />
-  ));
-
-  const input = (
-    <EuiFieldText
-      isLoading={loading}
-      onFocus={() => setPopoverCanOpen(true)}
-      fullWidth
-      icon={'search'}
-      placeholder={placeholder}
-      value={searchValue}
-      onChange={e => {
-        setSearchValue(e.target.value);
-        setSearchDirty(true);
-      }}
-      onKeyDown={e => {
-        if (e.key === 'Enter' && suggestionsData.length > 0) {
-          const firstSuggestion = suggestionsData[0];
-
-          setSearch(firstSuggestion.value.type, firstSuggestion.value.id, firstSuggestion.label)();
-        }
-      }}
-    />
-  );
-
-  const popoverActuallyOpen = popoverCanOpen && searchDirty && suggestions.length > 0;
+  const popoverActuallyOpen = searchDirty && comboOptions.length > 0;
 
   return (
-    <EuiInputPopover
-      disableFocusTrap={true}
-      fullWidth
-      input={input}
-      panelPaddingSize="none"
-      isOpen={popoverActuallyOpen}
-      closePopover={() => setPopoverCanOpen(false)}
+    <EuiSelectable
+      options={comboOptions}
+      searchable
+      searchProps={{
+        isLoading: loading,
+        fullWidth: true,
+        placeholder,
+        value: searchValue,
+        onChange: val => {
+          if (val === searchValue) return;
+
+          setSearchValue(val);
+          setSearchDirty(true);
+        },
+      }}
+      singleSelection={'always'}
+      isLoading={loading}
+      errorMessage={error?.message}
+      onChange={(newOpt, e, selectedOpt) => {
+        setSearch(selectedOpt.value.type, selectedOpt.value.id, selectedOpt.label);
+      }}
     >
-      {suggestions}
-    </EuiInputPopover>
+      {(list, search) => (
+        <EuiInputPopover
+          disableFocusTrap={true}
+          fullWidth
+          input={search!}
+          panelPaddingSize="none"
+          isOpen={popoverActuallyOpen}
+          closePopover={() => setSearchDirty(false)}
+        >
+          {list}
+        </EuiInputPopover>
+      )}
+    </EuiSelectable>
   );
 };

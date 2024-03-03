@@ -21,7 +21,7 @@ import { ResourceTypeCard } from './ResourceTypeCard';
 export const SEARCH_FOR_OBJECTS = gql`
   query search($searchText: String!) {
     search(searchText: $searchText, from: 0, searchTextIsEsQuery: true) {
-      totalResultCount
+      totalResults
       results {
         __typename
 

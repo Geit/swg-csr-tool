@@ -120,8 +120,8 @@ const LogSearchPageLayout: React.FC<{ titleAsides: React.ReactNode }> = ({ child
 };
 
 export const LogSearch: React.FC = () => {
-  const services = useKibanaPlugins();
-  const { unifiedSearch, data: dataPlugin } = services;
+  const rawServices = useKibanaPlugins();
+  const { unifiedSearch, data: dataPlugin } = rawServices;
   const [dataView, setDataView] = useState<DataView>();
   const [loading, setIsLoading] = useState(false);
   const resizeRef = useRef<HTMLDivElement>(null);
@@ -209,6 +209,7 @@ export const LogSearch: React.FC = () => {
     },
   });
 
+  // Subscribe to time filter updates
   useEffect(() => {
     const timeFilter = dataPlugin.query.timefilter.timefilter;
     const subscription = timeFilter.getTimeUpdate$().subscribe(() => {
@@ -221,6 +222,7 @@ export const LogSearch: React.FC = () => {
     };
   });
 
+  // Subscribe to filter updates
   useEffect(() => {
     const filterManager = dataPlugin.query.filterManager;
     const subscription = filterManager.getUpdates$().subscribe(() => {
@@ -281,6 +283,7 @@ export const LogSearch: React.FC = () => {
           }
 
           setQuery(newQuery?.query ?? '');
+          setPage(0);
           setRefreshKey(Math.random());
         }}
         onRefresh={() => {
@@ -307,19 +310,16 @@ export const LogSearch: React.FC = () => {
       <div ref={resizeRef} style={{ marginBottom: '0', display: 'flex', flex: 1 }}>
         <UnifiedHistogramContainer
           // Pass the required services to Unified Histogram
-          // @ts-expect-error fix later
-          services={services}
+          services={{ ...rawServices, capabilities: rawServices.application.capabilities }}
           // Pass request parameters to Unified Histogram
           dataView={dataView}
           query={realQuery!}
           filters={filters}
           timeRange={currentDateRange}
-          resizeRef={resizeRef}
+          container={resizeRef.current}
           getCreationOptions={getCreationOptions}
           css={histogramContainerStyles}
-        >
-          <div></div>
-        </UnifiedHistogramContainer>
+        />
       </div>
       <LoadingCover isLoading={loading} delay={5000}>
         <PaginatedGQLTable
@@ -330,7 +330,7 @@ export const LogSearch: React.FC = () => {
           onPageChanged={setPage}
           rowsPerPage={rowsPerPage}
           onRowsPerPageChanged={setRowsPerPage}
-          totalResultCount={Math.min(totalHits ?? 0, 10000)}
+          totalResults={Math.min(totalHits ?? 0, 10000)}
           perPageOptions={PER_PAGE_OPTIONS}
         />
       </LoadingCover>

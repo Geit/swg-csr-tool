@@ -3,6 +3,7 @@ import React from 'react';
 
 import CharactersTable from './CharactersTable';
 import ObjectVariables from './ObjectVariables';
+import AttachedScripts from './AttachedScripts';
 import { CharacterStructureTable } from './StructuresTable';
 
 interface ExtraObjectInformationProps {
@@ -21,6 +22,11 @@ const TabbedExtendedObjectDetails: React.FC<ExtraObjectInformationProps> = ({ ob
       id: 'object-variables',
       name: 'Object Variables',
       content: <ObjectVariables objectId={objectId} />,
+    },
+    {
+      id: 'script-list',
+      name: 'Scripts',
+      content: <AttachedScripts objectId={objectId} />,
     },
   ];
 

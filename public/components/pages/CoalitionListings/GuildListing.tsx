@@ -1,6 +1,6 @@
 import React from 'react';
 import { gql } from '@apollo/client';
-import { EuiInMemoryTable, EuiSpacer, EuiTableFieldDataColumnType, SortDirection } from '@elastic/eui';
+import { EuiInMemoryTable, EuiSpacer, EuiTableFieldDataColumnType, Pagination, SortDirection } from '@elastic/eui';
 import { Link } from 'react-router-dom';
 
 import { GetAllGuildsQuery, useGetAllGuildsQuery } from './GuildListing.queries';
@@ -91,8 +91,6 @@ const GuildListing: React.FC = () => {
     },
   };
 
-  const paginationOptions = { pageSize: 100, hidePerPageOptions: true };
-
   return (
     <>
       <EuiSpacer />
@@ -102,7 +100,7 @@ const GuildListing: React.FC = () => {
             incremental: true,
           },
         }}
-        pagination={paginationOptions}
+        pagination={{ pageSize: 100, showPerPageOptions: false }}
         items={data?.guilds.results ?? []}
         columns={columns}
         sorting={sorting}

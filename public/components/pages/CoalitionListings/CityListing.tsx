@@ -80,8 +80,6 @@ const CityListing: React.FC = () => {
     },
   };
 
-  const paginationOptions = { pageSize: 100, hidePerPageOptions: true };
-
   return (
     <>
       <EuiSpacer />
@@ -91,7 +89,7 @@ const CityListing: React.FC = () => {
             incremental: true,
           },
         }}
-        pagination={paginationOptions}
+        pagination={{ pageSize: 100, showPerPageOptions: false }}
         items={data?.cities.results ?? []}
         columns={columns}
         sorting={sorting}

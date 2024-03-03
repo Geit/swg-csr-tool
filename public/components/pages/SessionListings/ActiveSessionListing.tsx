@@ -162,8 +162,6 @@ const ActiveSessionListing: React.FC = () => {
     },
   };
 
-  const paginationOptions = { pageSize: 500, hidePerPageOptions: true };
-
   const sessionsAtIp = new Map<string, number>();
   const sessionsAtGuid = new Map<string, number>();
   const accountsAtIp = new Map<string, Set<number>>();
@@ -209,7 +207,7 @@ const ActiveSessionListing: React.FC = () => {
             },
           ],
         }}
-        pagination={paginationOptions}
+        pagination={{ pageSize: 500, showPerPageOptions: false }}
         items={results}
         columns={columns}
         sorting={sorting}
